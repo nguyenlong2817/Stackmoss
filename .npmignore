@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Source (npm only gets dist/)
+src/
+tests/
+
+# Config files
+tsconfig.json
+vitest.config.ts
+.agents/
+
+# Dev/project files
+stackmoss-agent-config-BRD-v1.0.md
+CONTEXT.md
+FEATURES.md
+NORTH_STAR.md
+NON_GOALS.md
+*.test.ts
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,232 @@
+/**
+ * Compile Layer: Claude Code Target
+ * Authority: BRD §15, template-engine skill
+ *
+ * Compile team.md roles → .claude/skills/<role>.skill.md
+ * v0.1: Role-level split (1 role = 1 file)
+ *
+ * Pure function, string interpolation only, no LLM.
+ */
+
+import type { GeneratedFile } from '../templates/types.js';
+import { extractRoleId } from '../templates/team.js';
+
+// ─── Capability Definitions (for skill files) ────────────────────
+
+interface SkillCapability {
+    id: string;
+    name: string;
+    budget: number;
+    trigger: string;
+    doNotUse: string;
+}
+
+export const ROLE_CAPABILITIES: Record<string, { name: string; capabilities: SkillCapability[] }> = {
+    TL: {
+        name: 'Tech Lead',
+        capabilities: [
+            { id: 'TL-ARCH', name: 'Architecture decisions & ADR', budget: 220, trigger: 'Use when architecture decision or design pattern needed', doNotUse: 'Do not use for routine implementation tasks' },
+            { id: 'TL-REVIEW', name: 'Code review & merge gates', budget: 180, trigger: 'Use when code needs review before merge/deploy', doNotUse: 'Do not use for first-draft implementation' },
+            { id: 'TL-CONTEXT', name: 'Maintain CONTEXT.md & FEATURES.md', budget: 150, trigger: 'Use after completing a feature or major decision', doNotUse: 'Do not use mid-task' },
+            { id: 'TL-PLAN', name: 'Break down features & assign subtasks', budget: 160, trigger: 'Use at start of each feature cycle', doNotUse: 'Do not use during implementation' },
+        ],
+    },
+    BA: {
+        name: 'Business Analyst',
+        capabilities: [
+            { id: 'BA-REQ', name: 'Requirements elicitation & clarification', budget: 180, trigger: 'Use when requirements are unclear or conflicting', doNotUse: 'Do not use for technical decisions' },
+            { id: 'BA-AC', name: 'Acceptance criteria writing', budget: 150, trigger: 'Use at start of feature to define pass/fail', doNotUse: 'Do not use during implementation' },
+        ],
+    },
+    DEV: {
+        name: 'Developer',
+        capabilities: [
+            { id: 'DEV-IMPL', name: 'Feature implementation', budget: 200, trigger: 'Use when implementing code for a feature', doNotUse: 'Do not use for architecture decisions' },
+            { id: 'DEV-ENV', name: 'Environment & command knowledge', budget: 160, trigger: 'Use when running commands, checking paths, managing env', doNotUse: 'Do not use for business logic decisions' },
+            { id: 'DEV-DEBUG', name: 'Debug & error resolution', budget: 150, trigger: 'Use when encountering errors or unexpected behavior', doNotUse: 'Do not use for new feature planning' },
+        ],
+    },
+    QA: {
+        name: 'Quality Assurance',
+        capabilities: [
+            { id: 'QA-TEST', name: 'Test & verify acceptance criteria', budget: 150, trigger: 'Use after implementation to verify feature works', doNotUse: 'Do not use during planning' },
+            { id: 'QA-REGRESSION', name: 'Regression checklist', budget: 120, trigger: 'Use before marking feature DONE', doNotUse: 'Do not use for new feature development' },
+        ],
+    },
+    DOCS: {
+        name: 'Documentation',
+        capabilities: [
+            { id: 'DOCS-README', name: 'README & runbook updates', budget: 130, trigger: 'Use after feature is DONE', doNotUse: 'Do not use during implementation' },
+            { id: 'DOCS-CHANGELOG', name: 'Changelog', budget: 100, trigger: 'Use at end of feature cycle', doNotUse: 'Do not use mid-feature' },
+        ],
+    },
+    SEC: {
+        name: 'Security-lite',
+        capabilities: [
+            { id: 'SEC-SCAN', name: 'Basic security check', budget: 140, trigger: 'Use before any feature touching auth, PII, or financial data', doNotUse: 'Do not use for non-sensitive features' },
+        ],
+    },
+    OPS: {
+        name: 'DevOps-lite',
+        capabilities: [
+            { id: 'OPS-DEPLOY', name: 'Deploy & infra checks', budget: 140, trigger: 'Use before deploy or infra changes', doNotUse: 'Do not use for feature development' },
+        ],
+    },
+};
+
+// ─── Helpers ─────────────────────────────────────────────────────
+
+/**
+ * Create a slug from a role string for filename.
+ * e.g. "QA(light)" → "qa", "TL(guide)" → "tl", "SEC-lite" → "sec"
+ */
+export function roleToSlug(role: string): string {
+    const baseId = extractRoleId(role);
+    return baseId.toLowerCase();
+}
+
+function renderSkillFile(roleStr: string, projectName: string): string {
+    const baseId = extractRoleId(roleStr);
+    const def = ROLE_CAPABILITIES[baseId];
+
+    if (!def) {
+        return `# ${roleStr} — ${projectName}\n\n_Role skill file. Configure capabilities as needed._\n`;
+    }
+
+    const capLines = def.capabilities.map((cap) =>
+        `### ${cap.id}: ${cap.name}
+- **Budget:** ${cap.budget} words
+- **Trigger:** ${cap.trigger}
+- **Do NOT use:** ${cap.doNotUse}`,
+    ).join('\n\n');
+
+    return `# ${def.name} — ${projectName}
+_Generated by StackMoss. Edit team.md to change, then recompile._
+
+## Capabilities
+
+${capLines}
+`;
+}
+
+// ─── Compile ─────────────────────────────────────────────────────
+
+/**
+ * Compile roles → .claude/skills/<role-slug>.skill.md
+ *
+ * Deduplicates by base role ID.
+ */
+export function compileClaudeCode(
+    roles: string[],
+    autoAddedRoles: string[],
+    projectName: string,
+): GeneratedFile[] {
+    // Combine and deduplicate by base ID
+    const seen = new Set<string>();
+    const allRoles: string[] = [];
+
+    for (const role of [...roles, ...autoAddedRoles]) {
+        const baseId = extractRoleId(role);
+        if (!seen.has(baseId)) {
+            seen.add(baseId);
+            allRoles.push(role);
+        }
+    }
+
+    return allRoles.map((role) => ({
+        path: `.claude/skills/${roleToSlug(role)}.skill.md`,
+        content: renderSkillFile(role, projectName),
+    }));
+}
+
+// ─── V2: Official Claude Code format ─────────────────────────────
+
+/**
+ * Compile roles → CLAUDE.md (root) + .claude/rules/<role>.md (path-scoped)
+ *
+ * Official Claude Code convention (2025):
+ * - CLAUDE.md at project root = loaded every session
+ * - .claude/rules/*.md with `paths` frontmatter = path-scoped rules
+ */
+export function compileClaudeCodeV2(
+    roles: string[],
+    autoAddedRoles: string[],
+    projectName: string,
+): GeneratedFile[] {
+    const files: GeneratedFile[] = [];
+
+    // 1. Generate CLAUDE.md root file
+    const claudeMdLines = [
+        `# ${projectName}`,
+        `_Agent team configuration generated by StackMoss._`,
+        '',
+        '## Project Setup',
+        `- Run \`npm test\` to run tests`,
+        `- Run \`npm run build\` to build`,
+        '',
+        '## Team Roles',
+    ];
+
+    const seen = new Set<string>();
+    const allRoles: string[] = [];
+
+    for (const role of [...roles, ...autoAddedRoles]) {
+        const baseId = extractRoleId(role);
+        if (!seen.has(baseId)) {
+            seen.add(baseId);
+            allRoles.push(role);
+        }
+    }
+
+    for (const role of allRoles) {
+        const baseId = extractRoleId(role);
+        const def = ROLE_CAPABILITIES[baseId];
+        const name = def ? def.name : role;
+        claudeMdLines.push(`- **${name}** → see \`.claude/rules/${roleToSlug(role)}.md\``);
+    }
+
+    claudeMdLines.push('');
+    claudeMdLines.push('## Working Contract');
+    claudeMdLines.push('_See team.md WORKING CONTRACT section for full details._');
+    claudeMdLines.push('');
+
+    files.push({
+        path: 'CLAUDE.md',
+        content: claudeMdLines.join('\n') + '\n',
+    });
+
+    // 2. Generate .claude/rules/<role>.md with role capabilities
+    for (const role of allRoles) {
+        const content = renderRuleFile(role, projectName);
+        files.push({
+            path: `.claude/rules/${roleToSlug(role)}.md`,
+            content,
+        });
+    }
+
+    return files;
+}
+
+function renderRuleFile(roleStr: string, projectName: string): string {
+    const baseId = extractRoleId(roleStr);
+    const def = ROLE_CAPABILITIES[baseId];
+
+    if (!def) {
+        return `# ${roleStr} — ${projectName}\n\n_Role configuration. Define capabilities as needed._\n`;
+    }
+
+    const capLines = def.capabilities.map((cap) =>
+        `### ${cap.id}: ${cap.name}
+- **Budget:** ${cap.budget} words
+- **Trigger:** ${cap.trigger}
+- **Do NOT use:** ${cap.doNotUse}`,
+    ).join('\n\n');
+
+    return `# ${def.name} — ${projectName}
+_Generated by StackMoss. Edit team.md to change, then recompile._
+
+## Capabilities
+
+${capLines}
+`;
+}
