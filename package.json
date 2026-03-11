@@ -1,7 +1,7 @@
 {
   "name": "stackmoss",
-  "version": "0.4.0",
-  "description": "Agent Team Config generator — scaffold AI agent teams for Claude Code, Cursor, and Antigravity",
+  "version": "0.5.0",
+  "description": "Runtime-agnostic agent team governance — scaffold, test, and ship AI agent teams anywhere",
   "type": "module",
   "bin": {
     "stackmoss": "./dist/bin/stackmoss.js"

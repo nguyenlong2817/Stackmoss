@@ -2,13 +2,13 @@
 
 # 🌿 StackMoss
 
-**Agent Team Config Generator**
+**Runtime-agnostic agent team governance**
 
-Scaffold AI agent teams for **Claude Code**, **Cursor**, and **Antigravity** — deterministic, no LLM required.
+Scaffold, test, and ship AI agent teams for **Claude Code**, **Cursor**, and **Antigravity** — deterministic, eval-ready, no LLM required.
 
 [![npm version](https://img.shields.io/npm/v/stackmoss?style=flat-square&color=brightgreen)](https://www.npmjs.com/package/stackmoss)
 [![license](https://img.shields.io/npm/l/stackmoss?style=flat-square&color=blue)](LICENSE)
-[![tests](https://img.shields.io/badge/tests-247%20passed-brightgreen?style=flat-square)]()
+[![tests](https://img.shields.io/badge/tests-265%20passed-brightgreen?style=flat-square)]()
 [![node](https://img.shields.io/node/v/stackmoss?style=flat-square)](package.json)
 
 </div>
@@ -17,9 +17,9 @@ Scaffold AI agent teams for **Claude Code**, **Cursor**, and **Antigravity** —
 
 ## ✨ What is StackMoss?
 
-StackMoss generates **agent team configurations** — structured role definitions, capabilities, and rules — that AI coding assistants (Claude Code, Cursor, Antigravity) auto-read to understand your project's team structure.
+StackMoss generates **agent team configurations** — structured role definitions, capabilities, rules, and **eval harnesses** — that AI coding assistants auto-read to understand your project's team structure.
 
-**No LLM calls. No cloud. Pure deterministic logic.**
+**No LLM calls. No cloud. Pure deterministic logic. Eval-ready out of the box.**
 
 ```
 You answer 7 questions → StackMoss generates your entire agent team config
@@ -49,10 +49,15 @@ my-project/
 ├── stackmoss.config.json       # State machine config
 │
 ├── CLAUDE.md                   # ← Claude Code reads this
-└── .claude/rules/              # ← Per-role rules
-    ├── tl.md                   #    Tech Lead
-    ├── dev.md                  #    Developer
-    └── qa.md                   #    QA
+├── .claude/rules/              # ← Per-role rules
+│   ├── tl.md                   #    Tech Lead
+│   ├── dev.md                  #    Developer
+│   └── qa.md                   #    QA
+│
+└── evals/                      # ← Eval harness (plug into any runner)
+    ├── rubric.md               #    Pass/fail criteria
+    ├── cases/                  #    Test scenarios
+    └── expected/               #    Golden output patterns
 ```
 
 > 📖 **[Full Quick Start Guide →](QUICK_START.md)**
@@ -112,7 +117,7 @@ git clone https://github.com/nguyenlong2817/Stackmoss.git
 cd Stackmoss
 npm install
 npm run build
-npm test           # 247 tests, 28 files
+npm test           # 265 tests, 29 files
 ```
 
 ---

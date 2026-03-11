@@ -8,7 +8,7 @@ import { generateAllFiles } from '../../src/templates/index.js';
 import { createSampleInput, createSampleIntake } from './helpers.js';
 
 describe('Template Engine: generateAllFiles', () => {
-    it('generates all 6 core files (no skipped questions)', () => {
+    it('generates core files + eval harness (no skipped questions)', () => {
         const input = createSampleInput();
         const files = generateAllFiles(input);
 
@@ -20,9 +20,13 @@ describe('Template Engine: generateAllFiles', () => {
         expect(paths).toContain('NON_GOALS.md');
         expect(paths).toContain('README_AGENT_TEAM.md');
         expect(paths).not.toContain('OPEN_QUESTIONS.md');
+        // Eval harness
+        expect(paths).toContain('evals/rubric.md');
+        expect(paths.some((p) => p.startsWith('evals/cases/'))).toBe(true);
+        expect(paths.some((p) => p.startsWith('evals/expected/'))).toBe(true);
     });
 
-    it('generates 7 files when there are skipped questions', () => {
+    it('generates extra OPEN_QUESTIONS when there are skipped questions', () => {
         const input = createSampleInput({
             intake: createSampleIntake({
                 skippedQuestions: ['Q3'],
@@ -32,7 +36,8 @@ describe('Template Engine: generateAllFiles', () => {
 
         const paths = files.map((f) => f.path);
         expect(paths).toContain('OPEN_QUESTIONS.md');
-        expect(files.length).toBe(7);
+        // 6 core + 1 OPEN_QUESTIONS + 11 evals (Production) = 18
+        expect(files.length).toBe(18);
     });
 
     it('all files have non-empty content', () => {
@@ -43,10 +48,10 @@ describe('Template Engine: generateAllFiles', () => {
         }
     });
 
-    it('generates correct number of files (6 without skips)', () => {
+    it('generates correct total files (6 core + 11 evals = 17 without skips)', () => {
         const files = generateAllFiles(createSampleInput());
 
-        expect(files).toHaveLength(6);
+        expect(files).toHaveLength(17);
     });
 
     it('config file contains valid JSON', () => {

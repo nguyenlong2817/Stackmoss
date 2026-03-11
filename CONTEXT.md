@@ -3,10 +3,10 @@
 _Current project state. Updated after each feature cycle._
 
 ## Status
-- **Phase:** Development (F13 complete — v0.4 done, all BRD phases)
-- **State:** Full pipeline + 4 compile targets (ClaudeCode, ClaudeCodeV2, Cursor, Antigravity)
-- **Last updated:** 2026-03-10
-- **Tests:** 247 pass (28 test files)
+- **Phase:** Development (F14 complete — eval-ready agent team config)
+- **State:** Full pipeline + 4 compile targets + eval harness
+- **Last updated:** 2026-03-12
+- **Tests:** 265 pass (29 test files)
 
 ## What Exists
 - ✅ BRD v1.0 (`stackmoss-agent-config-BRD-v1.0.md`) — confirmed

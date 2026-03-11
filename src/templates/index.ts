@@ -14,6 +14,7 @@ import { generateNorthStar } from './north-star.js';
 import { generateNonGoals } from './non-goals.js';
 import { generateReadme } from './readme.js';
 import { generateOpenQuestions } from './open-questions.js';
+import { generateEvals } from './evals.js';
 
 // Re-export types for convenience
 export type { GeneratedFile, TemplateInput } from './types.js';
@@ -41,6 +42,9 @@ export function generateAllFiles(input: TemplateInput): GeneratedFile[] {
     if (openQuestions) {
         files.push(openQuestions);
     }
+
+    // Eval harness (rubric + cases + expected)
+    files.push(...generateEvals(input));
 
     return files;
 }

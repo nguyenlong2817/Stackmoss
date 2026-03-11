@@ -277,4 +277,23 @@ interface IntakeResult {
 
 ---
 
+## F14: Eval Harness Output (appetite: M)
+
+**Outcome:**
+- Eval-ready structure: `evals/rubric.md` + `evals/cases/*.md` + `evals/expected/*.md`
+- Rubric from CONSTITUTION rules + capability budgets
+- Cases per project type (Production: breaking change guard, MVP: speed vs quality)
+
+**Acceptance:**
+- [x] Pass: Rubric includes 8 core rules + budget table + quality criteria
+- [x] Pass: 4-5 cases generated per project type
+- [x] Pass: Expected patterns with anti-patterns
+- [x] Pass: Pluggable into any eval runner
+
+**Status:** DONE
+**Owner:** Tech Lead
+**Assigned:** DEV
+
+---
+
 _Thêm features mới bên dưới. TL là người duy nhất được add/reorder features._
