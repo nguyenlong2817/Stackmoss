@@ -15,6 +15,7 @@ import { generateNonGoals } from './non-goals.js';
 import { generateReadme } from './readme.js';
 import { generateOpenQuestions } from './open-questions.js';
 import { generateEvals } from './evals.js';
+import { generateCalibration } from './calibrate.js';
 
 // Re-export types for convenience
 export type { GeneratedFile, TemplateInput } from './types.js';
@@ -45,6 +46,9 @@ export function generateAllFiles(input: TemplateInput): GeneratedFile[] {
 
     // Eval harness (rubric + cases + expected)
     files.push(...generateEvals(input));
+
+    // Calibration skill (CALIBRATE.md + calibrate-rule.md)
+    files.push(...generateCalibration(input));
 
     return files;
 }

@@ -296,4 +296,38 @@ interface IntakeResult {
 
 ---
 
+## F15: UX — Ctrl+C + Back Navigation (appetite: S)
+
+**Outcome:**
+- Ctrl+C exits cleanly (no swallowed errors)
+- `← Back` option on all select questions
+- Previous answer cleared on back navigation
+
+**Status:** DONE
+
+---
+
+## F16: i18n — English Default + Language Selection (appetite: M)
+
+**Outcome:**
+- Language selector as first question (`EN` / `VI`)
+- String table for en/vi in `src/intake/i18n.ts`
+- All questions and UI text read from string table
+- `language` field stored in IntakeResult
+
+**Status:** DONE
+
+---
+
+## F17: Calibration Skill Output (appetite: M)
+
+**Outcome:**
+- `CALIBRATE.md` — user instructions for post-gen optimization
+- `calibrate-rule.md` — AI agent instructions (scan repo → optimize team config)
+- Works with any runtime (Claude Code, Cursor, Antigravity)
+
+**Status:** DONE
+
+---
+
 _Thêm features mới bên dưới. TL là người duy nhất được add/reorder features._

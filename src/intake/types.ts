@@ -40,6 +40,7 @@ export type RawAnswers = Record<string, string | string[]>;
 
 export interface IntakeResult {
     mode: IntakeMode;
+    language: 'en' | 'vi';
     answers: RawAnswers;
     skippedQuestions: string[];
     persona: Persona;

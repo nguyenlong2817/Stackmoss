@@ -12,6 +12,7 @@ import type { TemplateInput } from '../../src/templates/types.js';
 export function createSampleIntake(overrides: Partial<IntakeResult> = {}): IntakeResult {
     return {
         mode: 'fast',
+        language: 'en',
         answers: {
             Q1: 'BizLed',
             Q2: 'sme',
@@ -50,6 +51,7 @@ export function createSampleInput(overrides: Partial<TemplateInput> = {}): Templ
 export function createInterviewIntake(overrides: Partial<IntakeResult> = {}): IntakeResult {
     return {
         mode: 'interview',
+        language: 'en',
         answers: {
             Q1: 'DevLed',
             Q2: 'enterprise',

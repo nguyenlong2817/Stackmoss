@@ -190,10 +190,15 @@ export async function handler(name: string | undefined): Promise<void> {
 
     } catch (error) {
         // If intake/generate failed, clean up the project folder
-        console.error('\n⚠️  Setup cancelled or failed. Cleaning up...');
-        console.error(`   Error: ${(error as Error).message}`);
+        const msg = (error as Error).message ?? '';
+        if (msg.includes('User force closed') || msg.includes('ExitPromptError')) {
+            console.log('\n❌ Cancelled.\n');
+        } else {
+            console.error('\n⚠️  Setup cancelled or failed. Cleaning up...');
+            console.error(`   Error: ${msg}`);
+        }
         try { rmSync(result.projectPath, { recursive: true, force: true }); } catch { /* ignore */ }
-        throw error;
+        return;
     }
 
     report(result);

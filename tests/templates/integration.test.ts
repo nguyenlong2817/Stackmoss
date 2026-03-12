@@ -36,8 +36,8 @@ describe('Template Engine: generateAllFiles', () => {
 
         const paths = files.map((f) => f.path);
         expect(paths).toContain('OPEN_QUESTIONS.md');
-        // 6 core + 1 OPEN_QUESTIONS + 11 evals (Production) = 18
-        expect(files.length).toBe(18);
+        // 6 core + 1 OPEN_QUESTIONS + 11 evals (MVP) + 2 calibration = 20
+        expect(files.length).toBe(20);
     });
 
     it('all files have non-empty content', () => {
@@ -48,10 +48,10 @@ describe('Template Engine: generateAllFiles', () => {
         }
     });
 
-    it('generates correct total files (6 core + 11 evals = 17 without skips)', () => {
+    it('generates correct total files (6 core + 11 evals + 2 calibration = 19 without skips)', () => {
         const files = generateAllFiles(createSampleInput());
 
-        expect(files).toHaveLength(17);
+        expect(files).toHaveLength(19);
     });
 
     it('config file contains valid JSON', () => {

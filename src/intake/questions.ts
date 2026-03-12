@@ -2,232 +2,253 @@
  * Intake Engine — Question definitions
  * Authority: BRD §8.2 (Fast), §8.3 (Interview)
  *
+ * All text read from i18n string table.
  * Do NOT add questions not in the BRD schema (intake-engine skill rule).
  * Exception: Q7/Q13 projectType — owner-approved addition.
  */
 
 import type { Question } from './types.js';
+import { t } from './i18n.js';
 
-// ─── Shared Questions ────────────────────────────────────────────
+// ─── Build questions from i18n ───────────────────────────────────
 
-const Q_ROLE: Question = {
-    id: 'Q1',
-    text: 'Bạn là ai trong dự án này?',
-    type: 'select',
-    choices: [
-        { label: 'Biz lead', value: 'BizLed' },
-        { label: 'Dev lead', value: 'DevLed' },
-        { label: 'Solo', value: 'Solo' },
-        { label: 'Không rõ', value: 'Newbie' },
-    ],
-    required: true,
-};
-
-const Q_AUDIENCE: Question = {
-    id: 'Q2',
-    text: 'Sản phẩm phục vụ ai?',
-    type: 'select',
-    choices: [
-        { label: 'Cá nhân', value: 'individual' },
-        { label: 'SME', value: 'sme' },
-        { label: 'Enterprise', value: 'enterprise' },
-        { label: 'Cộng đồng', value: 'community' },
-    ],
-    required: true,
-};
-
-const Q_GEO: Question = {
-    id: 'Q3',
-    text: 'Phạm vi địa lý?',
-    type: 'select',
-    choices: [
-        { label: 'Nội bộ', value: 'internal' },
-        { label: 'VN', value: 'vn' },
-        { label: 'Global', value: 'global' },
-    ],
-};
-
-const Q_PROJECT_TYPE: Question = {
-    id: 'Q_PT',
-    text: 'Dự án này thuộc loại nào?',
-    type: 'select',
-    choices: [
-        { label: 'MVP — ship nhanh, test ý tưởng', value: 'MVP' },
-        { label: 'Production — ổn định, cần QA mạnh', value: 'Production' },
-        { label: 'Internal Tool — công cụ nội bộ', value: 'InternalTool' },
-        { label: 'Library / API — thư viện hoặc API service', value: 'LibraryAPI' },
-    ],
-    required: true,
-};
+function buildSharedQuestions(): { Q_ROLE: Question; Q_AUDIENCE: Question; Q_GEO: Question; Q_PROJECT_TYPE: Question } {
+    const s = t();
+    return {
+        Q_ROLE: {
+            id: 'Q1',
+            text: s.q1Text,
+            type: 'select',
+            choices: [
+                { label: s.q1BizLed, value: 'BizLed' },
+                { label: s.q1DevLed, value: 'DevLed' },
+                { label: s.q1Solo, value: 'Solo' },
+                { label: s.q1Newbie, value: 'Newbie' },
+            ],
+            required: true,
+        },
+        Q_AUDIENCE: {
+            id: 'Q2',
+            text: s.q2Text,
+            type: 'select',
+            choices: [
+                { label: s.q2Individual, value: 'individual' },
+                { label: s.q2Sme, value: 'sme' },
+                { label: s.q2Enterprise, value: 'enterprise' },
+                { label: s.q2Community, value: 'community' },
+            ],
+            required: true,
+        },
+        Q_GEO: {
+            id: 'Q3',
+            text: s.q3Text,
+            type: 'select',
+            choices: [
+                { label: s.q3Internal, value: 'internal' },
+                { label: s.q3Vn, value: 'vn' },
+                { label: s.q3Global, value: 'global' },
+            ],
+        },
+        Q_PROJECT_TYPE: {
+            id: 'Q_PT',
+            text: s.ptText,
+            type: 'select',
+            choices: [
+                { label: s.ptMvp, value: 'MVP' },
+                { label: s.ptProduction, value: 'Production' },
+                { label: s.ptInternalTool, value: 'InternalTool' },
+                { label: s.ptLibraryApi, value: 'LibraryAPI' },
+            ],
+            required: true,
+        },
+    };
+}
 
 // ─── Fast Mode: 7 questions (Q1–Q6 + Q6b + Q_PT) ────────────────
 
-export const FAST_QUESTIONS: Question[] = [
-    Q_ROLE,
-    Q_AUDIENCE,
-    Q_GEO,
-    {
-        id: 'Q4',
-        text: 'Kênh chính?',
-        type: 'select',
-        choices: [
-            { label: 'Web', value: 'web' },
-            { label: 'Mobile', value: 'mobile' },
-            { label: 'Chat (Zalo/FB/IG)', value: 'chat' },
-            { label: 'API', value: 'api' },
-        ],
-    },
-    {
-        id: 'Q5',
-        text: 'Data nhạy cảm?',
-        type: 'select',
-        choices: [
-            { label: 'Không', value: 'none' },
-            { label: 'PII', value: 'pii' },
-            { label: 'Tài chính', value: 'finance' },
-            { label: 'Compliance', value: 'compliance' },
-        ],
-        required: true, // completeness gate checks this
-    },
-    {
-        id: 'Q6',
-        text: 'Feature đầu tiên muốn ship là gì?',
-        type: 'text',
-        required: true,
-        subQuestion: {
-            id: 'Q6b',
-            text: 'Cần bao lâu để ship?',
+export function getFastQuestions(): Question[] {
+    const s = t();
+    const { Q_ROLE, Q_AUDIENCE, Q_GEO, Q_PROJECT_TYPE } = buildSharedQuestions();
+
+    return [
+        Q_ROLE,
+        Q_AUDIENCE,
+        Q_GEO,
+        {
+            id: 'Q4',
+            text: s.q4FastText,
             type: 'select',
             choices: [
-                { label: '[S] Vài ngày', value: 'S' },
-                { label: '[M] 1-2 tuần', value: 'M' },
-                { label: '[L] Hơn 2 tuần', value: 'L' },
+                { label: s.q4Web, value: 'web' },
+                { label: s.q4Mobile, value: 'mobile' },
+                { label: s.q4Chat, value: 'chat' },
+                { label: s.q4Api, value: 'api' },
+            ],
+        },
+        {
+            id: 'Q5',
+            text: s.q5FastText,
+            type: 'select',
+            choices: [
+                { label: s.q5None, value: 'none' },
+                { label: s.q5Pii, value: 'pii' },
+                { label: s.q5Finance, value: 'finance' },
+                { label: s.q5Compliance, value: 'compliance' },
             ],
             required: true,
         },
-    },
-    Q_PROJECT_TYPE,
-];
+        {
+            id: 'Q6',
+            text: s.q6Text,
+            type: 'text',
+            required: true,
+            subQuestion: {
+                id: 'Q6b',
+                text: s.q6bText,
+                type: 'select',
+                choices: [
+                    { label: s.appetiteS, value: 'S' },
+                    { label: s.appetiteM, value: 'M' },
+                    { label: s.appetiteL, value: 'L' },
+                ],
+                required: true,
+            },
+        },
+        Q_PROJECT_TYPE,
+    ];
+}
 
 // ─── Interview Mode: 13 questions in 3 blocks + Q_PT ─────────────
 
-export const INTERVIEW_QUESTIONS: Question[] = [
-    // BLOCK 1 — Bối cảnh biz (Q1–Q4)
-    Q_ROLE,
-    Q_AUDIENCE,
-    Q_GEO,
-    {
-        id: 'Q4',
-        text: 'Monetization?',
-        type: 'select',
-        choices: [
-            { label: 'Free', value: 'free' },
-            { label: 'Subscription', value: 'subscription' },
-            { label: 'Usage-based', value: 'usage' },
-            { label: 'Chưa biết', value: 'unknown' },
-        ],
-    },
+export function getInterviewQuestions(): Question[] {
+    const s = t();
+    const { Q_ROLE, Q_AUDIENCE, Q_GEO, Q_PROJECT_TYPE } = buildSharedQuestions();
 
-    // BLOCK 2 — Constraint kỹ thuật (Q5–Q8)
-    {
-        id: 'Q5',
-        text: 'Kênh chính?',
-        type: 'select',
-        choices: [
-            { label: 'Web', value: 'web' },
-            { label: 'Mobile', value: 'mobile' },
-            { label: 'Chat (Zalo/FB/IG)', value: 'chat' },
-            { label: 'API', value: 'api' },
-        ],
-    },
-    {
-        id: 'Q6',
-        text: 'Data nhạy cảm?',
-        type: 'select',
-        choices: [
-            { label: 'Không', value: 'none' },
-            { label: 'PII', value: 'pii' },
-            { label: 'Tài chính', value: 'finance' },
-            { label: 'Compliance', value: 'compliance' },
-        ],
-        required: true,
-    },
-    {
-        id: 'Q7',
-        text: 'Deploy ở đâu?',
-        type: 'select',
-        choices: [
-            { label: 'Local', value: 'local' },
-            { label: 'VPS', value: 'vps' },
-            { label: 'Cloud', value: 'cloud' },
-            { label: 'Chưa biết', value: 'unknown' },
-        ],
-    },
-    {
-        id: 'Q8',
-        text: 'Budget để ship v1?',
-        type: 'select',
-        choices: [
-            { label: 'Rẻ nhất', value: 'cheapest' },
-            { label: 'Cân bằng', value: 'balanced' },
-            { label: 'Nhanh nhất', value: 'fastest' },
-        ],
-    },
-
-    // BLOCK 3 — Team & velocity (Q9–Q12)
-    {
-        id: 'Q9',
-        text: 'Ai maintain sau này?',
-        type: 'select',
-        choices: [
-            { label: 'Một mình', value: 'solo' },
-            { label: 'Team nhỏ', value: 'small_team' },
-            { label: 'Outsource', value: 'outsource' },
-        ],
-    },
-    {
-        id: 'Q10',
-        text: 'Ưu tiên?',
-        type: 'select',
-        choices: [
-            { label: 'Ship nhanh', value: 'speed' },
-            { label: 'Ship ổn định', value: 'stability' },
-            { label: 'Cả hai', value: 'both' },
-        ],
-    },
-    {
-        id: 'Q11',
-        text: 'Nguồn dữ liệu chính ở đâu?',
-        type: 'select',
-        choices: [
-            { label: 'Sheets/Docs', value: 'sheets' },
-            { label: 'DB', value: 'db' },
-            { label: 'CRM', value: 'crm' },
-            { label: 'API bên ngoài', value: 'external_api' },
-            { label: 'Chưa có', value: 'none' },
-        ],
-    },
-    {
-        id: 'Q12',
-        text: 'Feature đầu tiên muốn ship?',
-        type: 'text',
-        required: true,
-        subQuestion: {
-            id: 'Q12b',
-            text: 'Cần bao lâu để ship?',
+    return [
+        // BLOCK 1 — Business context (Q1–Q4)
+        Q_ROLE,
+        Q_AUDIENCE,
+        Q_GEO,
+        {
+            id: 'Q4',
+            text: s.q4InterviewText,
             type: 'select',
             choices: [
-                { label: '[S] Vài ngày', value: 'S' },
-                { label: '[M] 1-2 tuần', value: 'M' },
-                { label: '[L] Hơn 2 tuần', value: 'L' },
+                { label: s.q4Free, value: 'free' },
+                { label: s.q4Subscription, value: 'subscription' },
+                { label: s.q4Usage, value: 'usage' },
+                { label: s.q4Unknown, value: 'unknown' },
+            ],
+        },
+
+        // BLOCK 2 — Technical constraints (Q5–Q8)
+        {
+            id: 'Q5',
+            text: s.q4FastText,
+            type: 'select',
+            choices: [
+                { label: s.q4Web, value: 'web' },
+                { label: s.q4Mobile, value: 'mobile' },
+                { label: s.q4Chat, value: 'chat' },
+                { label: s.q4Api, value: 'api' },
+            ],
+        },
+        {
+            id: 'Q6',
+            text: s.q5FastText,
+            type: 'select',
+            choices: [
+                { label: s.q5None, value: 'none' },
+                { label: s.q5Pii, value: 'pii' },
+                { label: s.q5Finance, value: 'finance' },
+                { label: s.q5Compliance, value: 'compliance' },
             ],
             required: true,
         },
-    },
+        {
+            id: 'Q7',
+            text: s.q7Text,
+            type: 'select',
+            choices: [
+                { label: s.q7Local, value: 'local' },
+                { label: s.q7Vps, value: 'vps' },
+                { label: s.q7Cloud, value: 'cloud' },
+                { label: s.q7Unknown, value: 'unknown' },
+            ],
+        },
+        {
+            id: 'Q8',
+            text: s.q8Text,
+            type: 'select',
+            choices: [
+                { label: s.q8Cheapest, value: 'cheapest' },
+                { label: s.q8Balanced, value: 'balanced' },
+                { label: s.q8Fastest, value: 'fastest' },
+            ],
+        },
 
-    // Project type (owner-approved addition)
-    Q_PROJECT_TYPE,
-];
+        // BLOCK 3 — Team & velocity (Q9–Q12)
+        {
+            id: 'Q9',
+            text: s.q9Text,
+            type: 'select',
+            choices: [
+                { label: s.q9Solo, value: 'solo' },
+                { label: s.q9SmallTeam, value: 'small_team' },
+                { label: s.q9Outsource, value: 'outsource' },
+            ],
+        },
+        {
+            id: 'Q10',
+            text: s.q10Text,
+            type: 'select',
+            choices: [
+                { label: s.q10Speed, value: 'speed' },
+                { label: s.q10Stability, value: 'stability' },
+                { label: s.q10Both, value: 'both' },
+            ],
+        },
+        {
+            id: 'Q11',
+            text: s.q11Text,
+            type: 'select',
+            choices: [
+                { label: s.q11Sheets, value: 'sheets' },
+                { label: s.q11Db, value: 'db' },
+                { label: s.q11Crm, value: 'crm' },
+                { label: s.q11ExternalApi, value: 'external_api' },
+                { label: s.q11None, value: 'none' },
+            ],
+        },
+        {
+            id: 'Q12',
+            text: s.q6Text,
+            type: 'text',
+            required: true,
+            subQuestion: {
+                id: 'Q12b',
+                text: s.q6bText,
+                type: 'select',
+                choices: [
+                    { label: s.appetiteS, value: 'S' },
+                    { label: s.appetiteM, value: 'M' },
+                    { label: s.appetiteL, value: 'L' },
+                ],
+                required: true,
+            },
+        },
+
+        // Project type (owner-approved addition)
+        Q_PROJECT_TYPE,
+    ];
+}
+
+// ─── Backward compat: static arrays for tests ────────────────────
+
+/** @deprecated Use getFastQuestions() for i18n support */
+export const FAST_QUESTIONS: Question[] = getFastQuestions();
+/** @deprecated Use getInterviewQuestions() for i18n support */
+export const INTERVIEW_QUESTIONS: Question[] = getInterviewQuestions();
 
 // ─── Helpers ─────────────────────────────────────────────────────
 

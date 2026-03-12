@@ -3,10 +3,11 @@
  * Authority: BRD §8, FEATURES.md F2
  *
  * Orchestrates:
- * 1. Mode selection (Fast/Interview)
- * 2. Run selected mode flow
- * 3. Build IntakeResult (persona + roles + auto-add)
- * 4. Return IntakeResult
+ * 1. Language selection (Q_LANG)
+ * 2. Mode selection (Fast/Interview)
+ * 3. Run selected mode flow
+ * 4. Build IntakeResult (persona + roles + auto-add)
+ * 5. Return IntakeResult
  */
 
 import { select } from '@inquirer/prompts';
@@ -16,15 +17,31 @@ import { runFastMode } from './fast-mode.js';
 import { runInterviewMode } from './interview-mode.js';
 import { detectPersona, getProjectType, selectRoles } from './pack-selector.js';
 import { detectAutoAddRoles } from './auto-add.js';
+import { setLanguage, getLanguage, t } from './i18n.js';
+import type { Language } from './i18n.js';
+
+// ─── Language Selection ──────────────────────────────────────────
+
+async function selectLanguage(): Promise<Language> {
+    const lang = await select({
+        message: 'Language / Ngôn ngữ?',
+        choices: [
+            { name: '[EN] English', value: 'en' as const },
+            { name: '[VI] Tiếng Việt', value: 'vi' as const },
+        ],
+    });
+    return lang;
+}
 
 // ─── Mode Selection ──────────────────────────────────────────────
 
 async function selectMode(): Promise<IntakeMode> {
+    const s = t();
     const mode = await select({
-        message: 'Bạn muốn setup nhanh hay chi tiết?',
+        message: s.modeQuestion,
         choices: [
-            { name: '[F] Fast    ~3 phút, 7 câu', value: 'fast' as const },
-            { name: '[I] Interview   ~10 phút, 13 câu, team tốt hơn', value: 'interview' as const },
+            { name: s.modeFastLabel, value: 'fast' as const },
+            { name: s.modeInterviewLabel, value: 'interview' as const },
         ],
     });
 
@@ -37,6 +54,10 @@ async function selectMode(): Promise<IntakeMode> {
  * Run the full intake flow and return a valid IntakeResult.
  */
 export async function runIntake(): Promise<IntakeResult> {
+    // Step 0: Language selection
+    const lang = await selectLanguage();
+    setLanguage(lang);
+
     // Step 1: Mode selection (no default — user must choose)
     const mode = await selectMode();
 
@@ -71,6 +92,7 @@ export async function runIntake(): Promise<IntakeResult> {
 
     const result: IntakeResult = {
         mode,
+        language: lang,
         answers,
         skippedQuestions,
         persona,
@@ -89,22 +111,23 @@ export async function runIntake(): Promise<IntakeResult> {
  * Print intake summary to console.
  */
 export function reportIntake(result: IntakeResult): void {
+    const s = t();
     console.log('\n────────────────────────────────────────');
-    console.log('📊 Intake Summary');
+    console.log(s.reportHeader);
     console.log('────────────────────────────────────────');
-    console.log(`   Mode:       ${result.mode}`);
-    console.log(`   Persona:    ${result.persona}`);
-    console.log(`   Project:    ${result.projectType}`);
-    console.log(`   Roles:      ${result.roles.join(', ')}`);
+    console.log(`   ${s.reportMode}:       ${result.mode}`);
+    console.log(`   ${s.reportPersona}:    ${result.persona}`);
+    console.log(`   ${s.reportProject}:    ${result.projectType}`);
+    console.log(`   ${s.reportRoles}:      ${result.roles.join(', ')}`);
 
     if (result.autoAddedRoles.length > 0) {
-        console.log(`   Auto-added: ${result.autoAddedRoles.join(', ')}`);
+        console.log(`   ${s.reportAutoAdded}: ${result.autoAddedRoles.join(', ')}`);
     }
 
-    console.log(`   Feature:    ${result.firstFeature.name} [${result.firstFeature.appetite}]`);
+    console.log(`   ${s.reportFeature}:    ${result.firstFeature.name} [${result.firstFeature.appetite}]`);
 
     if (result.skippedQuestions.length > 0) {
-        console.log(`   ⚠️  Skipped:  ${result.skippedQuestions.join(', ')}`);
+        console.log(`   ⚠️  ${s.reportSkipped}:  ${result.skippedQuestions.join(', ')}`);
     }
 
     console.log('────────────────────────────────────────\n');

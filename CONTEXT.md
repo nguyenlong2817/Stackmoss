@@ -3,8 +3,8 @@
 _Current project state. Updated after each feature cycle._
 
 ## Status
-- **Phase:** Development (F14 complete — eval-ready agent team config)
-- **State:** Full pipeline + 4 compile targets + eval harness
+- **Phase:** Development (F17 complete — eval-ready + calibration skill)
+- **State:** Full pipeline + 4 compile targets + eval harness + calibration
 - **Last updated:** 2026-03-12
 - **Tests:** 265 pass (29 test files)
 

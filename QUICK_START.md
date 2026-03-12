@@ -1,6 +1,18 @@
-# 🚀 Quick Start: Tạo Agent Team cho dự án của bạn
+# 🚀 StackMoss — Hướng dẫn Test từ A-Z
 
-## Bước 1: Install
+## Bước 0: Chuẩn bị
+
+```bash
+# Cần Node.js >= 18
+node --version
+
+# Nếu đã có bản cũ, gỡ trước
+npm uninstall -g stackmoss
+```
+
+---
+
+## Bước 1: Cài StackMoss
 
 ```bash
 npm install -g stackmoss
@@ -9,114 +21,227 @@ npm install -g stackmoss
 Verify:
 ```bash
 stackmoss --version
-# → 0.4.0
+# → 0.5.0
+
+stackmoss --help
+# → Hiện danh sách commands
 ```
 
 ---
 
-## Bước 2: Tạo Agent Team Config
+## Bước 2: Tạo Agent Team cho dự án mới
 
-Mở terminal, `cd` vào thư mục dự án muốn thêm agent team:
+### 2.1 Tạo folder test
 
 ```bash
-cd E:\MyProject   # ← thay bằng đường dẫn dự án của bạn
-stackmoss new my-project
+mkdir E:\test-stackmoss
+cd E:\test-stackmoss
 ```
 
-### Trả lời 7 câu hỏi (Fast Mode)
+### 2.2 Chạy StackMoss
 
-| # | Câu hỏi | Ví dụ trả lời |
+```bash
+stackmoss new my-app
+```
+
+### 2.3 Trả lời 7 câu hỏi
+
+Trả lời theo flow — không cần đúng/sai, chỉ cần test:
+
+| # | Câu hỏi | Gợi ý trả lời |
 |:---|:---|:---|
-| Q1 | Project name | `my-project` |
-| Q2 | One-liner goal | `E-commerce platform for Vietnamese market` |
-| Q3 | Tech stack | `Next.js, NestJS, PostgreSQL, Prisma` |
-| Q4 | Repo structure | `monorepo` |
-| Q5 | Mode | `Fast (7 questions)` |
-| Q6 | User type | `Solo dev` hoặc `Team 2-5` |
-| Q7 | Project type | `Production` |
+| Q1 | Bạn là ai? | `Solo dev` |
+| Q2 | Quy mô doanh nghiệp? | `sme` |
+| Q3 | Thị trường? | `vn` |
+| Q4 | Loại sản phẩm? | `web` |
+| Q5 | Có dữ liệu nhạy cảm? | `pii` |
+| Q6 | Feature đầu tiên? | `Login page` |
+| Q6b | Appetite? | `S` |
+| Q_PT | Project type? | `Production` |
 
-### Output (tự động tạo)
+### 2.4 Kiểm tra output
 
+```bash
+cd my-app
+
+# Xem toàn bộ files được tạo
+dir
+
+# Kiểm tra team.md (source of truth)
+type team.md
+
+# Kiểm tra CLAUDE.md (Claude Code đọc file này)
+type CLAUDE.md
+
+# Kiểm tra role rules
+dir .claude\rules
+
+# Kiểm tra eval harness
+dir evals
+dir evals\cases
+dir evals\expected
+type evals\rubric.md
 ```
-my-project/
-├── team.md                    ← Agent roles & capabilities
-├── FEATURES.md                ← Feature tracking
-├── NORTH_STAR.md              ← Project vision
-├── NON_GOALS.md               ← What NOT to build
-├── OPEN_QUESTIONS.md           ← Unresolved decisions
-├── README_AGENT_TEAM.md        ← Team documentation
-├── stackmoss.config.json       ← Config state machine
+
+**Expected output structure:**
+```
+my-app/
+├── team.md                     ← Source of truth — roles & capabilities
+├── FEATURES.md                 ← Feature tracking (appetite S/M/L)
+├── NORTH_STAR.md               ← Project vision
+├── NON_GOALS.md                ← What NOT to build
+├── OPEN_QUESTIONS.md            ← Unresolved decisions (nếu có)
+├── README_AGENT_TEAM.md        ← Hướng dẫn dùng team agent
+├── stackmoss.config.json       ← State machine config
 │
 ├── CLAUDE.md                   ← Claude Code root instructions
-└── .claude/
-    └── rules/
-        ├── tl.md               ← Tech Lead rules
-        ├── dev.md              ← Developer rules
-        ├── qa.md               ← QA rules
-        └── ...                 ← More per role
+├── .claude/rules/              ← Per-role rules
+│   ├── tl.md
+│   ├── dev.md
+│   ├── qa.md
+│   └── sec.md
+│
+└── evals/                      ← Eval harness
+    ├── rubric.md               ← 8 core rules + budget table
+    ├── cases/                  ← Test scenarios
+    │   ├── case-01-feature-impl.md
+    │   ├── case-02-code-review.md
+    │   ├── case-03-no-assumption.md
+    │   ├── case-04-patch-budget.md
+    │   └── case-05-breaking-change.md   (Production only)
+    └── expected/               ← Golden output patterns
+        ├── case-01-feature-impl.md
+        └── ...
 ```
 
 ---
 
-## Bước 3: Mở trong Claude Code
+## Bước 3: Test với Claude Code
+
+### 3.1 Mở project trong VS Code / Cursor
 
 ```bash
-# Mở project trong IDE
-code .    # VS Code / Cursor
-
-# Hoặc chạy Claude Code trực tiếp
-claude    # Claude Code sẽ auto-read CLAUDE.md
+code .
 ```
 
-Claude Code sẽ **tự động đọc** `CLAUDE.md` khi bắt đầu session và biết:
-- Team có những role nào
-- Mỗi role có capabilities gì
-- Budget giới hạn per capability
-- Working contract + rules
+### 3.2 Mở Claude Code (hoặc Cursor)
+
+Claude Code sẽ **tự động đọc** `CLAUDE.md` khi bắt đầu session.
+
+### 3.3 Test thử các scenario
+
+**Test 1: Agent follow rules**
+```
+Implement login page with email/password. AC: validates email format, shows error, submits to /api/auth/login
+```
+→ Kỳ vọng: Agent chỉ làm đúng AC, không tự thêm "password reset", "remember me"
+
+**Test 2: No Silent Assumptions**
+```
+Add caching to the app
+```
+→ Kỳ vọng: Agent HỎI "cache gì? Redis? in-memory? API responses?" thay vì tự assume
+
+**Test 3: Budget discipline**
+→ Check xem agent response có vượt word budget trong rubric.md không
 
 ---
 
-## Bước 4: Test thử
+## Bước 4: Test với dự án đã có repo
 
-### Test 1: Yêu cầu Claude Code implement feature
-Trong Claude Code chat:
-```
-Tạo feature đăng nhập với Google OAuth. Follow acceptance criteria format trong FEATURES.md.
-```
+### 4.1 CD vào repo đang có
 
-→ Claude Code sẽ check `.claude/rules/dev.md` để biết Developer capabilities và follow team rules.
-
-### Test 2: Yêu cầu review
-```
-Review code login flow. Check security concerns.
+```bash
+cd E:\MyExistingProject
 ```
 
-→ Claude Code sẽ tham khảo TL-REVIEW capabilities và SEC-SCAN rules.
+### 4.2 Chạy inject (scan repo)
+
+```bash
+stackmoss inject
+```
+
+→ Tạo `MIGRATION_REPORT.md` với:
+- **Facts:** Những gì chắc chắn từ code scan
+- **Hypotheses:** Phỏng đoán (có confidence %)
+- **Questions:** Cần anh trả lời trước khi dùng
+
+### 4.3 Trả lời câu hỏi
+
+```bash
+stackmoss resolve
+```
+
+→ Interactive Q&A cho mỗi question trong MIGRATION_REPORT
+
+### 4.4 Promote lên OPERATIONAL
+
+```bash
+stackmoss promote --confirm
+```
+
+→ 4 hard criteria:
+1. Questions = 0
+2. Ít nhất 1 alias verified
+3. Config valid
+4. User explicit confirm
+
+### 4.5 Chạy operational commands
+
+```bash
+stackmoss check           # Validate config + word budgets
+stackmoss run test        # Execute "npm test" via alias
+stackmoss patch list      # Xem pending patches
+```
 
 ---
 
-## Compile sang Cursor (thay vì Claude Code)
+## Compile Target khác
 
-Edit `stackmoss.config.json`:
+### Dùng Cursor thay Claude Code
+
+Trước khi chạy `stackmoss new`, edit `stackmoss.config.json`:
 ```json
 {
   "compileTarget": "Cursor"
 }
 ```
 
-Rồi chạy lại:
-```bash
-stackmoss new my-project
+Output: `.cursor/rules/*.mdc` (YAML frontmatter)
+
+### Dùng Antigravity (atomic split)
+
+```json
+{
+  "compileTarget": "Antigravity"
+}
 ```
 
-Output sẽ là `.cursor/rules/*.mdc` thay vì `.claude/rules/*.md`.
+Output: `.agents/skills/<role>--<cap>/SKILL.md` (1 file per capability)
 
 ---
 
 ## Troubleshooting
 
-| Lỗi | Fix |
+| Vấn đề | Fix |
 |:---|:---|
 | `stackmoss: command not found` | `npm install -g stackmoss` |
-| Permission denied | Chạy terminal as Admin |
-| `ENOENT: no such file or directory` | Chạy `stackmoss new` trong folder trống hoặc project root |
+| Permission denied | Terminal as Admin |
+| `ENOENT` error | Chạy trong thư mục trống hoặc project root |
+| Output không có `.claude/` | Check `stackmoss.config.json` compileTarget |
+| Files không hiện trong Cursor | Restart IDE |
+
+---
+
+## Tóm tắt commands
+
+```bash
+stackmoss new <name>          # Tạo project + intake + generate + compile
+stackmoss inject              # Scan existing repo → MIGRATION_REPORT
+stackmoss resolve             # Trả lời câu hỏi từ scan
+stackmoss promote --confirm   # MIGRATING → OPERATIONAL
+stackmoss run <alias>         # Execute command, auto-patch on fail
+stackmoss check               # Config + budget validation
+stackmoss patch list/apply/reject
+stackmoss upgrade [--apply]   # Update constitution only
+```

@@ -10,6 +10,7 @@ import type { IntakeResult } from '../../src/intake/types.js';
 function makeInput(overrides?: Partial<IntakeResult>): TemplateInput {
     const intake: IntakeResult = {
         mode: 'fast',
+        language: 'en',
         answers: {},
         skippedQuestions: [],
         persona: 'DevLed',

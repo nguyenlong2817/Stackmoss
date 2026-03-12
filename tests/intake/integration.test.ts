@@ -21,6 +21,7 @@ describe('Intake Integration', () => {
         // Mode selection → fast
         // Fast Q1-Q6 + Q6b + Q_PT
         mockSelect
+            .mockResolvedValueOnce('en')        // Language selection
             .mockResolvedValueOnce('fast')     // Mode selection
             .mockResolvedValueOnce('BizLed')   // Q1
             .mockResolvedValueOnce('sme')      // Q2
@@ -47,6 +48,7 @@ describe('Intake Integration', () => {
 
     it('should return valid IntakeResult for interview mode', async () => {
         mockSelect
+            .mockResolvedValueOnce('en')           // Language selection
             .mockResolvedValueOnce('interview')    // Mode selection
             .mockResolvedValueOnce('DevLed')       // Q1
             .mockResolvedValueOnce('enterprise')   // Q2
@@ -78,6 +80,7 @@ describe('Intake Integration', () => {
 
     it('should validate IntakeResult has all required fields', async () => {
         mockSelect
+            .mockResolvedValueOnce('en')     // Language selection
             .mockResolvedValueOnce('fast')
             .mockResolvedValueOnce('Solo')
             .mockResolvedValueOnce('individual')
