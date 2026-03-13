@@ -39,7 +39,7 @@ const STACKMOSS_VERSION = (() => {
         const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8')) as { version: string };
         return pkg.version;
     } catch {
-        return '0.6.3';
+        return '0.6.4';
     }
 })();
 

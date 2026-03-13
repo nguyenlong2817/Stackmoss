@@ -1,4 +1,4 @@
-# Source Code Rules — StackMoss
+# Source Code Rules - StackMoss
 
 > These rules override root AGENTS.md when working inside `src/`.
 
@@ -7,10 +7,10 @@
 Every CLI command in `src/commands/` MUST follow:
 
 ```typescript
-export function parseArgs(input: string): ParsedArgs    // validate CLI arguments
-export function checkState(config: Config): void         // verify state allows this command
-export function execute(args: ParsedArgs): Result        // main logic
-export function report(result: Result): string           // user-facing output
+export function parseArgs(input: string): ParsedArgs
+export function checkState(config: Config): void
+export function execute(args: ParsedArgs): Result
+export function report(result: Result): string
 ```
 
 Always call `validateState()` from `src/state-machine.ts` before executing any logic.
@@ -30,29 +30,31 @@ Always call `validateState()` from `src/state-machine.ts` before executing any l
 ## Atomic Write Pattern
 
 All file generation MUST use atomic writes:
-1. Write to temp file in same directory
-2. `rename()` temp → final (atomic on same filesystem)
-3. If interrupted → no partial files
+1. Write to a temp file in the same directory
+2. `rename()` temp -> final
+3. If interrupted, no partial files remain
 
 ## Compile Layer (`src/compile/`)
 
-- Claude Code: `claude-code.ts` → 1 role = 1 file in `.claude/skills/`
-- Cursor: `cursor.ts` → role-level in `.cursor/skills/`
-- Antigravity: `antigravity.ts` → capability-level skills plus shared rules/workflows in `.agents/` with `.agent/` compatibility mirrors
-- Dispatcher: `index.ts` → `compileTarget()` routes by target name
+- Claude Code: `claude-code.ts` -> `CLAUDE.md` + role skills in `.claude/skills/`
+- Cursor: `cursor.ts` -> role skills in `.cursor/skills/`
+- Codex: `codex.ts` -> repo-level `AGENTS.md`
+- VS Code / Copilot: `vscode.ts` -> `.github/copilot-instructions.md`
+- Antigravity: `antigravity.ts` -> capability-level skills plus shared rules/workflows in `.agent/`
+- Dispatcher: `index.ts` -> `compileTarget()` routes by target name
 
 ## Key Types
 
-- `IntakeResult` → `src/intake/types.ts`
-- `GeneratedFile` → `src/templates/types.ts`
-- `ScanResult` → `src/scanner/types.ts`
-- `StackMossConfig` → `src/config.ts`
-- `State` → `src/state-machine.ts`
+- `IntakeResult` -> `src/intake/types.ts`
+- `GeneratedFile` -> `src/templates/types.ts`
+- `ScanResult` -> `src/scanner/types.ts`
+- `StackMossConfig` -> `src/config.ts`
+- `State` -> `src/state-machine.ts`
 
 ## Do NOT
 
 - Skip state validation before executing a command
-- Use LLM for any logic/routing decisions
+- Use LLM for routing or deterministic selection logic
 - Auto-execute destructive operations
 - Import from `tests/` in source code
 - Add fields not defined in BRD schemas

@@ -7,7 +7,6 @@
  */
 
 import type { GeneratedFile, TemplateInput } from './types.js';
-import { renderRuntimeStructureTableRows } from '../compile/runtime-contract.js';
 
 export function generateReadme(input: TemplateInput): GeneratedFile {
     const { projectName } = input;
@@ -43,7 +42,7 @@ Tech Lead phai:
 - thay thong tin sai hoac TBD bang thong tin dung trong \`team.md\`
 - replace dong \`Calibration status: bootstrap...\` bang trang thai da calibrate khi du bang chung
 - de xuat thay doi role hoac so lane neu du an can it hoac nhieu DEV hon template ban dau
-- giu dung runtime-native structure cho Claude Code, Cursor, Codex, VS Code / Copilot, va Antigravity
+- giu dung cau truc bootstrap cua runtime ban dang dung
 - hoi ban truoc khi apply bat ky patch config nao
 
 **Buoc 3 - Yeu cau Tech Lead break down F1**
@@ -65,7 +64,11 @@ Sau \`stackmoss init\` hoac \`stackmoss new\`, StackMoss tao san bootstrap confi
 
 | Runtime | Cau truc can co | Ghi chu |
 |---|---|---|
-${renderRuntimeStructureTableRows().join('\n')}
+| Claude Code | \`CLAUDE.md\` + \`.claude/skills/<skill-name>/SKILL.md\` | Dung khi user chat trong Claude Code |
+| Cursor | \`.cursor/skills/<skill-name>/SKILL.md\` | Dung khi user chat trong Cursor |
+| VS Code / Copilot | \`.github/copilot-instructions.md\` | Repo-level instructions |
+| Codex | \`AGENTS.md\` | Repo-level instructions |
+| Antigravity | \`.agent/skills/<skill-name>/SKILL.md\` + \`.agent/rules/*.md\` + \`.agent/workflows/*.md\` | Dung khi user chat trong Antigravity |
 
 User flow dung sau khi bootstrap la: mo IDE/CLI ban dang dung va chat voi Tech Lead truoc.
 

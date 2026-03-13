@@ -57,8 +57,6 @@ describe('Cursor Compile Target', () => {
         const tlSkill = files.find((file) => file.path === '.cursor/skills/tech-lead/SKILL.md');
 
         expect(bootstrap!.content).toContain('Tech Lead is the single writer for shared config');
-        expect(bootstrap!.content).toContain('.claude/skills/<skill-name>/SKILL.md');
-        expect(tlSkill!.content).toContain('Preserve the runtime-native layouts');
         expect(tlSkill!.content).toContain('Prepare replace-only config patches');
     });
 });

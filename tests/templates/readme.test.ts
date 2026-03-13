@@ -33,14 +33,14 @@ describe('Template: README_AGENT_TEAM.md', () => {
         expect(result.content).toContain('NON_GOALS.md');
     });
 
-    it('documents runtime-native bootstrap outputs', () => {
+    it('documents bootstrap outputs for each supported runtime', () => {
         const result = generateReadme(createSampleInput());
 
         expect(result.content).toContain('CLAUDE.md');
         expect(result.content).toContain('.claude/skills/<skill-name>/SKILL.md');
         expect(result.content).toContain('.cursor/skills/<skill-name>/SKILL.md');
         expect(result.content).toContain('AGENTS.md');
-        expect(result.content).toContain('.agents/rules/*.md');
+        expect(result.content).toContain('.agent/rules/*.md');
         expect(result.content).toContain('.agent/workflows/*.md');
     });
 
@@ -52,6 +52,6 @@ describe('Template: README_AGENT_TEAM.md', () => {
         expect(result.content).toContain('hoi tiep bat ky cau hoi can thiet');
         expect(result.content).toContain('Calibration status: bootstrap');
         expect(result.content).toContain('Chi Tech Lead duoc chuan bi patch cho config chung');
-        expect(result.content).toContain('giu dung runtime-native structure');
+        expect(result.content).toContain('giu dung cau truc bootstrap cua runtime ban dang dung');
     });
 });

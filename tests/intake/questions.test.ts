@@ -3,123 +3,41 @@ import {
     getFastQuestions,
     getInterviewQuestions,
     getDataSensitivityQuestionId,
-    getFeatureQuestionId,
-    getAppetiteQuestionId,
 } from '../../src/intake/questions.js';
 
 describe('Intake Questions', () => {
-    describe('FAST_QUESTIONS', () => {
-        it('should have 7 questions (Q1-Q6 + Q6b sub + Q_PT)', () => {
+    describe('Fast questions', () => {
+        it('has 7 questions', () => {
             expect(getFastQuestions()).toHaveLength(7);
         });
 
-        it('should start with Q1 (role)', () => {
-            expect(getFastQuestions()[0]!.id).toBe('Q1');
+        it('focuses on audience, BRD, idea, domain, and data sensitivity', () => {
+            const ids = getFastQuestions().map((question) => question.id);
+            expect(ids).toEqual(['Q1', 'Q2', 'Q3', 'Q4', 'Q5', 'Q6', 'Q_PT']);
         });
 
-        it('should have Q5 (data sensitivity) marked as required', () => {
-            const q5 = getFastQuestions().find((q) => q.id === 'Q5');
-            expect(q5).toBeDefined();
-            expect(q5!.required).toBe(true);
-        });
-
-        it('should have Q6 with Q6b sub-question (appetite)', () => {
-            const q6 = getFastQuestions().find((q) => q.id === 'Q6');
-            expect(q6).toBeDefined();
-            expect(q6!.type).toBe('text');
-            expect(q6!.subQuestion).toBeDefined();
-            expect(q6!.subQuestion!.id).toBe('Q6b');
-            expect(q6!.subQuestion!.choices).toHaveLength(3); // S, M, L
-        });
-
-        it('should have Q_PT (project type) as last question', () => {
-            const questions = getFastQuestions();
-            const last = questions[questions.length - 1]!;
-            expect(last.id).toBe('Q_PT');
-            expect(last.choices).toHaveLength(4); // MVP, Production, InternalTool, LibraryAPI
-        });
-
-        it('should have all questions with text', () => {
-            for (const q of getFastQuestions()) {
-                expect(q.text).toBeTruthy();
-                expect(typeof q.text).toBe('string');
-            }
-        });
-
-        it('should have choices for all select-type questions', () => {
-            for (const q of getFastQuestions()) {
-                if (q.type === 'select') {
-                    expect(q.choices).toBeDefined();
-                    expect(q.choices!.length).toBeGreaterThan(0);
-                }
-            }
+        it('does not ask first-feature appetite in fast mode', () => {
+            expect(getFastQuestions().some((question) => question.subQuestion)).toBe(false);
         });
     });
 
-    describe('INTERVIEW_QUESTIONS', () => {
-        it('should have 13 questions (Q1-Q12 + Q_PT)', () => {
-            expect(getInterviewQuestions()).toHaveLength(13);
+    describe('Interview questions', () => {
+        it('has 12 questions', () => {
+            expect(getInterviewQuestions()).toHaveLength(12);
         });
 
-        it('should have Q12 with Q12b sub-question (appetite)', () => {
-            const q12 = getInterviewQuestions().find((q) => q.id === 'Q12');
-            expect(q12).toBeDefined();
-            expect(q12!.type).toBe('text');
-            expect(q12!.subQuestion).toBeDefined();
-            expect(q12!.subQuestion!.id).toBe('Q12b');
+        it('goes deeper into repo and delivery context', () => {
+            const ids = getInterviewQuestions().map((question) => question.id);
+            expect(ids).toEqual(['Q1', 'Q2', 'Q3', 'Q4', 'Q5', 'Q6', 'Q7', 'Q8', 'Q9', 'Q10', 'Q11', 'Q_PT']);
         });
 
-        it('should have Q6 (data sensitivity) marked as required', () => {
-            const q6 = getInterviewQuestions().find((q) => q.id === 'Q6');
-            expect(q6).toBeDefined();
-            expect(q6!.required).toBe(true);
-        });
-
-        it('should have Q_PT as last question', () => {
-            const questions = getInterviewQuestions();
-            const last = questions[questions.length - 1]!;
-            expect(last.id).toBe('Q_PT');
-        });
-
-        it('Block 1 should be Q1-Q4 (biz context)', () => {
-            const q = getInterviewQuestions();
-            expect(q[0]!.id).toBe('Q1');
-            expect(q[1]!.id).toBe('Q2');
-            expect(q[2]!.id).toBe('Q3');
-            expect(q[3]!.id).toBe('Q4');
-        });
-
-        it('Block 2 should be Q5-Q8 (technical constraints)', () => {
-            const q = getInterviewQuestions();
-            expect(q[4]!.id).toBe('Q5');
-            expect(q[5]!.id).toBe('Q6');
-            expect(q[6]!.id).toBe('Q7');
-            expect(q[7]!.id).toBe('Q8');
-        });
-
-        it('Block 3 should be Q9-Q12 (team & velocity)', () => {
-            const q = getInterviewQuestions();
-            expect(q[8]!.id).toBe('Q9');
-            expect(q[9]!.id).toBe('Q10');
-            expect(q[10]!.id).toBe('Q11');
-            expect(q[11]!.id).toBe('Q12');
+        it('does not ask first-feature appetite in interview mode', () => {
+            expect(getInterviewQuestions().some((question) => question.subQuestion)).toBe(false);
         });
     });
 
-    describe('Helper functions', () => {
-        it('getDataSensitivityQuestionId returns Q5 for fast, Q6 for interview', () => {
-            expect(getDataSensitivityQuestionId('fast')).toBe('Q5');
-            expect(getDataSensitivityQuestionId('interview')).toBe('Q6');
-        });
-
-        it('getFeatureQuestionId returns Q6 for fast, Q12 for interview', () => {
-            expect(getFeatureQuestionId('fast')).toBe('Q6');
-            expect(getFeatureQuestionId('interview')).toBe('Q12');
-        });
-
-        it('getAppetiteQuestionId returns Q6b for fast, Q12b for interview', () => {
-            expect(getAppetiteQuestionId('fast')).toBe('Q6b');
-            expect(getAppetiteQuestionId('interview')).toBe('Q12b');
-        });
+    it('maps data sensitivity question id per mode', () => {
+        expect(getDataSensitivityQuestionId('fast')).toBe('Q6');
+        expect(getDataSensitivityQuestionId('interview')).toBe('Q7');
     });
 });

@@ -56,9 +56,7 @@ describe('Claude Code V2 Compile Target', () => {
         const tlSkill = files.find((file) => file.path === '.claude/skills/tech-lead/SKILL.md');
 
         expect(claudeMd!.content).toContain('Tech Lead mode');
-        expect(claudeMd!.content).toContain('.cursor/skills/<skill-name>/SKILL.md');
         expect(tlSkill!.content).toContain('single writer for shared team config');
-        expect(tlSkill!.content).toContain('Preserve runtime-native config structures');
         expect(tlSkill!.content).toContain('Ask the user before applying any shared config patch');
     });
 });

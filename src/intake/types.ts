@@ -13,6 +13,8 @@ export type ProjectType = 'MVP' | 'Production' | 'InternalTool' | 'LibraryAPI';
 
 export type Appetite = 'S' | 'M' | 'L';
 
+export type BrdStatus = 'locked' | 'draft' | 'none';
+
 // ─── Question Schema ─────────────────────────────────────────────
 
 export type QuestionType = 'select' | 'text';
@@ -45,7 +47,10 @@ export interface IntakeResult {
     skippedQuestions: string[];
     persona: Persona;
     projectType: ProjectType;
+    brdStatus: BrdStatus;
     roles: string[];
     autoAddedRoles: string[];
+    idea: string;
+    domain: string;
     firstFeature: { name: string; appetite: Appetite };
 }

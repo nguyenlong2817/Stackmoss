@@ -6,7 +6,6 @@
 
 import { extractRoleId } from '../templates/team.js';
 import type { GeneratedFile } from '../templates/types.js';
-import { renderRuntimeStructureBullets } from './runtime-contract.js';
 
 function uniqueRoleIds(roles: string[], autoAddedRoles: string[]): string[] {
     return Array.from(new Set([...roles, ...autoAddedRoles].map(extractRoleId)));
@@ -30,7 +29,6 @@ export function compileVSCode(
 - In an existing repo, begin as Tech Lead: scan the codebase, compare repo facts with \`team.md\`, and ask targeted follow-up questions when facts are missing.
 - Replace stale facts inside existing sections. Do not append memory logs to config files.
 - Ask the user before applying any shared config patch.
-- Preserve runtime-native config structures when Tech Lead recalibrates the team.
 
 ## Team Bootstrap
 
@@ -44,10 +42,6 @@ ${roleList}
 - \`NON_GOALS.md\`
 - \`AGENTS.md\`
 - \`CLAUDE.md\`
-
-## Runtime Structure Contract
-
-${renderRuntimeStructureBullets().map((line) => `- ${line}`).join('\n')}
 `;
 
     const teamBootstrapInstructions = `---
@@ -61,7 +55,6 @@ applyTo: "**"
 - Ask follow-up questions when repo facts are missing or conflicting.
 - Use concise, concrete change proposals and wait for user confirmation before applying config patches.
 - Prefer calibrating the agent team before expanding feature scope.
-- Preserve native runtime layouts when regenerating agent outputs.
 `;
 
     return [

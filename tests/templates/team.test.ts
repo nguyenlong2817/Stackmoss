@@ -45,16 +45,11 @@ describe('Template: team.md', () => {
         expect(result.content).toContain('### Review Gates');
     });
 
-    it('includes TL-led config maintenance and runtime structure contract', () => {
+    it('includes TL-led config maintenance contract', () => {
         const result = generateTeam(createSampleInput());
 
         expect(result.content).toContain('### Config Maintenance');
         expect(result.content).toContain('Calibration status: bootstrap pending TL recalibration after BRD lock + repo scan');
-        expect(result.content).toContain('### Runtime Structure Contract');
-        expect(result.content).toContain('.claude/skills/<skill-name>/SKILL.md');
-        expect(result.content).toContain('.cursor/skills/<skill-name>/SKILL.md');
-        expect(result.content).toContain('AGENTS.md');
-        expect(result.content).toContain('.agent/');
     });
 
     it('has PROJECT_FACTS section with TBD placeholders', () => {

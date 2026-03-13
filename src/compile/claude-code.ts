@@ -8,7 +8,6 @@
 import type { GeneratedFile } from '../templates/types.js';
 import { extractRoleId } from '../templates/team.js';
 import { CAPABILITY_BUDGETS, getCapabilitiesForRole } from '../budgets.js';
-import { renderRuntimeStructureBullets } from './runtime-contract.js';
 
 interface SkillCapability {
     id: string;
@@ -36,7 +35,6 @@ function getRoleMaintenance(roleStr: string): string[] {
             'Confirm BRD or NORTH_STAR is locked before implementation; if not, turn F1 into locking scope and constraints.',
             'Scan the repo, ask focused follow-up questions, and recalibrate the team to the real stack, topology, and delivery lanes.',
             'Act as the single writer for shared team config and prepare replace-only patches when facts change.',
-            'Preserve runtime-native config structures for Claude Code, Cursor, Codex, VS Code / Copilot, and Antigravity.',
             'Ask the user before applying any shared config patch.',
         ];
     }
@@ -44,7 +42,6 @@ function getRoleMaintenance(roleStr: string): string[] {
     return [
         'Do not edit shared team config directly.',
         'When you verify a command, path, test flow, or deploy fact, send that verified signal to Tech Lead.',
-        'Respect runtime-native config structures when proposing updates.',
         'Never append memory logs to shared config.',
     ];
 }
@@ -150,7 +147,6 @@ function renderSkillBody(roleStr: string, projectName: string): string {
 
 ## Instructions
 - Read team.md before acting.
-- Respect runtime-native config structures.
 `;
     }
 
@@ -173,8 +169,6 @@ ${capLines}
 ## Config Maintenance
 ${getRoleMaintenance(roleStr).map((line) => `- ${line}`).join('\n')}
 
-## Runtime Structure Contract
-${renderRuntimeStructureBullets().map((line) => `- ${line}`).join('\n')}
 `;
 }
 
@@ -218,9 +212,6 @@ function renderClaudeMd(roles: string[], projectName: string): string {
         lines.push(`- ${roleName}: .claude/skills/${roleToSlug(role)}/SKILL.md`);
     }
 
-    lines.push('');
-    lines.push('## Cross-Runtime Contract');
-    lines.push(...renderRuntimeStructureBullets().map((line) => `- ${line}`));
     lines.push('');
 
     return `${lines.join('\n')}\n`;

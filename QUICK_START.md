@@ -41,7 +41,6 @@ type README_AGENT_TEAM.md
 dir .claude\skills
 dir .cursor\skills
 dir .agent
-dir .agents
 ```
 
 Ky vong:
@@ -49,7 +48,7 @@ Ky vong:
 - `team.md` la source of truth
 - `FEATURES.md` co F1
 - `README_AGENT_TEAM.md` nhac ro BRD lock va TL calibration
-- bootstrap output duoc tao ngay theo runtime-native structure cho Claude Code, Cursor, VS Code / Copilot, Codex, va Antigravity
+- bootstrap output duoc tao ngay cho Claude Code, Cursor, VS Code / Copilot, Codex, va Antigravity
 
 ### 2.3 Flow dung team dung cach
 
@@ -90,9 +89,9 @@ cd E:\MyExistingProject
 
 ```bash
 stackmoss init
-stackmoss resolve
-stackmoss promote --confirm
 ```
+
+Sau `init`, happy path la mo runtime anh dang dung va chat voi Tech Lead truoc. Chi dung `resolve` / `promote` khi migration report van con open questions hoac state chua len duoc `OPERATIONAL`.
 
 ### 3.3 Kiem tra operational flow
 
@@ -104,10 +103,9 @@ stackmoss patch list
 
 Ky vong:
 
-- `inject` sync repo facts vao `PROJECT_FACTS`
 - `init` bootstrap StackMoss ngay trong repo hien tai va tu inject neu repo da co code
-- `resolve` dong cac open questions
-- `promote` dua state sang `OPERATIONAL`
+- `inject` sync repo facts vao `PROJECT_FACTS`
+- `resolve` va `promote` chi can khi migration state van can human confirm
 - `check` bao neu team van chua duoc TL calibrate
 
 ---

@@ -4,15 +4,12 @@
  *
  * Cursor natively loads skills from:
  * - .cursor/skills/
- * - .agents/skills/
- * - compatibility paths like .claude/skills/ and .codex/skills/
  */
 
 import type { GeneratedFile } from '../templates/types.js';
 import { extractRoleId } from '../templates/team.js';
 import { ROLE_CAPABILITIES, roleToSlug } from './claude-code.js';
 import { getCapabilitiesForRole } from '../budgets.js';
-import { renderRuntimeStructureBullets } from './runtime-contract.js';
 
 function uniqueRoles(roles: string[], autoAddedRoles: string[]): string[] {
     const seen = new Set<string>();
@@ -53,7 +50,6 @@ function renderRoleSkill(roleStr: string, projectName: string): string {
 
 ## Instructions
 - Read team.md before acting.
-- Respect runtime-native config structures.
 `;
     }
 
@@ -73,12 +69,10 @@ function renderRoleSkill(roleStr: string, projectName: string): string {
             'Confirm BRD or NORTH_STAR is locked before implementation.',
             'Scan the repo, ask follow-up questions, and recalibrate the team before implementation.',
             'Prepare replace-only config patches and ask the user before apply.',
-            'Preserve the runtime-native layouts for Claude Code, Cursor, Codex, VS Code / Copilot, and Antigravity.',
         ]
         : [
             'Do not edit shared team config directly.',
             'Send verified command, path, test, and deploy signals to Tech Lead.',
-            'Respect runtime-native config structures in any proposal.',
         ];
 
     return `${renderFrontmatter(
@@ -100,9 +94,6 @@ ${maintenanceLines.map((line) => `- ${line}`).join('\n')}
 ## Capabilities
 
 ${capabilities}
-
-## Runtime Structure Contract
-${renderRuntimeStructureBullets().map((line) => `- ${line}`).join('\n')}
 `;
 }
 
@@ -123,10 +114,6 @@ function renderBootstrapSkill(projectName: string): string {
 - Confirm BRD or NORTH_STAR is locked before implementation. If not, turn F1 into locking scope and constraints.
 - Scan the repo, ask follow-up questions for missing facts, and replace stale facts inside existing sections.
 - Tech Lead is the single writer for shared config and must ask the user before applying patches.
-- Keep every runtime output in its native structure.
-
-## Runtime Structure Contract
-${renderRuntimeStructureBullets().map((line) => `- ${line}`).join('\n')}
 `;
 }
 

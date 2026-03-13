@@ -1,8 +1,3 @@
-/**
- * Tests: NORTH_STAR.md template
- * Authority: BRD §9.4
- */
-
 import { describe, it, expect } from 'vitest';
 import { generateNorthStar } from '../../src/templates/north-star.js';
 import { createSampleInput, createInterviewIntake } from './helpers.js';
@@ -15,49 +10,33 @@ describe('Template: NORTH_STAR.md', () => {
         expect(result.content.length).toBeGreaterThan(0);
     });
 
-    it('includes project name', () => {
+    it('includes project name and persona', () => {
         const result = generateNorthStar(createSampleInput());
 
         expect(result.content).toContain('test-project');
-    });
-
-    it('maps persona from intake', () => {
-        const result = generateNorthStar(createSampleInput());
-
         expect(result.content).toContain('Biz lead');
     });
 
-    it('maps audience from Q2', () => {
+    it('includes audience, BRD status, idea, and domain', () => {
         const result = generateNorthStar(createSampleInput());
 
         expect(result.content).toContain('SME');
+        expect(result.content).toContain('Chua co');
+        expect(result.content).toContain('AI coding assistant for retail teams');
+        expect(result.content).toContain('Retail operations');
     });
 
-    it('maps geography constraint from Q3', () => {
+    it('includes derived bootstrap objective', () => {
         const result = generateNorthStar(createSampleInput());
-
-        expect(result.content).toContain('Việt Nam');
+        expect(result.content).toContain('Lock BRD with Tech Lead and BA');
     });
 
-    it('includes first feature name', () => {
-        const result = generateNorthStar(createSampleInput());
-
-        expect(result.content).toContain('Tạo landing page');
-    });
-
-    it('includes data sensitivity info', () => {
-        const result = generateNorthStar(createSampleInput());
-
-        expect(result.content).toContain('PII');
-    });
-
-    it('includes interview-only constraints (deploy, budget)', () => {
-        const input = createSampleInput({
-            intake: createInterviewIntake(),
-        });
+    it('includes interview-only deploy and success info', () => {
+        const input = createSampleInput({ intake: createInterviewIntake() });
         const result = generateNorthStar(input);
 
         expect(result.content).toContain('Cloud');
-        expect(result.content).toContain('Cân bằng');
+        expect(result.content).toContain('Shorten release cycles by 50%');
+        expect(result.content).toContain('Calibrate team from locked BRD');
     });
 });

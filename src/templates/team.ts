@@ -365,13 +365,6 @@ ${rolesSection}
 - Mọi update config phải replace thông tin sai bằng thông tin đúng trong section hiện có; không append lịch sử, không tạo memory log mới
 - Mọi patch config phải hỏi user trước khi apply; không agent nào được tự update liên tục không kiểm soát
 
-### Runtime Structure Contract
-- Claude Code: preserve \`CLAUDE.md\` + \`.claude/skills/<skill-name>/SKILL.md\`
-- Cursor: preserve \`.cursor/skills/<skill-name>/SKILL.md\`
-- VS Code / Copilot: preserve \`.github/copilot-instructions.md\` + \`.github/instructions/*.instructions.md\`
-- Codex: preserve repo-scoped \`AGENTS.md\`
-- Antigravity: preserve native \`.agents/skills\`, \`.agents/rules\`, \`.agents/workflows\`; also keep compatibility mirrors under \`.agent/\`
-
 ---
 
 ## PROJECT_FACTS

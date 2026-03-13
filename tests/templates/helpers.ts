@@ -1,14 +1,6 @@
-/**
- * Test helpers — shared test fixtures for template tests
- */
-
 import type { IntakeResult } from '../../src/intake/types.js';
 import type { TemplateInput } from '../../src/templates/types.js';
 
-/**
- * Create a sample IntakeResult for testing.
- * Defaults to fast mode, BizLed persona, MVP project.
- */
 export function createSampleIntake(overrides: Partial<IntakeResult> = {}): IntakeResult {
     return {
         mode: 'fast',
@@ -16,26 +8,25 @@ export function createSampleIntake(overrides: Partial<IntakeResult> = {}): Intak
         answers: {
             Q1: 'BizLed',
             Q2: 'sme',
-            Q3: 'vn',
-            Q4: 'web',
-            Q5: 'pii',
-            Q6: 'Tạo landing page',
-            Q6b: 'S',
+            Q3: 'none',
+            Q4: 'AI coding assistant for retail teams',
+            Q5: 'Retail operations',
+            Q6: 'pii',
             Q_PT: 'MVP',
         },
         skippedQuestions: [],
         persona: 'BizLed',
         projectType: 'MVP',
+        brdStatus: 'none',
         roles: ['TL', 'BA', 'DEV', 'QA(light)', 'DOCS'],
         autoAddedRoles: ['SEC-lite'],
-        firstFeature: { name: 'Tạo landing page', appetite: 'S' },
+        idea: 'AI coding assistant for retail teams',
+        domain: 'Retail operations',
+        firstFeature: { name: 'Lock BRD with Tech Lead and BA', appetite: 'M' },
         ...overrides,
     };
 }
 
-/**
- * Create a sample TemplateInput for testing.
- */
 export function createSampleInput(overrides: Partial<TemplateInput> = {}): TemplateInput {
     return {
         projectName: 'test-project',
@@ -45,9 +36,6 @@ export function createSampleInput(overrides: Partial<TemplateInput> = {}): Templ
     };
 }
 
-/**
- * Create an interview-mode IntakeResult.
- */
 export function createInterviewIntake(overrides: Partial<IntakeResult> = {}): IntakeResult {
     return {
         mode: 'interview',
@@ -55,25 +43,26 @@ export function createInterviewIntake(overrides: Partial<IntakeResult> = {}): In
         answers: {
             Q1: 'DevLed',
             Q2: 'enterprise',
-            Q3: 'global',
-            Q4: 'subscription',
-            Q5: 'web',
-            Q6: 'pii',
-            Q7: 'cloud',
-            Q8: 'balanced',
+            Q3: 'locked',
+            Q4: 'Internal AI workflow automation',
+            Q5: 'Developer tooling',
+            Q6: 'existing_repo',
+            Q7: 'finance',
+            Q8: 'cloud',
             Q9: 'small_team',
-            Q10: 'stability',
-            Q11: 'db',
-            Q12: 'User authentication',
-            Q12b: 'M',
+            Q10: 'Shorten release cycles by 50%',
+            Q11: 'partial',
             Q_PT: 'Production',
         },
         skippedQuestions: [],
         persona: 'DevLed',
         projectType: 'Production',
+        brdStatus: 'locked',
         roles: ['TL', 'DEV', 'QA(strong)', 'OPS', 'DOCS'],
         autoAddedRoles: ['SEC-lite', 'OPS-lite'],
-        firstFeature: { name: 'User authentication', appetite: 'M' },
+        idea: 'Internal AI workflow automation',
+        domain: 'Developer tooling',
+        firstFeature: { name: 'Calibrate team from locked BRD', appetite: 'M' },
         ...overrides,
     };
 }

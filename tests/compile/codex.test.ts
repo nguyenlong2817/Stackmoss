@@ -12,7 +12,5 @@ describe('Codex Compile Target', () => {
         expect(agents!.content).toContain('- TL');
         expect(agents!.content).toContain('- DEV');
         expect(agents!.content).toContain('- SEC');
-        expect(agents!.content).toContain('.claude/skills/<skill-name>/SKILL.md');
-        expect(agents!.content).toContain('.cursor/skills/<skill-name>/SKILL.md');
     });
 });

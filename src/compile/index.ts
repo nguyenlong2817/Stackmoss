@@ -6,7 +6,7 @@
  * v0.6: Runtime-native bootstrap:
  * - ClaudeCodeV2: CLAUDE.md + .claude/skills/<skill>/SKILL.md
  * - Cursor: .cursor/skills/<skill>/SKILL.md
- * - Antigravity: .agents/{skills,rules,workflows} + .agent compatibility mirrors
+ * - Antigravity: .agent/{skills,rules,workflows}
  */
 
 import type { GeneratedFile } from '../templates/types.js';

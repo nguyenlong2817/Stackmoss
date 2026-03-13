@@ -39,8 +39,7 @@ npm install -g stackmoss
 ## Quick Start
 
 ```bash
-stackmoss new my-project
-cd my-project
+stackmoss init
 ```
 
 Answer the intake questions and StackMoss will generate:
@@ -58,19 +57,26 @@ my-project/
 |-- .claude/
 |-- .cursor/
 |-- .agent/
-|-- .agents/
 |-- .github/
 `-- evals/
 ```
 
 Then use the team in this order:
 
-1. Lock the BRD or `NORTH_STAR.md` before real feature delivery.
-2. Open your IDE or CLI agent and ask **Tech Lead** to scan the repo, ask follow-up questions, and recalibrate the team to the real stack, topology, and delivery lanes.
-3. Review the proposed config patch.
-4. Only after confirmation, let the team start shipping features.
+1. Answer the intake around BRD status, idea, domain, and repo context.
+2. Open the IDE or CLI runtime you actually use and chat with **Tech Lead** first.
+3. Let Tech Lead scan the repo, ask follow-up questions, and recalibrate the team to the real stack and delivery lanes.
+4. Review the proposed config patch before any apply.
+5. Only after calibration, let the team start shipping features.
 
 > Full walkthrough: [QUICK_START.md](QUICK_START.md)
+
+New workspace:
+
+```bash
+stackmoss new my-project
+cd my-project
+```
 
 Existing repo:
 
@@ -92,7 +98,7 @@ stackmoss init
 - DEV, QA, OPS, and other roles can emit verified signals, but **Tech Lead is the single writer** for shared team config.
 - Shared config is updated by replacing stale facts with correct facts, never by appending history logs.
 - Every config patch requires user confirmation before apply.
-- Tech Lead must preserve each runtime's native structure when regenerating team outputs.
+- Each runtime should only read and update its own generated structure.
 
 ### Existing repo flow
 
@@ -104,7 +110,7 @@ stackmoss promote --confirm
 stackmoss check
 ```
 
-`init` bootstraps StackMoss and auto-runs `inject` for existing repos, `resolve` clears open questions, and `promote` moves the project into `OPERATIONAL` state.
+`init` bootstraps StackMoss and auto-runs `inject` for existing repos. `resolve`, `promote`, and `check` are advanced commands for migration/debugging when needed.
 
 ---
 
@@ -116,7 +122,7 @@ stackmoss check
 | `Cursor` | `.cursor/skills/<skill>/SKILL.md` | Cursor |
 | `VSCode` | `.github/copilot-instructions.md` | VS Code / Copilot |
 | `Codex` | `AGENTS.md` | OpenAI Codex |
-| `Antigravity` | `.agents/{skills,rules,workflows}` + `.agent/{skills,rules,workflows}` | Antigravity |
+| `Antigravity` | `.agent/{skills,rules,workflows}` | Antigravity |
 | `ClaudeCode` | `.claude/skills/*.skill.md` | Claude Code legacy |
 
 ---

@@ -3,13 +3,13 @@
  * Authority: BRD §9.7
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { generateOpenQuestions } from '../../src/templates/open-questions.js';
 import { createSampleInput, createSampleIntake } from './helpers.js';
 
 describe('Template: OPEN_QUESTIONS.md', () => {
     it('returns null when no skipped questions', () => {
-        const input = createSampleInput(); // no skipped questions
+        const input = createSampleInput();
         const result = generateOpenQuestions(input);
 
         expect(result).toBeNull();
@@ -39,7 +39,7 @@ describe('Template: OPEN_QUESTIONS.md', () => {
         expect(result.content).toContain('Q4:');
     });
 
-    it('includes question labels', () => {
+    it('includes updated BRD-first labels', () => {
         const input = createSampleInput({
             intake: createSampleIntake({
                 skippedQuestions: ['Q3'],
@@ -47,7 +47,24 @@ describe('Template: OPEN_QUESTIONS.md', () => {
         });
         const result = generateOpenQuestions(input)!;
 
-        expect(result.content).toContain('Phạm vi địa lý');
+        expect(result.content).toContain('BRD dang o trang thai nao?');
+    });
+
+    it('uses mode-specific labels for overlapping question ids', () => {
+        const fastInput = createSampleInput({
+            intake: createSampleIntake({
+                skippedQuestions: ['Q6'],
+            }),
+        });
+        const interviewInput = createSampleInput({
+            intake: createSampleIntake({
+                mode: 'interview',
+                skippedQuestions: ['Q6'],
+            }),
+        });
+
+        expect(generateOpenQuestions(fastInput)!.content).toContain('Data nhay cam?');
+        expect(generateOpenQuestions(interviewInput)!.content).toContain('Repo hien tai dang o trang thai nao?');
     });
 
     it('has checkbox format for unresolved items', () => {

@@ -1,28 +1,14 @@
-/**
- * Intake Engine — Internationalization (i18n)
- * Authority: F16 implementation plan
- *
- * String tables for en/vi. All intake questions and UI text
- * read from here. English is default.
- */
-
 export type Language = 'en' | 'vi';
 
-// ─── String Table Type ───────────────────────────────────────────
-
 export interface I18nStrings {
-    // Mode selection
     modeQuestion: string;
     modeFastLabel: string;
     modeInterviewLabel: string;
-    // Fast mode
     fastModeHeader: string;
-    // Interview mode
     interviewModeHeader: string;
     blockBiz: string;
     blockTech: string;
     blockTeam: string;
-    // Questions
     q1Text: string;
     q1BizLed: string;
     q1DevLed: string;
@@ -33,66 +19,47 @@ export interface I18nStrings {
     q2Sme: string;
     q2Enterprise: string;
     q2Community: string;
-    q3Text: string;
-    q3Internal: string;
-    q3Vn: string;
-    q3Global: string;
-    q4FastText: string;
-    q4Web: string;
-    q4Mobile: string;
-    q4Chat: string;
-    q4Api: string;
-    q5FastText: string;
-    q5None: string;
-    q5Pii: string;
-    q5Finance: string;
-    q5Compliance: string;
-    q6Text: string;
-    q6bText: string;
-    appetiteS: string;
-    appetiteM: string;
-    appetiteL: string;
+    q3BrdText: string;
+    q3BrdLocked: string;
+    q3BrdDraft: string;
+    q3BrdNone: string;
+    q4IdeaText: string;
+    q5DomainText: string;
+    q6DataText: string;
+    q6None: string;
+    q6Pii: string;
+    q6Finance: string;
+    q6Compliance: string;
+    q6RepoText: string;
+    q6RepoExisting: string;
+    q6RepoGreenfield: string;
+    q7DataText: string;
+    q7None: string;
+    q7Pii: string;
+    q7Finance: string;
+    q7Compliance: string;
+    q8DeployText: string;
+    q8Local: string;
+    q8Vps: string;
+    q8Cloud: string;
+    q8Unknown: string;
+    q9Text: string;
+    q9Solo: string;
+    q9SmallTeam: string;
+    q9Outsource: string;
+    q10SuccessText: string;
+    q11StackText: string;
+    q11Known: string;
+    q11Partial: string;
+    q11Unknown: string;
     ptText: string;
     ptMvp: string;
     ptProduction: string;
     ptInternalTool: string;
     ptLibraryApi: string;
-    // Interview-only
-    q4InterviewText: string;
-    q4Free: string;
-    q4Subscription: string;
-    q4Usage: string;
-    q4Unknown: string;
-    q7Text: string;
-    q7Local: string;
-    q7Vps: string;
-    q7Cloud: string;
-    q7Unknown: string;
-    q8Text: string;
-    q8Cheapest: string;
-    q8Balanced: string;
-    q8Fastest: string;
-    q9Text: string;
-    q9Solo: string;
-    q9SmallTeam: string;
-    q9Outsource: string;
-    q10Text: string;
-    q10Speed: string;
-    q10Stability: string;
-    q10Both: string;
-    q11Text: string;
-    q11Sheets: string;
-    q11Db: string;
-    q11Crm: string;
-    q11ExternalApi: string;
-    q11None: string;
-    // Completeness gate
-    gateQ5Required: string;
-    gateQ2Required: string;
-    gateQ12Required: string;
-    // Navigation
+    gateAudienceRequired: string;
+    gateSuccessRequired: string;
     backLabel: string;
-    // Report
     reportHeader: string;
     reportMode: string;
     reportPersona: string;
@@ -101,21 +68,19 @@ export interface I18nStrings {
     reportAutoAdded: string;
     reportFeature: string;
     reportSkipped: string;
-    // Errors
+    reportBrd: string;
     cancelled: string;
 }
 
-// ─── English Strings ─────────────────────────────────────────────
-
 const EN: I18nStrings = {
     modeQuestion: 'Setup speed?',
-    modeFastLabel: '[F] Fast    ~3 min, 7 questions',
-    modeInterviewLabel: '[I] Interview   ~10 min, 13 questions, better team',
-    fastModeHeader: '🚀 Fast Mode — 7 questions, ~3 min',
-    interviewModeHeader: '📝 Interview Mode — 13 questions, ~10 min',
-    blockBiz: '📋 Block 1 — Business context',
-    blockTech: '🔧 Block 2 — Technical constraints',
-    blockTeam: '👥 Block 3 — Team & velocity',
+    modeFastLabel: '[F] Fast    ~3 min, bootstrap only',
+    modeInterviewLabel: '[I] Interview   ~10 min, better pre-BRD discovery',
+    fastModeHeader: 'Fast Mode - 7 questions, bootstrap only',
+    interviewModeHeader: 'Interview Mode - deeper discovery before team shaping',
+    blockBiz: 'Block 1 - Product framing',
+    blockTech: 'Block 2 - Repo and delivery context',
+    blockTeam: 'Block 3 - Team readiness',
     q1Text: 'Your role in this project?',
     q1BizLed: 'Biz lead',
     q1DevLed: 'Dev lead',
@@ -126,166 +91,132 @@ const EN: I18nStrings = {
     q2Sme: 'SME',
     q2Enterprise: 'Enterprise',
     q2Community: 'Community',
-    q3Text: 'Geographic scope?',
-    q3Internal: 'Internal',
-    q3Vn: 'Vietnam',
-    q3Global: 'Global',
-    q4FastText: 'Primary channel?',
-    q4Web: 'Web',
-    q4Mobile: 'Mobile',
-    q4Chat: 'Chat (Zalo/FB/IG)',
-    q4Api: 'API',
-    q5FastText: 'Sensitive data?',
-    q5None: 'None',
-    q5Pii: 'PII',
-    q5Finance: 'Financial',
-    q5Compliance: 'Compliance',
-    q6Text: 'First feature to ship?',
-    q6bText: 'How long to ship?',
-    appetiteS: '[S] A few days',
-    appetiteM: '[M] 1-2 weeks',
-    appetiteL: '[L] More than 2 weeks',
-    ptText: 'Project type?',
-    ptMvp: 'MVP — ship fast, test ideas',
-    ptProduction: 'Production — stable, strong QA',
-    ptInternalTool: 'Internal Tool — internal use',
-    ptLibraryApi: 'Library / API — library or API service',
-    q4InterviewText: 'Monetization?',
-    q4Free: 'Free',
-    q4Subscription: 'Subscription',
-    q4Usage: 'Usage-based',
-    q4Unknown: 'Not sure',
-    q7Text: 'Deploy target?',
-    q7Local: 'Local',
-    q7Vps: 'VPS',
-    q7Cloud: 'Cloud',
-    q7Unknown: 'Not sure',
-    q8Text: 'Budget for v1?',
-    q8Cheapest: 'Cheapest',
-    q8Balanced: 'Balanced',
-    q8Fastest: 'Fastest',
-    q9Text: 'Who maintains after launch?',
+    q3BrdText: 'BRD status?',
+    q3BrdLocked: 'Locked BRD already exists',
+    q3BrdDraft: 'BRD exists but is still draft',
+    q3BrdNone: 'No BRD yet',
+    q4IdeaText: 'What is the product idea?',
+    q5DomainText: 'What domain is this in?',
+    q6DataText: 'Sensitive data level?',
+    q6None: 'None',
+    q6Pii: 'PII',
+    q6Finance: 'Financial',
+    q6Compliance: 'Compliance',
+    q6RepoText: 'What repo state are we starting from?',
+    q6RepoExisting: 'Existing repo with code',
+    q6RepoGreenfield: 'Greenfield / empty repo',
+    q7DataText: 'Sensitive data level?',
+    q7None: 'None',
+    q7Pii: 'PII',
+    q7Finance: 'Financial',
+    q7Compliance: 'Compliance',
+    q8DeployText: 'Expected deploy target?',
+    q8Local: 'Local only',
+    q8Vps: 'VPS',
+    q8Cloud: 'Cloud',
+    q8Unknown: 'Not sure yet',
+    q9Text: 'Who maintains this after launch?',
     q9Solo: 'Solo',
     q9SmallTeam: 'Small team',
     q9Outsource: 'Outsource',
-    q10Text: 'Priority?',
-    q10Speed: 'Ship fast',
-    q10Stability: 'Ship stable',
-    q10Both: 'Both',
-    q11Text: 'Primary data source?',
-    q11Sheets: 'Sheets/Docs',
-    q11Db: 'Database',
-    q11Crm: 'CRM',
-    q11ExternalApi: 'External API',
-    q11None: 'None yet',
-    gateQ5Required: '\n⚠️  Data sensitivity (Q5) is required. Asking again.\n',
-    gateQ2Required: '\n⚠️  Need to know who the product serves (Q2).\n',
-    gateQ12Required: '\n⚠️  Need to know the first feature to ship (Q12).\n',
-    backLabel: '← Back',
-    reportHeader: '📊 Intake Summary',
+    q10SuccessText: 'What would make v1 successful?',
+    q11StackText: 'How clear is the intended stack today?',
+    q11Known: 'Known',
+    q11Partial: 'Partially known',
+    q11Unknown: 'Still unknown',
+    ptText: 'Project type?',
+    ptMvp: 'MVP - ship fast, test ideas',
+    ptProduction: 'Production - stable, stronger QA',
+    ptInternalTool: 'Internal Tool',
+    ptLibraryApi: 'Library / API',
+    gateAudienceRequired: '\nNeed to know who the product serves (Q2).\n',
+    gateSuccessRequired: '\nNeed a success signal for v1 (Q10).\n',
+    backLabel: '<- Back',
+    reportHeader: 'Intake Summary',
     reportMode: 'Mode',
     reportPersona: 'Persona',
     reportProject: 'Project',
     reportRoles: 'Roles',
     reportAutoAdded: 'Auto-added',
-    reportFeature: 'Feature',
+    reportFeature: 'Bootstrap F1',
     reportSkipped: 'Skipped',
-    cancelled: '\n❌ Cancelled.\n',
+    reportBrd: 'BRD',
+    cancelled: '\nCancelled.\n',
 };
 
-// ─── Vietnamese Strings ──────────────────────────────────────────
-
 const VI: I18nStrings = {
-    modeQuestion: 'Bạn muốn setup nhanh hay chi tiết?',
-    modeFastLabel: '[F] Fast    ~3 phút, 7 câu',
-    modeInterviewLabel: '[I] Interview   ~10 phút, 13 câu, team tốt hơn',
-    fastModeHeader: '🚀 Fast Mode — 7 câu hỏi, ~3 phút',
-    interviewModeHeader: '📝 Interview Mode — 13 câu hỏi, ~10 phút',
-    blockBiz: '📋 Block 1 — Bối cảnh biz',
-    blockTech: '🔧 Block 2 — Constraint kỹ thuật',
-    blockTeam: '👥 Block 3 — Team & velocity',
-    q1Text: 'Bạn là ai trong dự án này?',
+    modeQuestion: 'Ban muon setup nhanh hay chi tiet?',
+    modeFastLabel: '[F] Fast    ~3 phut, bootstrap only',
+    modeInterviewLabel: '[I] Interview   ~10 phut, phu hop khi chua lock BRD',
+    fastModeHeader: 'Fast Mode - 7 cau hoi, bootstrap only',
+    interviewModeHeader: 'Interview Mode - discovery sau hon truoc khi shape team',
+    blockBiz: 'Block 1 - Product framing',
+    blockTech: 'Block 2 - Repo va delivery context',
+    blockTeam: 'Block 3 - Team readiness',
+    q1Text: 'Ban la ai trong du an nay?',
     q1BizLed: 'Biz lead',
     q1DevLed: 'Dev lead',
     q1Solo: 'Solo',
-    q1Newbie: 'Không rõ',
-    q2Text: 'Sản phẩm phục vụ ai?',
-    q2Individual: 'Cá nhân',
+    q1Newbie: 'Khong ro',
+    q2Text: 'San pham phuc vu ai?',
+    q2Individual: 'Ca nhan',
     q2Sme: 'SME',
     q2Enterprise: 'Enterprise',
-    q2Community: 'Cộng đồng',
-    q3Text: 'Phạm vi địa lý?',
-    q3Internal: 'Nội bộ',
-    q3Vn: 'VN',
-    q3Global: 'Global',
-    q4FastText: 'Kênh chính?',
-    q4Web: 'Web',
-    q4Mobile: 'Mobile',
-    q4Chat: 'Chat (Zalo/FB/IG)',
-    q4Api: 'API',
-    q5FastText: 'Data nhạy cảm?',
-    q5None: 'Không',
-    q5Pii: 'PII',
-    q5Finance: 'Tài chính',
-    q5Compliance: 'Compliance',
-    q6Text: 'Feature đầu tiên muốn ship là gì?',
-    q6bText: 'Cần bao lâu để ship?',
-    appetiteS: '[S] Vài ngày',
-    appetiteM: '[M] 1-2 tuần',
-    appetiteL: '[L] Hơn 2 tuần',
-    ptText: 'Dự án này thuộc loại nào?',
-    ptMvp: 'MVP — ship nhanh, test ý tưởng',
-    ptProduction: 'Production — ổn định, cần QA mạnh',
-    ptInternalTool: 'Internal Tool — công cụ nội bộ',
-    ptLibraryApi: 'Library / API — thư viện hoặc API service',
-    q4InterviewText: 'Monetization?',
-    q4Free: 'Free',
-    q4Subscription: 'Subscription',
-    q4Usage: 'Usage-based',
-    q4Unknown: 'Chưa biết',
-    q7Text: 'Deploy ở đâu?',
-    q7Local: 'Local',
-    q7Vps: 'VPS',
-    q7Cloud: 'Cloud',
-    q7Unknown: 'Chưa biết',
-    q8Text: 'Budget để ship v1?',
-    q8Cheapest: 'Rẻ nhất',
-    q8Balanced: 'Cân bằng',
-    q8Fastest: 'Nhanh nhất',
-    q9Text: 'Ai maintain sau này?',
-    q9Solo: 'Một mình',
-    q9SmallTeam: 'Team nhỏ',
+    q2Community: 'Cong dong',
+    q3BrdText: 'BRD dang o trang thai nao?',
+    q3BrdLocked: 'Da co BRD va da lock',
+    q3BrdDraft: 'Da co BRD nhung van la draft',
+    q3BrdNone: 'Chua co BRD',
+    q4IdeaText: 'Idea cua san pham la gi?',
+    q5DomainText: 'Linh vuc cua idea nay la gi?',
+    q6DataText: 'Muc do data nhay cam?',
+    q6None: 'Khong',
+    q6Pii: 'PII',
+    q6Finance: 'Tai chinh',
+    q6Compliance: 'Compliance',
+    q6RepoText: 'Repo hien tai dang o trang thai nao?',
+    q6RepoExisting: 'Da co repo va co code',
+    q6RepoGreenfield: 'Repo rong / greenfield',
+    q7DataText: 'Muc do data nhay cam?',
+    q7None: 'Khong',
+    q7Pii: 'PII',
+    q7Finance: 'Tai chinh',
+    q7Compliance: 'Compliance',
+    q8DeployText: 'Ky vong deploy o dau?',
+    q8Local: 'Chi local',
+    q8Vps: 'VPS',
+    q8Cloud: 'Cloud',
+    q8Unknown: 'Chua ro',
+    q9Text: 'Ai se maintain sau khi launch?',
+    q9Solo: 'Mot minh',
+    q9SmallTeam: 'Team nho',
     q9Outsource: 'Outsource',
-    q10Text: 'Ưu tiên?',
-    q10Speed: 'Ship nhanh',
-    q10Stability: 'Ship ổn định',
-    q10Both: 'Cả hai',
-    q11Text: 'Nguồn dữ liệu chính ở đâu?',
-    q11Sheets: 'Sheets/Docs',
-    q11Db: 'DB',
-    q11Crm: 'CRM',
-    q11ExternalApi: 'API bên ngoài',
-    q11None: 'Chưa có',
-    gateQ5Required: '\n⚠️  Data nhạy cảm (Q5) là bắt buộc. Hỏi lại một lần.\n',
-    gateQ2Required: '\n⚠️  Cần biết sản phẩm phục vụ ai (Q2).\n',
-    gateQ12Required: '\n⚠️  Cần biết feature đầu tiên muốn ship (Q12).\n',
-    backLabel: '← Quay lại',
-    reportHeader: '📊 Intake Summary',
+    q10SuccessText: 'Dau hieu nao cho thay v1 thanh cong?',
+    q11StackText: 'Muc do ro rang cua stack hien tai?',
+    q11Known: 'Da ro',
+    q11Partial: 'Moi ro mot phan',
+    q11Unknown: 'Chua ro',
+    ptText: 'Du an nay thuoc loai nao?',
+    ptMvp: 'MVP - ship nhanh, test y tuong',
+    ptProduction: 'Production - on dinh, QA manh hon',
+    ptInternalTool: 'Internal Tool',
+    ptLibraryApi: 'Library / API',
+    gateAudienceRequired: '\nCan biet san pham phuc vu ai (Q2).\n',
+    gateSuccessRequired: '\nCan co dau hieu thanh cong cho v1 (Q10).\n',
+    backLabel: '<- Quay lai',
+    reportHeader: 'Intake Summary',
     reportMode: 'Mode',
     reportPersona: 'Persona',
     reportProject: 'Project',
     reportRoles: 'Roles',
     reportAutoAdded: 'Auto-added',
-    reportFeature: 'Feature',
+    reportFeature: 'Bootstrap F1',
     reportSkipped: 'Skipped',
-    cancelled: '\n❌ Đã huỷ.\n',
+    reportBrd: 'BRD',
+    cancelled: '\nDa huy.\n',
 };
 
-// ─── String Table Map ────────────────────────────────────────────
-
 const TABLES: Record<Language, I18nStrings> = { en: EN, vi: VI };
-
-/** Global mutable language — set once at intake start */
 let currentLanguage: Language = 'en';
 
 export function setLanguage(lang: Language): void {

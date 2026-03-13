@@ -1,91 +1,57 @@
-/**
- * Template: NORTH_STAR.md
- * Authority: BRD §9.4
- *
- * Pure function, string interpolation only, no LLM.
- */
-
 import type { GeneratedFile, TemplateInput } from './types.js';
 
-// ─── Answer Label Maps ───────────────────────────────────────────
-
 const AUDIENCE_LABELS: Record<string, string> = {
-    individual: 'Cá nhân',
-    sme: 'SME (doanh nghiệp nhỏ)',
+    individual: 'Ca nhan',
+    sme: 'SME',
     enterprise: 'Enterprise',
-    community: 'Cộng đồng',
-};
-
-const GEO_LABELS: Record<string, string> = {
-    internal: 'Nội bộ',
-    vn: 'Việt Nam',
-    global: 'Global',
+    community: 'Cong dong',
 };
 
 const PERSONA_LABELS: Record<string, string> = {
     BizLed: 'Biz lead',
     DevLed: 'Dev lead',
     Solo: 'Solo founder',
-    Newbie: 'Người mới',
+    Newbie: 'Nguoi moi',
 };
 
-// ─── Generator ───────────────────────────────────────────────────
+const BRD_LABELS: Record<string, string> = {
+    locked: 'Da lock',
+    draft: 'Dang draft',
+    none: 'Chua co',
+};
+
+const DEPLOY_LABELS: Record<string, string> = {
+    local: 'Local',
+    vps: 'VPS',
+    cloud: 'Cloud',
+    unknown: 'Unknown',
+};
 
 export function generateNorthStar(input: TemplateInput): GeneratedFile {
     const { projectName, intake } = input;
     const { answers, mode } = intake;
 
-    // Map answers to display values
     const persona = PERSONA_LABELS[intake.persona] ?? intake.persona;
     const audience = AUDIENCE_LABELS[answers['Q2'] as string] ?? (answers['Q2'] as string) ?? 'TBD';
-    const geo = GEO_LABELS[answers['Q3'] as string] ?? (answers['Q3'] as string) ?? 'TBD';
-
-    // Feature question differs by mode
-    const featureName = intake.firstFeature.name || 'TBD';
-
-    // Data sensitivity
-    const dataSensitivityId = mode === 'fast' ? 'Q5' : 'Q6';
+    const brdStatus = BRD_LABELS[intake.brdStatus] ?? intake.brdStatus;
+    const dataSensitivityId = mode === 'fast' ? 'Q6' : 'Q7';
     const dataSensitivity = (answers[dataSensitivityId] as string) ?? 'none';
-    const sensitivityLabel = dataSensitivity === 'none' ? 'Không có data nhạy cảm' : `Data nhạy cảm: ${dataSensitivity.toUpperCase()}`;
+    const deployTargetRaw = mode === 'interview' ? ((answers['Q8'] as string) ?? 'unknown') : 'unknown';
+    const deployTarget = DEPLOY_LABELS[deployTargetRaw] ?? deployTargetRaw;
 
-    // Constraints list
-    const constraints: string[] = [];
-    constraints.push(`Địa lý: ${geo}`);
-    constraints.push(sensitivityLabel);
+    const content = `# North Star - ${projectName}
+_Generated from intake. Cap nhat bang tay khi direction thay doi._
 
-    // Interview-only constraints
-    if (mode === 'interview') {
-        const deployTarget = (answers['Q7'] as string) ?? '';
-        if (deployTarget) {
-            const deployLabels: Record<string, string> = {
-                local: 'Local',
-                vps: 'VPS',
-                cloud: 'Cloud',
-                unknown: 'Chưa xác định',
-            };
-            constraints.push(`Deploy: ${deployLabels[deployTarget] ?? deployTarget}`);
-        }
-
-        const budget = (answers['Q8'] as string) ?? '';
-        if (budget) {
-            const budgetLabels: Record<string, string> = {
-                cheapest: 'Rẻ nhất',
-                balanced: 'Cân bằng',
-                fastest: 'Nhanh nhất',
-            };
-            constraints.push(`Budget: ${budgetLabels[budget] ?? budget}`);
-        }
-    }
-
-    const content = `# North Star — ${projectName}
-_Generated from intake. Cập nhật bằng tay khi direction thay đổi._
-
-**Ai dùng:** ${persona} xây dựng sản phẩm cho ${audience}
-**Vấn đề cần giải quyết:** ${featureName}
-**Success signal:** [khi nào coi là thành công — cần owner confirm]
+**Ai dung:** ${persona} xay dung san pham cho ${audience}
+**BRD status:** ${brdStatus}
+**Idea:** ${intake.idea}
+**Domain:** ${intake.domain}
+**Success signal:** ${(answers['Q10'] as string) ?? '[can owner confirm]'}
 **Constraints:**
-${constraints.map((c) => `- ${c}`).join('\n')}
-**Phạm vi v1:** Feature đầu tiên: ${featureName} [${intake.firstFeature.appetite}]
+- Data sensitivity: ${dataSensitivity.toUpperCase()}
+- Deploy target: ${deployTarget}
+- Team bootstrap objective: ${intake.firstFeature.name}
+**Pham vi v1:** ${intake.firstFeature.name} [${intake.firstFeature.appetite}]
 `;
 
     return {
