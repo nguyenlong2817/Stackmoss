@@ -1,0 +1,188 @@
+# StackMoss Command Safety Rules
+# Docs: https://developers.openai.com/codex/rules
+# Authority: BRD §3 governance — "Safe by default"
+#            BRD §6 state machine — state-specific permissions
+#            BRD §13 MIGRATING state restrictions
+
+# ═══════════════════════════════════════════════════════════════════
+# ALLOW: Safe development commands
+# ═══════════════════════════════════════════════════════════════════
+
+prefix_rule(
+    pattern = ["npm", "test"],
+    decision = "allow",
+    justification = "Running tests is always safe",
+    match = [
+        "npm test",
+        "npm test -- --grep intake",
+    ],
+)
+
+prefix_rule(
+    pattern = ["npm", "run", "build"],
+    decision = "allow",
+    justification = "Building TypeScript is always safe",
+    match = ["npm run build"],
+)
+
+prefix_rule(
+    pattern = ["npx", "vitest"],
+    decision = "allow",
+    justification = "Running vitest directly is safe",
+    match = [
+        "npx vitest",
+        "npx vitest run",
+        "npx vitest run --reporter=verbose",
+        "npx vitest run tests/intake/fast-mode.test.ts",
+    ],
+)
+
+prefix_rule(
+    pattern = ["npx", "tsc"],
+    decision = "allow",
+    justification = "Type-checking is always safe",
+    match = ["npx tsc --noEmit", "npx tsc"],
+)
+
+# Safe read-only commands (allowed in all states including MIGRATING)
+prefix_rule(
+    pattern = ["cat"],
+    decision = "allow",
+    justification = "Reading files is safe (BRD §13.1 — allowed in MIGRATING)",
+)
+
+prefix_rule(
+    pattern = ["find"],
+    decision = "allow",
+    justification = "Finding files is safe (BRD §13.1 — allowed in MIGRATING)",
+)
+
+prefix_rule(
+    pattern = ["grep"],
+    decision = "allow",
+    justification = "Searching file content is safe",
+)
+
+# Git read commands
+prefix_rule(
+    pattern = ["git", "status"],
+    decision = "allow",
+    justification = "Checking git status is safe",
+)
+
+prefix_rule(
+    pattern = ["git", "diff"],
+    decision = "allow",
+    justification = "Viewing diffs is safe",
+)
+
+prefix_rule(
+    pattern = ["git", "log"],
+    decision = "allow",
+    justification = "Viewing git history is safe",
+)
+
+prefix_rule(
+    pattern = ["git", "add"],
+    decision = "prompt",
+    justification = "Staging files requires review — verify A/B/C layer separation",
+    match = ["git add src/commands/new.ts"],
+)
+
+prefix_rule(
+    pattern = ["git", "commit"],
+    decision = "prompt",
+    justification = "Commits require review — verify conventional format and layer hygiene",
+)
+
+# ═══════════════════════════════════════════════════════════════════
+# PROMPT: Commands that need review
+# ═══════════════════════════════════════════════════════════════════
+
+prefix_rule(
+    pattern = ["npm", "publish"],
+    decision = "prompt",
+    justification = "Publishing to npm requires explicit approval",
+    match = ["npm publish"],
+)
+
+prefix_rule(
+    pattern = ["npm", "install"],
+    decision = "prompt",
+    justification = "Installing dependencies modifies node_modules and lockfile — ask confirmation per working agreement",
+    match = [
+        "npm install",
+        "npm install lodash",
+    ],
+)
+
+prefix_rule(
+    pattern = ["git", "push"],
+    decision = "prompt",
+    justification = "Pushing to remote requires approval",
+    match = ["git push", "git push origin main"],
+    not_match = ["git push --force"],
+)
+
+prefix_rule(
+    pattern = ["node"],
+    decision = "prompt",
+    justification = "Running Node.js scripts may execute code — review before allowing (BRD §13.1: forbidden in MIGRATING state)",
+    match = ["node src/bin/stackmoss.ts"],
+)
+
+prefix_rule(
+    pattern = ["npm", "run", "dev"],
+    decision = "prompt",
+    justification = "Running dev server may have side effects — review before allowing",
+    match = ["npm run dev"],
+)
+
+# ═══════════════════════════════════════════════════════════════════
+# FORBIDDEN: Destructive commands (BRD §3 governance)
+# ═══════════════════════════════════════════════════════════════════
+
+prefix_rule(
+    pattern = ["rm", "-rf"],
+    decision = "forbidden",
+    justification = "Destructive file deletion forbidden per BRD §3 principle 6: 'Safe by default — deny destructive tools'. Use explicit, targeted file removal.",
+    match = [
+        "rm -rf /",
+        "rm -rf node_modules",
+        "rm -rf dist",
+    ],
+)
+
+prefix_rule(
+    pattern = ["git", "push", "--force"],
+    decision = "forbidden",
+    justification = "Force push forbidden per BRD §3 principle 6. Use --force-with-lease if absolutely necessary.",
+    match = ["git push --force", "git push --force origin main"],
+)
+
+prefix_rule(
+    pattern = ["git", "push", "-f"],
+    decision = "forbidden",
+    justification = "Force push (-f shorthand) forbidden per BRD §3.",
+    match = ["git push -f", "git push -f origin main"],
+)
+
+prefix_rule(
+    pattern = ["git", "reset", "--hard"],
+    decision = "forbidden",
+    justification = "Hard reset discards uncommitted work. Use git stash or targeted reset instead.",
+    match = ["git reset --hard", "git reset --hard HEAD~1"],
+)
+
+# Compile output protection — these files are generated, not hand-edited
+prefix_rule(
+    pattern = ["code", ".claude"],
+    decision = "forbidden",
+    justification = "Do not manually edit compiled outputs in .claude/skills/. Edit team.md instead (BRD §3 principle 7).",
+)
+
+prefix_rule(
+    pattern = ["code", ".roo"],
+    decision = "forbidden",
+    justification = "Do not manually edit compiled outputs in .roo/skills/. Edit team.md instead (BRD §3 principle 7).",
+)

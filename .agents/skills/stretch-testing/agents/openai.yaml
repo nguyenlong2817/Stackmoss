@@ -1,0 +1,7 @@
+interface:
+  display_name: "Stretch Testing"
+  short_description: "Adversarial QA, BRD compliance checks, and edge case probing"
+  brand_color: "#DC2626"
+
+policy:
+  allow_implicit_invocation: true

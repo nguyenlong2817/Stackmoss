@@ -1,0 +1,7 @@
+interface:
+  display_name: "Intake Engine"
+  short_description: "Onboarding questionnaire, persona detection, pack selection, and completeness gates"
+  brand_color: "#16A34A"
+
+policy:
+  allow_implicit_invocation: true

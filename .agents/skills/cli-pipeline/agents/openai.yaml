@@ -1,0 +1,7 @@
+interface:
+  display_name: "CLI Pipeline"
+  short_description: "StackMoss CLI commands, state machine transitions, and pipeline orchestration"
+  brand_color: "#2563EB"
+
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Template Engine"
+  short_description: "Output file generation, compile layer, and schema validation for generated artifacts"
+  brand_color: "#D97706"
+
+policy:
+  allow_implicit_invocation: true

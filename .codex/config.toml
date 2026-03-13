@@ -1,0 +1,48 @@
+# StackMoss — Project-scoped Codex Configuration
+# Docs: https://developers.openai.com/codex/config-basic
+
+# ─── Project Instructions Discovery ─────────────────────────────
+# Codex reads AGENTS.md at root, then walks down to CWD picking up
+# AGENTS.override.md in src/ and tests/ for directory-scoped rules.
+
+project_doc_max_bytes = 65536
+
+# ─── Feature Flags ───────────────────────────────────────────────
+[features]
+multi_agent = true
+
+# ─── MCP Servers ─────────────────────────────────────────────────
+
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@upstash/context7-mcp"]
+
+[mcp_servers.github]
+command = "npx"
+args = ["-y", "@anthropic-ai/github-mcp-server"]
+
+# ─── Multi-Agent Roles (BRD §9.2 Role Map) ──────────────────────
+
+[agents]
+max_threads = 4
+max_depth = 1
+
+# TL — Architecture, feature breakdown, review
+[agents.tech-lead]
+description = "Architecture decisions, feature breakdown, code review, CONTEXT.md/FEATURES.md maintenance. Maps to BRD [TL] role with capabilities: TL-ARCH, TL-REVIEW, TL-CONTEXT, TL-PLAN."
+config_file = "agents/tech-lead.toml"
+
+# DEV — Implementation, env knowledge, debug
+[agents.dev]
+description = "Feature implementation, environment commands, debug. Maps to BRD [DEV] role with capabilities: DEV-IMPL, DEV-ENV, DEV-DEBUG. Follows command pattern: parseArgs → checkState → execute → report."
+config_file = "agents/dev.toml"
+
+# QA — Tests, acceptance criteria, regression
+[agents.qa]
+description = "Test & verify acceptance criteria, regression checklist, word budget enforcement, BRD schema compliance. Maps to BRD [QA] role with capabilities: QA-TEST, QA-REGRESSION."
+config_file = "agents/qa.toml"
+
+# SEC — Security scan (auto-add when PII/Finance/Compliance)
+[agents.security-auditor]
+description = "Security audit for auth, PII, and financial data features. Read-only. Maps to BRD [SEC] role with capability: SEC-SCAN. Auto-triggered when Q5/Q6 = PII | Finance | Compliance."
+config_file = "agents/security-auditor.toml"
