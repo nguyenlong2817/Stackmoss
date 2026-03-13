@@ -1,6 +1,7 @@
 import { createRequire } from 'node:module';
 import { Command } from 'commander';
 import { handler as newHandler } from './commands/new.js';
+import { handler as initHandler } from './commands/init.js';
 import { handler as injectHandler } from './commands/inject.js';
 import { handler as resolveHandler } from './commands/resolve.js';
 import { handler as promoteHandler } from './commands/promote.js';
@@ -28,6 +29,18 @@ program
     .action(async (projectName: string) => {
         try {
             await newHandler(projectName);
+        } catch (error) {
+            console.error(`❌ ${(error as Error).message}`);
+            process.exit(1);
+        }
+    });
+
+program
+    .command('init [project_name]')
+    .description('Initialize StackMoss in the current repository')
+    .action(async (projectName?: string) => {
+        try {
+            await initHandler(projectName);
         } catch (error) {
             console.error(`❌ ${(error as Error).message}`);
             process.exit(1);

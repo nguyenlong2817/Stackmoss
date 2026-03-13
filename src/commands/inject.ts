@@ -126,7 +126,7 @@ export function parseArgs(): { projectPath: string; configPath: string } {
     if (!existsSync(configPath)) {
         throw new Error(
             `No ${CONFIG_FILENAME} found in current directory.\n` +
-            `   Run 'stackmoss new <project_name>' first to create a project.`,
+            `   Run 'stackmoss init' in an existing repo, or 'stackmoss new <project_name>' for a new workspace.`,
         );
     }
 

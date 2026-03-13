@@ -19,14 +19,15 @@ describe('State Machine', () => {
 
     describe('COMMAND_STATE_MAP', () => {
         it('should have all commands mapped', () => {
-            const commands = ['new', 'inject', 'resolve', 'promote', 'run', 'check', 'patch', 'upgrade'];
+            const commands = ['new', 'init', 'inject', 'resolve', 'promote', 'run', 'check', 'patch', 'upgrade'];
             for (const cmd of commands) {
                 expect(COMMAND_STATE_MAP).toHaveProperty(cmd);
             }
         });
 
-        it('should allow `new` in any state (empty allowed array)', () => {
+        it('should allow `new` and `init` in any state (empty allowed array)', () => {
             expect(COMMAND_STATE_MAP['new']).toEqual([]);
+            expect(COMMAND_STATE_MAP['init']).toEqual([]);
         });
 
         it('should allow `inject` only in GLOBAL', () => {
@@ -46,9 +47,10 @@ describe('State Machine', () => {
     });
 
     describe('validateState', () => {
-        it('should NOT throw for `new` regardless of state', () => {
+        it('should NOT throw for `new` and `init` regardless of state', () => {
             for (const state of STATES) {
                 expect(() => validateState('new', state)).not.toThrow();
+                expect(() => validateState('init', state)).not.toThrow();
             }
         });
 

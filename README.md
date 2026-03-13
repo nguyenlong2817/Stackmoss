@@ -8,7 +8,7 @@ Scaffold, calibrate, and operate AI agent teams for **Claude Code**, **Cursor**,
 
 [![npm version](https://img.shields.io/npm/v/stackmoss?style=flat-square&color=brightgreen)](https://www.npmjs.com/package/stackmoss)
 [![license](https://img.shields.io/npm/l/stackmoss?style=flat-square&color=blue)](LICENSE)
-[![tests](https://img.shields.io/badge/tests-308%20passed-brightgreen?style=flat-square)]()
+[![tests](https://img.shields.io/badge/tests-315%20passed-brightgreen?style=flat-square)]()
 [![node](https://img.shields.io/node/v/stackmoss?style=flat-square)](package.json)
 
 </div>
@@ -69,6 +69,15 @@ Then use the team in this order:
 
 > Full walkthrough: [QUICK_START.md](QUICK_START.md)
 
+Existing repo:
+
+```bash
+cd /path/to/existing-repo
+stackmoss init
+```
+
+`init` bootstraps StackMoss in the current repo. If the repo already contains real project files, it auto-runs `inject`.
+
 ---
 
 ## Operating Model
@@ -84,13 +93,14 @@ Then use the team in this order:
 ### Existing repo flow
 
 ```bash
-stackmoss inject
+cd /path/to/existing-repo
+stackmoss init
 stackmoss resolve
 stackmoss promote --confirm
 stackmoss check
 ```
 
-`inject` syncs repo facts into `PROJECT_FACTS`, `resolve` clears open questions, and `promote` moves the project into `OPERATIONAL` state.
+`init` bootstraps StackMoss and auto-runs `inject` for existing repos, `resolve` clears open questions, and `promote` moves the project into `OPERATIONAL` state.
 
 ---
 
@@ -119,6 +129,7 @@ GLOBAL ----------> MIGRATING ----------> OPERATIONAL
 | Command | Description |
 |:---|:---|
 | `stackmoss new <name>` | Create a new StackMoss project |
+| `stackmoss init [name]` | Initialize StackMoss in the current repo |
 | `stackmoss inject` | Scan an existing repo and sync migration facts |
 | `stackmoss resolve` | Answer unresolved migration questions |
 | `stackmoss promote --confirm` | Transition from `MIGRATING` to `OPERATIONAL` |
@@ -151,8 +162,8 @@ npm run build
 
 Current verification status:
 
-- `308` passing tests
-- `36` test files
+- `315` passing tests
+- `37` test files
 - TypeScript build passes
 
 ---

@@ -86,7 +86,7 @@ cd E:\MyExistingProject
 ### 3.2 Chay migration flow
 
 ```bash
-stackmoss inject
+stackmoss init
 stackmoss resolve
 stackmoss promote --confirm
 ```
@@ -102,6 +102,7 @@ stackmoss patch list
 Ky vong:
 
 - `inject` sync repo facts vao `PROJECT_FACTS`
+- `init` bootstrap StackMoss ngay trong repo hien tai va tu inject neu repo da co code
 - `resolve` dong cac open questions
 - `promote` dua state sang `OPERATIONAL`
 - `check` bao neu team van chua duoc TL calibrate
@@ -130,6 +131,7 @@ Tech Lead, day la BRD da khoa. Hay calibrate lai agent team cho repo nay, de xua
 
 ```bash
 stackmoss new <name>
+stackmoss init [name]
 stackmoss inject
 stackmoss resolve
 stackmoss promote --confirm

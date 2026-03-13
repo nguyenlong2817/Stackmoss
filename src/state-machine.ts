@@ -25,6 +25,7 @@ export const STATES: readonly State[] = ['GLOBAL', 'MIGRATING', 'OPERATIONAL'] a
 export const COMMAND_STATE_MAP: Record<string, readonly State[]> = {
     // Phase A
     new: [],  // special: no state required (creates new project)
+    init: [], // special: bootstraps current repo, no state required
 
     // Phase B
     inject: ['GLOBAL'],
