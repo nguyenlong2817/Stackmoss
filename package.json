@@ -35,9 +35,9 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nguyenlong2817/Stackmoss.git"
+    "url": "git+https://github.com/max-rogue/Stackmoss.git"
   },
-  "homepage": "https://github.com/nguyenlong2817/Stackmoss#readme",
+  "homepage": "https://github.com/max-rogue/Stackmoss#readme",
   "engines": {
     "node": ">=18.0.0"
   },

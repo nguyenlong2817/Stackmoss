@@ -142,7 +142,7 @@ GLOBAL ----------> MIGRATING ----------> OPERATIONAL
 ## Development
 
 ```bash
-git clone https://github.com/nguyenlong2817/Stackmoss.git
+git clone https://github.com/max-rogue/Stackmoss.git
 cd Stackmoss
 npm install
 npm test
