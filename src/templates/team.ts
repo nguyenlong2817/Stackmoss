@@ -9,7 +9,7 @@
  */
 
 import type { GeneratedFile, TemplateInput } from './types.js';
-import { CAPABILITY_BUDGETS } from '../budgets.js';
+import { getCapabilitiesForRole, getDefaultBudget } from '../budgets.js';
 
 // ─── Role Definitions (from BRD §9.2) ───────────────────────────
 
@@ -45,7 +45,7 @@ const ROLE_DEFINITIONS: Record<string, RoleDefinition> = {
             {
                 id: 'TL-ARCH',
                 name: 'Architecture decisions & ADR',
-                budget: CAPABILITY_BUDGETS['TL-ARCH'] ?? 280,
+                budget: getDefaultBudget('TL-ARCH') ?? 220,
                 priority: 'high',
                 trigger: 'Use when architecture decision or design pattern needed',
                 doNotUse: 'Do not use for routine implementation tasks',
@@ -53,7 +53,7 @@ const ROLE_DEFINITIONS: Record<string, RoleDefinition> = {
             {
                 id: 'TL-REVIEW',
                 name: 'Code review & merge gates',
-                budget: CAPABILITY_BUDGETS['TL-REVIEW'] ?? 220,
+                budget: getDefaultBudget('TL-REVIEW') ?? 180,
                 priority: 'high',
                 trigger: 'Use when code needs review before merge/deploy',
                 doNotUse: 'Do not use for first-draft implementation',
@@ -61,7 +61,7 @@ const ROLE_DEFINITIONS: Record<string, RoleDefinition> = {
             {
                 id: 'TL-CONTEXT',
                 name: 'Maintain CONTEXT.md & FEATURES.md',
-                budget: CAPABILITY_BUDGETS['TL-CONTEXT'] ?? 180,
+                budget: getDefaultBudget('TL-CONTEXT') ?? 150,
                 priority: 'medium',
                 trigger: 'Use after completing a feature or major decision',
                 doNotUse: 'Do not use mid-task',
@@ -69,7 +69,7 @@ const ROLE_DEFINITIONS: Record<string, RoleDefinition> = {
             {
                 id: 'TL-PLAN',
                 name: 'Break down features & assign subtasks',
-                budget: CAPABILITY_BUDGETS['TL-PLAN'] ?? 200,
+                budget: getDefaultBudget('TL-PLAN') ?? 160,
                 priority: 'high',
                 trigger: 'Use at start of each feature cycle',
                 doNotUse: 'Do not use during implementation',
@@ -87,7 +87,7 @@ const ROLE_DEFINITIONS: Record<string, RoleDefinition> = {
             {
                 id: 'BA-REQ',
                 name: 'Requirements elicitation & clarification',
-                budget: CAPABILITY_BUDGETS['BA-REQ'] ?? 220,
+                budget: getDefaultBudget('BA-REQ') ?? 180,
                 priority: 'high',
                 trigger: 'Use when requirements are unclear or conflicting',
                 doNotUse: 'Do not use for technical decisions',
@@ -95,7 +95,7 @@ const ROLE_DEFINITIONS: Record<string, RoleDefinition> = {
             {
                 id: 'BA-AC',
                 name: 'Acceptance criteria writing',
-                budget: CAPABILITY_BUDGETS['BA-AC'] ?? 180,
+                budget: getDefaultBudget('BA-AC') ?? 150,
                 priority: 'high',
                 trigger: 'Use at start of feature to define pass/fail',
                 doNotUse: 'Do not use during implementation',
@@ -112,7 +112,7 @@ const ROLE_DEFINITIONS: Record<string, RoleDefinition> = {
             {
                 id: 'DEV-IMPL',
                 name: 'Feature implementation',
-                budget: CAPABILITY_BUDGETS['DEV-IMPL'] ?? 260,
+                budget: getDefaultBudget('DEV-IMPL') ?? 200,
                 priority: 'high',
                 trigger: 'Use when implementing code for a feature',
                 doNotUse: 'Do not use for architecture decisions',
@@ -120,7 +120,7 @@ const ROLE_DEFINITIONS: Record<string, RoleDefinition> = {
             {
                 id: 'DEV-ENV',
                 name: 'Environment & command knowledge',
-                budget: CAPABILITY_BUDGETS['DEV-ENV'] ?? 200,
+                budget: getDefaultBudget('DEV-ENV') ?? 160,
                 priority: 'high',
                 trigger: 'Use when running commands, checking paths, managing env',
                 doNotUse: 'Do not use for business logic decisions',
@@ -129,7 +129,7 @@ const ROLE_DEFINITIONS: Record<string, RoleDefinition> = {
             {
                 id: 'DEV-DEBUG',
                 name: 'Debug & error resolution',
-                budget: CAPABILITY_BUDGETS['DEV-DEBUG'] ?? 180,
+                budget: getDefaultBudget('DEV-DEBUG') ?? 150,
                 priority: 'medium',
                 trigger: 'Use when encountering errors or unexpected behavior',
                 doNotUse: 'Do not use for new feature planning',
@@ -146,7 +146,7 @@ const ROLE_DEFINITIONS: Record<string, RoleDefinition> = {
             {
                 id: 'QA-TEST',
                 name: 'Test & verify acceptance criteria',
-                budget: CAPABILITY_BUDGETS['QA-TEST'] ?? 180,
+                budget: getDefaultBudget('QA-TEST') ?? 150,
                 priority: 'high',
                 trigger: 'Use after implementation to verify feature works',
                 doNotUse: 'Do not use during planning',
@@ -154,7 +154,7 @@ const ROLE_DEFINITIONS: Record<string, RoleDefinition> = {
             {
                 id: 'QA-REGRESSION',
                 name: 'Regression checklist',
-                budget: CAPABILITY_BUDGETS['QA-REGRESSION'] ?? 150,
+                budget: getDefaultBudget('QA-REGRESSION') ?? 120,
                 priority: 'medium',
                 trigger: 'Use before marking feature DONE',
                 doNotUse: 'Do not use for new feature development',
@@ -171,7 +171,7 @@ const ROLE_DEFINITIONS: Record<string, RoleDefinition> = {
             {
                 id: 'DOCS-README',
                 name: 'README & runbook updates',
-                budget: CAPABILITY_BUDGETS['DOCS-README'] ?? 160,
+                budget: getDefaultBudget('DOCS-README') ?? 130,
                 priority: 'low',
                 trigger: 'Use after feature is DONE',
                 doNotUse: 'Do not use during implementation',
@@ -179,7 +179,7 @@ const ROLE_DEFINITIONS: Record<string, RoleDefinition> = {
             {
                 id: 'DOCS-CHANGELOG',
                 name: 'Changelog',
-                budget: CAPABILITY_BUDGETS['DOCS-CHANGELOG'] ?? 130,
+                budget: getDefaultBudget('DOCS-CHANGELOG') ?? 100,
                 priority: 'low',
                 trigger: 'Use at end of feature cycle',
                 doNotUse: 'Do not use mid-feature',
@@ -197,7 +197,7 @@ const ROLE_DEFINITIONS: Record<string, RoleDefinition> = {
             {
                 id: 'SEC-SCAN',
                 name: 'Basic security check',
-                budget: CAPABILITY_BUDGETS['SEC-SCAN'] ?? 180,
+                budget: getDefaultBudget('SEC-SCAN') ?? 140,
                 priority: 'high',
                 trigger: 'Use before any feature touching auth, PII, or financial data',
                 doNotUse: 'Do not use for non-sensitive features',
@@ -215,7 +215,7 @@ const ROLE_DEFINITIONS: Record<string, RoleDefinition> = {
             {
                 id: 'OPS-DEPLOY',
                 name: 'Deploy & infra checks',
-                budget: CAPABILITY_BUDGETS['OPS-DEPLOY'] ?? 180,
+                budget: getDefaultBudget('OPS-DEPLOY') ?? 140,
                 priority: 'medium',
                 trigger: 'Use before deploy or infra changes',
                 doNotUse: 'Do not use for feature development',
@@ -260,6 +260,7 @@ function renderRole(roleStr: string): string {
     const baseId = extractRoleId(roleStr);
     const qualifier = getQualifier(roleStr);
     const def = ROLE_DEFINITIONS[baseId];
+    const allowedCapabilities = new Set(getCapabilitiesForRole(roleStr));
 
     if (!def) {
         return `### [${baseId}] ${roleStr}\nlead: false\nceremony: low\n`;
@@ -278,7 +279,10 @@ function renderRole(roleStr: string): string {
         result += `description: >\n  ${def.description}\n`;
     }
     result += '\n#### Capabilities\n';
-    result += def.capabilities.map(renderCapability).join('\n\n');
+    result += def.capabilities
+        .filter((cap) => allowedCapabilities.size === 0 || allowedCapabilities.has(cap.id))
+        .map(renderCapability)
+        .join('\n\n');
 
     return result;
 }
@@ -352,6 +356,14 @@ ${rolesSection}
 - Trước merge: DEV → QA → TL
 - Trước deploy: TL + OPS-lite (nếu có)
 - Trước feature start: TL break down → BA confirm AC (nếu BizLed)
+
+### Config Maintenance
+- Trước khi ship feature thật: TL phải xác nhận BRD/NORTH_STAR đã khóa; nếu chưa khóa thì F1 trở thành "lock BRD + constraints"
+- Sau khi BRD đã khóa và repo đã được scan: TL phải điều chỉnh lại agent team theo stack, topology, và số lane thực tế của dự án
+- Calibration status: bootstrap pending TL recalibration after BRD lock + repo scan
+- TL là writer duy nhất của team config; DEV/QA/OPS chỉ được đề xuất signal đã verify, không tự sửa config chung
+- Mọi update config phải replace thông tin sai bằng thông tin đúng trong section hiện có; không append lịch sử, không tạo memory log mới
+- Mọi patch config phải hỏi user trước khi apply; không agent nào được tự update liên tục không kiểm soát
 
 ---
 

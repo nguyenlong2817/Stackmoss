@@ -153,6 +153,35 @@ describe('Migration Report Parser', () => {
         expect(parsed.hasCriticalLowConfidence).toBe(false);
     });
 
+    it('treats decimal critical confidence below 80 as blocking', () => {
+        const report = `# Migration Report — test
+
+## HYPOTHESES (confidence: medium, cần verify)
+- **Monorepo:** YES (confidence: 79.9%) ⚠️ CRITICAL — from apps/
+
+## OPEN QUESTIONS (cần human confirm trước khi promote)
+_No open questions — all clear for promote._
+`;
+
+        const parsed = parseMigrationReport(report);
+        expect(parsed.hasCriticalLowConfidence).toBe(true);
+    });
+
+    it('counts unresolved items only inside OPEN QUESTIONS', () => {
+        const report = `# Migration Report — test
+
+## FACTS (confidence: high)
+- [ ] **[NOT_A_QUESTION]** checklist item in facts
+
+## OPEN QUESTIONS (cần human confirm trước khi promote)
+_No open questions — all clear for promote._
+`;
+
+        const parsed = parseMigrationReport(report);
+        expect(parsed.unresolvedCount).toBe(0);
+        expect(parsed.hasUnresolvedQuestions).toBe(false);
+    });
+
     it('handles report with no questions', () => {
         const result = createScanResult({ openQuestions: [] });
         const report = renderMigrationReport('test', result);

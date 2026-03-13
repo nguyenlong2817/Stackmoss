@@ -1,11 +1,9 @@
 /**
  * Command: stackmoss upgrade
  * Phase C: Merge CONSTITUTION updates from new StackMoss version
- * Authority: BRD §14, cli-pipeline skill
+ * Authority: BRD §14
  *
- * Pattern: parseArgs → checkState → execute → report
- *
- * HARD RULE: upgrade NEVER overwrites PROJECT_FACTS.
+ * HARD RULE: upgrade never overwrites PROJECT_FACTS.
  */
 
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
@@ -13,56 +11,68 @@ import { resolve, join } from 'node:path';
 import { CONFIG_FILENAME } from '../config.js';
 import { readState } from '../state-machine.js';
 
-// ─── Types ───────────────────────────────────────────────────────
-
 export interface UpgradeResult {
     hasChanges: boolean;
     constitutionDiff: { old: string; new: string } | null;
     applied: boolean;
 }
 
-// ─── Section Extraction ──────────────────────────────────────────
-
 const CONSTITUTION_HEADER = '## CONSTITUTION';
-const ROLES_HEADER = '## ROLES';
 
-/**
- * Extract CONSTITUTION section from team.md content.
- * Returns the content between ## CONSTITUTION and the next ## section.
- */
-export function extractConstitution(content: string): string | null {
-    const startIdx = content.indexOf(CONSTITUTION_HEADER);
-    if (startIdx === -1) return null;
+function findTopLevelSectionRange(content: string, header: string): { start: number; end: number } | null {
+    const normalized = content.replace(/\r\n/g, '\n');
+    const lines = normalized.split('\n');
 
-    const afterHeader = content.indexOf('\n', startIdx);
-    if (afterHeader === -1) return content.slice(startIdx);
-
-    // Find next ## header
-    const nextSection = content.indexOf('\n## ', afterHeader);
-    if (nextSection === -1) return content.slice(startIdx);
-
-    return content.slice(startIdx, nextSection);
-}
-
-/**
- * Replace CONSTITUTION section in content, preserving all other sections.
- */
-export function replaceConstitution(content: string, newConstitution: string): string {
-    const startIdx = content.indexOf(CONSTITUTION_HEADER);
-    if (startIdx === -1) return content;
-
-    const afterHeader = content.indexOf('\n', startIdx);
-    if (afterHeader === -1) return newConstitution;
-
-    const nextSection = content.indexOf('\n## ', afterHeader);
-    if (nextSection === -1) {
-        return content.slice(0, startIdx) + newConstitution;
+    let startLine = -1;
+    for (let index = 0; index < lines.length; index++) {
+        if (lines[index].trim() === header) {
+            startLine = index;
+            break;
+        }
     }
 
-    return content.slice(0, startIdx) + newConstitution + content.slice(nextSection);
+    if (startLine === -1) {
+        return null;
+    }
+
+    let start = 0;
+    for (let index = 0; index < startLine; index++) {
+        start += lines[index].length + 1;
+    }
+
+    let end = normalized.length;
+    let offset = start;
+    for (let index = startLine; index < lines.length; index++) {
+        if (index > startLine && lines[index].startsWith('## ')) {
+            end = offset;
+            break;
+        }
+        offset += lines[index].length + 1;
+    }
+
+    return { start, end };
 }
 
-// ─── 4-method command pattern ────────────────────────────────────
+export function extractConstitution(content: string): string | null {
+    const range = findTopLevelSectionRange(content, CONSTITUTION_HEADER);
+    if (!range) {
+        return null;
+    }
+
+    return content.slice(range.start, range.end).trimEnd();
+}
+
+export function replaceConstitution(content: string, newConstitution: string): string {
+    const range = findTopLevelSectionRange(content, CONSTITUTION_HEADER);
+    if (!range) {
+        return content;
+    }
+
+    const prefix = content.slice(0, range.start);
+    const suffix = content.slice(range.end);
+    const normalizedConstitution = newConstitution.trimEnd();
+    return `${prefix}${normalizedConstitution}${suffix.startsWith('\n') ? '' : '\n'}${suffix}`;
+}
 
 export function parseArgs(): {
     projectPath: string;
@@ -95,27 +105,18 @@ export function checkState(configPath: string): void {
     }
 }
 
-/**
- * Execute upgrade.
- *
- * For v0.3, we use a built-in "latest" CONSTITUTION.
- * In future versions, this would fetch from registry/GitHub.
- */
 export function execute(
     teamPath: string,
     latestConstitution?: string,
 ): UpgradeResult {
     const currentContent = readFileSync(teamPath, 'utf-8');
     const currentConstitution = extractConstitution(currentContent);
-
-    // Use provided latest or built-in default
     const latest = latestConstitution ?? getBuiltInConstitution();
 
     if (!currentConstitution) {
         return { hasChanges: false, constitutionDiff: null, applied: false };
     }
 
-    // Compare
     if (currentConstitution.trim() === latest.trim()) {
         return { hasChanges: false, constitutionDiff: null, applied: false };
     }
@@ -130,9 +131,6 @@ export function execute(
     };
 }
 
-/**
- * Apply the upgrade (after user confirms).
- */
 export function applyUpgrade(teamPath: string, newConstitution: string): void {
     const content = readFileSync(teamPath, 'utf-8');
     const updated = replaceConstitution(content, newConstitution);
@@ -154,10 +152,6 @@ export function report(result: UpgradeResult): void {
     console.log('   Run `stackmoss upgrade --apply` to apply this change.');
 }
 
-/**
- * Built-in latest CONSTITUTION for v0.3.
- * Future: fetch from npm registry or GitHub.
- */
 function getBuiltInConstitution(): string {
     return `## CONSTITUTION
 _Rules bất biến — chỉ thay đổi qua stackmoss upgrade._
@@ -173,10 +167,6 @@ _Rules bất biến — chỉ thay đổi qua stackmoss upgrade._
 `;
 }
 
-/**
- * Full command handler.
- * Note: In v0.3, --apply flag triggers immediate apply without interactive confirm.
- */
 export function handler(options: { apply?: boolean }): void {
     const { configPath, teamPath } = parseArgs();
     checkState(configPath);
@@ -186,7 +176,8 @@ export function handler(options: { apply?: boolean }): void {
         applyUpgrade(teamPath, result.constitutionDiff!.new);
         console.log('\n✅ CONSTITUTION upgraded successfully.');
         console.log('   PROJECT_FACTS and operational learnings preserved.');
-    } else {
-        report(result);
+        return;
     }
+
+    report(result);
 }

@@ -13,6 +13,7 @@ import { CONFIG_FILENAME } from '../config.js';
 import { readState } from '../state-machine.js';
 import { createProposal } from '../patch/index.js';
 import type { RunResult, PatchFix } from '../patch/types.js';
+import { getCalibrationWarning } from '../calibration.js';
 
 // ─── Constants ───────────────────────────────────────────────────
 
@@ -50,12 +51,25 @@ export function resolveAlias(projectPath: string, alias: string): string | null 
     const teamPath = join(projectPath, 'team.md');
     if (existsSync(teamPath)) {
         const content = readFileSync(teamPath, 'utf-8');
-        const devEnvMatch = content.match(/\[DEV-ENV\]([\s\S]*?)(?=\n##|\n\[|$)/);
-        if (devEnvMatch) {
-            // Look for alias in backtick commands
-            const aliasPattern = new RegExp(`\\b${alias}\\b.*?:\s*\`([^\`]+)\``);
-            const match = devEnvMatch[1].match(aliasPattern);
-            if (match) return match[1];
+        const lines = content.split('\n');
+        const startIndex = lines.findIndex((line) => line.trim() === '[DEV-ENV]');
+
+        if (startIndex !== -1) {
+            const block: string[] = [];
+            for (let index = startIndex; index < lines.length; index++) {
+                const line = lines[index];
+                if (index > startIndex && (line.startsWith('## ') || line.trim() === '---' || /^\[[A-Z][A-Z-]+\]/.test(line.trim()))) {
+                    break;
+                }
+                block.push(line);
+            }
+
+            const escapedAlias = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const aliasPattern = new RegExp(`^${escapedAlias}\\s*:\\s*\`([^\\\`]+)\``, 'm');
+            const match = block.join('\n').match(aliasPattern);
+            if (match) {
+                return match[1];
+            }
         }
     }
 
@@ -64,7 +78,7 @@ export function resolveAlias(projectPath: string, alias: string): string | null 
 
 // ─── Alias Sanitization ──────────────────────────────────────────
 
-const DANGEROUS_CHARS = /[;|&$`]|\.\./;
+const DANGEROUS_CHARS = /[;|&$`<>]|\.\.|[\r\n]/;
 
 /**
  * Validate that a resolved command doesn't contain dangerous shell metacharacters.
@@ -121,7 +135,7 @@ export function execute(args: RunArgs): RunResult {
     if (!isAliasSafe(command)) {
         throw new Error(
             `Alias '${alias}' resolves to an unsafe command.\n` +
-            `   Rejected: commands containing ; | & $ \` or .. are not allowed.`,
+            `   Rejected: commands containing shell metacharacters, redirection, newlines, or .. are not allowed.`,
         );
     }
 
@@ -153,8 +167,14 @@ export function execute(args: RunArgs): RunResult {
         stdout: stdout.slice(0, 1000),
         stderr: stderr.slice(0, 1000),
         success,
+        warnings: [],
         patchCreated: false,
     };
+
+    const calibrationWarning = getCalibrationWarning(projectPath);
+    if (calibrationWarning) {
+        result.warnings.push(calibrationWarning);
+    }
 
     // BRD §12.2: Create patch proposal on failure
     if (!success && stderr.length > 0) {
@@ -181,6 +201,10 @@ export function execute(args: RunArgs): RunResult {
 }
 
 export function report(result: RunResult): void {
+    for (const warning of result.warnings) {
+        console.log(`\n⚠️  ${warning}`);
+    }
+
     if (result.success) {
         console.log(`\n✅ \`${result.alias}\` succeeded (exit code 0)`);
         if (result.stdout) {

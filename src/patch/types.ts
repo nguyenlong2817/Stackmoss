@@ -43,6 +43,7 @@ export interface RunResult {
     stdout: string;
     stderr: string;
     success: boolean;
+    warnings: string[];
     patchCreated: boolean;
     patchId?: string;
 }
@@ -50,7 +51,7 @@ export interface RunResult {
 // ─── Check Result ────────────────────────────────────────────────
 
 export interface CheckIssue {
-    category: 'path_missing' | 'command_not_found' | 'budget_exceeded' | 'structure_invalid';
+    category: 'path_missing' | 'command_not_found' | 'budget_exceeded' | 'structure_invalid' | 'calibration_needed';
     detail: string;
     fixable: boolean;
     patchId?: string;

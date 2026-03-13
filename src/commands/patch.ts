@@ -19,6 +19,7 @@ import {
     rejectProposal,
 } from '../patch/index.js';
 import type { PatchProposal } from '../patch/types.js';
+import { getCalibrationWarning } from '../calibration.js';
 
 // ─── 4-method command pattern ────────────────────────────────────
 
@@ -83,6 +84,11 @@ export function execute(
     patchId?: string,
     reason?: string,
 ): void {
+    const calibrationWarning = getCalibrationWarning(projectPath);
+    if (calibrationWarning) {
+        console.log(`\n⚠️  ${calibrationWarning}`);
+    }
+
     if (action === 'list') {
         const all = listProposals(projectPath);
 

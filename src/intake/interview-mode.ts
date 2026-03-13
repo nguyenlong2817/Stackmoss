@@ -58,6 +58,16 @@ async function askQuestion(question: Question, allowBack: boolean): Promise<stri
     return undefined;
 }
 
+async function askFollowUpText(message: string): Promise<string | undefined> {
+    const answer = await input({
+        message,
+        validate: (val: string) => val.length > 200 ? 'Max 200 characters' : true,
+    });
+
+    const trimmed = answer.trim();
+    return trimmed === '' ? undefined : trimmed;
+}
+
 // ─── Run Interview Mode ──────────────────────────────────────────
 
 export interface InterviewModeResult {
@@ -179,5 +189,18 @@ async function runCompletenessGate(
             }
             followUpCount++;
         }
+    }
+
+    if (!answers['Q12_NON_GOAL'] && followUpCount < maxFollowUps) {
+        console.log('\n⚠️  Need at least one explicit non-goal for the first feature.\n');
+        const answer = await askFollowUpText('One thing this first feature must NOT do?');
+        if (answer) {
+            answers['Q12_NON_GOAL'] = answer;
+            const idx = skippedQuestions.indexOf('Q12_NON_GOAL');
+            if (idx !== -1) skippedQuestions.splice(idx, 1);
+        } else if (!skippedQuestions.includes('Q12_NON_GOAL')) {
+            skippedQuestions.push('Q12_NON_GOAL');
+        }
+        followUpCount++;
     }
 }

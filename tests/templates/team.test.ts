@@ -56,6 +56,16 @@ describe('Template: team.md', () => {
         expect(result.content).toContain('### Review Gates');
     });
 
+    it('includes config maintenance contract for TL-led replace-only updates', () => {
+        const input = createSampleInput();
+        const result = generateTeam(input);
+
+        expect(result.content).toContain('### Config Maintenance');
+        expect(result.content).toContain('Calibration status: bootstrap pending TL recalibration after BRD lock + repo scan');
+        expect(result.content).toContain('TL là writer duy nhất của team config');
+        expect(result.content).toContain('Mọi patch config phải hỏi user trước khi apply');
+    });
+
     it('has PROJECT_FACTS section with TBD placeholders', () => {
         const input = createSampleInput();
         const result = generateTeam(input);
@@ -90,6 +100,14 @@ describe('Template: team.md', () => {
         const result = generateTeam(input);
 
         expect(result.content).not.toContain('[BA] Business Analyst');
+    });
+
+    it('keeps QA(light) variant from including regression capability', () => {
+        const input = createSampleInput();
+        const result = generateTeam(input);
+
+        expect(result.content).toContain('[QA-TEST]');
+        expect(result.content).not.toContain('[QA-REGRESSION]');
     });
 });
 

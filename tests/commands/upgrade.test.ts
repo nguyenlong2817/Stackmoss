@@ -76,6 +76,26 @@ describe('Upgrade Command', () => {
             expect(result).toContain('These are project facts that must never change.');
             expect(result).toContain('Some operational learnings here.');
         });
+
+        it('does not treat hostile PROJECT_FACTS marker as the real constitution header', () => {
+            const hostile = `# Team
+
+## PROJECT_FACTS
+- Literal token: ## CONSTITUTION should stay here
+
+## CONSTITUTION
+Old rules
+
+## ROLES
+DEV
+`;
+
+            const result = replaceConstitution(hostile, '## CONSTITUTION\nNew rules\n');
+
+            expect(result).toContain('Literal token: ## CONSTITUTION should stay here');
+            expect(result).toContain('## PROJECT_FACTS');
+            expect(result).toContain('New rules');
+        });
     });
 
     describe('execute', () => {

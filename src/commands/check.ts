@@ -12,7 +12,8 @@ import { CONFIG_FILENAME } from '../config.js';
 import { readState } from '../state-machine.js';
 import { wordCount, createProposal } from '../patch/index.js';
 import type { CheckIssue, CheckResult } from '../patch/types.js';
-import { CAPABILITY_BUDGETS, TEAM_TOTAL_MAX } from '../budgets.js';
+import { CAPABILITY_MAX_BUDGETS, TEAM_TOTAL_MAX, extractCapabilityBlocks } from '../budgets.js';
+import { needsCalibration } from '../calibration.js';
 
 // ─── 4-method command pattern ────────────────────────────────────
 
@@ -47,7 +48,19 @@ export function execute(projectPath: string): CheckResult {
     try {
         const config = JSON.parse(readFileSync(configPath, 'utf-8')) as Record<string, unknown>;
 
-        const requiredFields = ['schemaVersion', 'state', 'projectName'];
+        const requiredFields = [
+            'schemaVersion',
+            'state',
+            'userType',
+            'projectType',
+            'language',
+            'targets',
+            'mode',
+            'intakeMode',
+            'budgets',
+            'thresholds',
+            'autoAddRoles',
+        ];
         for (const field of requiredFields) {
             if (!(field in config)) {
                 issues.push({
@@ -82,37 +95,45 @@ export function execute(projectPath: string): CheckResult {
         }
 
         // ── 3. Word budget checks ────────────────────────────
+        if (needsCalibration(teamContent)) {
+            issues.push({
+                category: 'calibration_needed',
+                detail: 'Team config still needs Tech Lead calibration: bootstrap marker or TBD facts remain in team.md.',
+                fixable: false,
+            });
+        }
+
         let totalWords = 0;
 
-        for (const [capId, maxBudget] of Object.entries(CAPABILITY_BUDGETS)) {
-            const capPattern = new RegExp(`\\[${capId}\\]([\\s\\S]*?)(?=\\n\\[|$)`);
-            const capMatch = teamContent.match(capPattern);
+        for (const block of extractCapabilityBlocks(teamContent)) {
+            const maxBudget = CAPABILITY_MAX_BUDGETS[block.id];
+            if (!maxBudget) {
+                continue;
+            }
 
-            if (capMatch) {
-                const capWords = wordCount(capMatch[1]);
-                totalWords += capWords;
+            const capWords = wordCount(block.content);
+            totalWords += capWords;
 
-                if (capWords > maxBudget) {
-                    issues.push({
-                        category: 'budget_exceeded',
-                        detail: `[${capId}] has ${capWords} words (max: ${maxBudget})`,
-                        fixable: true,
-                    });
-                    patchesCreated++;
+            if (capWords > maxBudget) {
+                issues.push({
+                    category: 'budget_exceeded',
+                    detail: `[${block.id}] has ${capWords} words (max: ${maxBudget})`,
+                    fixable: true,
+                });
+                patchesCreated++;
 
-                    createProposal(
-                        projectPath,
-                        'check_fail',
-                        `budget check [${capId}]`,
-                        `Word count ${capWords} exceeds max ${maxBudget}`,
-                        {
-                            targetFile: 'team.md',
-                            section: `[${capId}]`,
-                            oldContent: capMatch[1].trim(),
-                            newContent: capMatch[1].trim(), // User must manually trim
-                        },
-                    );
-                }
+                createProposal(
+                    projectPath,
+                    'check_fail',
+                    `budget check [${block.id}]`,
+                    `Word count ${capWords} exceeds max ${maxBudget}`,
+                    {
+                        targetFile: 'team.md',
+                        section: `[${block.id}]`,
+                        oldContent: block.content,
+                        newContent: block.content,
+                    },
+                );
             }
         }
 

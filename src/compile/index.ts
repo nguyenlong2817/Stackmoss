@@ -13,16 +13,30 @@ import { compileAntigravity } from './antigravity.js';
 
 // ─── Supported Targets ──────────────────────────────────────────
 
-export type CompileTarget = 'ClaudeCode' | 'ClaudeCodeV2' | 'Cursor' | 'Antigravity';
+export type CompileTarget = 'ClaudeCode' | 'ClaudeCodeV2' | 'Cursor' | 'Roo' | 'Antigravity';
 
-export const DEFAULT_TARGET: CompileTarget = 'ClaudeCodeV2';
+export const DEFAULT_TARGET: CompileTarget = 'ClaudeCode';
 
 export const SUPPORTED_TARGETS: readonly CompileTarget[] = [
     'ClaudeCode',
     'ClaudeCodeV2',
     'Cursor',
+    'Roo',
     'Antigravity',
 ] as const;
+
+function compileRoo(
+    roles: string[],
+    autoAddedRoles: string[],
+    projectName: string,
+): GeneratedFile[] {
+    return compileClaudeCode(roles, autoAddedRoles, projectName).map((file) => ({
+        path: file.path
+            .replace('.claude/skills/', '.roo/skills/')
+            .replace(/\.skill\.md$/, '.md'),
+        content: file.content,
+    }));
+}
 
 // ─── Compile ─────────────────────────────────────────────────────
 
@@ -47,6 +61,8 @@ export function compileTarget(
             return compileClaudeCodeV2(roles, autoAddedRoles, projectName);
         case 'Cursor':
             return compileCursor(roles, autoAddedRoles, projectName);
+        case 'Roo':
+            return compileRoo(roles, autoAddedRoles, projectName);
         case 'Antigravity':
             return compileAntigravity(roles, autoAddedRoles, projectName);
         default:

@@ -44,6 +44,12 @@ describe('Command: new', () => {
             expect(() => parseArgs('../escape')).toThrow('Invalid project name');
         });
 
+        it('should throw for reserved Windows device names', () => {
+            expect(() => parseArgs('CON')).toThrow('Reserved device names');
+            expect(() => parseArgs('NUL')).toThrow('Reserved device names');
+            expect(() => parseArgs('PRN')).toThrow('Reserved device names');
+        });
+
         it('should accept valid names with dots, hyphens, underscores', () => {
             expect(() => parseArgs('my-project')).not.toThrow();
             expect(() => parseArgs('my_project')).not.toThrow();
@@ -84,6 +90,14 @@ describe('Command: new', () => {
             const result = execute(args);
 
             expect(result.generatedFiles).toEqual([]);
+        });
+
+        it('should reject execute if folder appears after checkState', () => {
+            const args = { projectName: '__test_new_cmd__' };
+            checkState(args);
+            mkdirSync(TEST_DIR, { recursive: true });
+
+            expect(() => execute(args)).toThrow('already exists');
         });
     });
 });

@@ -1,247 +1,153 @@
-# 🚀 StackMoss — Hướng dẫn Test từ A-Z
+# StackMoss - Huong dan test nhanh
 
-## Bước 0: Chuẩn bị
+Tai lieu nay dung cho 2 truong hop:
 
-```bash
-# Cần Node.js >= 18
-node --version
+- Tao mot du an moi bang StackMoss
+- Dua StackMoss vao mot repo da co san
 
-# Nếu đã có bản cũ, gỡ trước
-npm uninstall -g stackmoss
-```
+Neu ban da co BRD, hay khoa BRD truoc khi giao feature implementation dau tien.
 
 ---
 
-## Bước 1: Cài StackMoss
+## 1. Cai dat
 
 ```bash
 npm install -g stackmoss
-```
-
-Verify:
-```bash
 stackmoss --version
-# → 0.5.0
-
 stackmoss --help
-# → Hiện danh sách commands
 ```
 
 ---
 
-## Bước 2: Tạo Agent Team cho dự án mới
+## 2. Test voi du an moi
 
-### 2.1 Tạo folder test
+### 2.1 Tao project
 
 ```bash
 mkdir E:\test-stackmoss
 cd E:\test-stackmoss
-```
-
-### 2.2 Chạy StackMoss
-
-```bash
 stackmoss new my-app
-```
-
-### 2.3 Trả lời 7 câu hỏi
-
-Trả lời theo flow — không cần đúng/sai, chỉ cần test:
-
-| # | Câu hỏi | Gợi ý trả lời |
-|:---|:---|:---|
-| Q1 | Bạn là ai? | `Solo dev` |
-| Q2 | Quy mô doanh nghiệp? | `sme` |
-| Q3 | Thị trường? | `vn` |
-| Q4 | Loại sản phẩm? | `web` |
-| Q5 | Có dữ liệu nhạy cảm? | `pii` |
-| Q6 | Feature đầu tiên? | `Login page` |
-| Q6b | Appetite? | `S` |
-| Q_PT | Project type? | `Production` |
-
-### 2.4 Kiểm tra output
-
-```bash
 cd my-app
-
-# Xem toàn bộ files được tạo
-dir
-
-# Kiểm tra team.md (source of truth)
-type team.md
-
-# Kiểm tra CLAUDE.md (Claude Code đọc file này)
-type CLAUDE.md
-
-# Kiểm tra role rules
-dir .claude\rules
-
-# Kiểm tra eval harness
-dir evals
-dir evals\cases
-dir evals\expected
-type evals\rubric.md
 ```
 
-**Expected output structure:**
-```
-my-app/
-├── team.md                     ← Source of truth — roles & capabilities
-├── FEATURES.md                 ← Feature tracking (appetite S/M/L)
-├── NORTH_STAR.md               ← Project vision
-├── NON_GOALS.md                ← What NOT to build
-├── OPEN_QUESTIONS.md            ← Unresolved decisions (nếu có)
-├── README_AGENT_TEAM.md        ← Hướng dẫn dùng team agent
-├── stackmoss.config.json       ← State machine config
-│
-├── CLAUDE.md                   ← Claude Code root instructions
-├── .claude/rules/              ← Per-role rules
-│   ├── tl.md
-│   ├── dev.md
-│   ├── qa.md
-│   └── sec.md
-│
-└── evals/                      ← Eval harness
-    ├── rubric.md               ← 8 core rules + budget table
-    ├── cases/                  ← Test scenarios
-    │   ├── case-01-feature-impl.md
-    │   ├── case-02-code-review.md
-    │   ├── case-03-no-assumption.md
-    │   ├── case-04-patch-budget.md
-    │   └── case-05-breaking-change.md   (Production only)
-    └── expected/               ← Golden output patterns
-        ├── case-01-feature-impl.md
-        └── ...
-```
-
----
-
-## Bước 3: Test với Claude Code
-
-### 3.1 Mở project trong VS Code / Cursor
+### 2.2 Kiem tra output co ban
 
 ```bash
-code .
+dir
+type team.md
+type FEATURES.md
+type NORTH_STAR.md
+type README_AGENT_TEAM.md
+dir .claude\rules
 ```
 
-### 3.2 Mở Claude Code (hoặc Cursor)
+Ky vong:
 
-Claude Code sẽ **tự động đọc** `CLAUDE.md` khi bắt đầu session.
+- `team.md` la source of truth
+- `FEATURES.md` co F1
+- `README_AGENT_TEAM.md` nhac ro BRD lock va TL calibration
+- compile output duoc tao theo target
 
-### 3.3 Test thử các scenario
+### 2.3 Flow dung team dung cach
 
-**Test 1: Agent follow rules**
+Voi du an moi, khong nen giao implementation ngay. Dung theo thu tu sau:
+
+1. Khoa BRD hoac `NORTH_STAR.md`
+2. Yeu cau Tech Lead scan repo va calibrate lai team
+3. Review patch de xac nhan role count, stack facts, commands, paths
+4. Sau khi confirm, moi giao F1 cho team
+
+Prompt goi y:
+
+```text
+Tech Lead, hay scan repo, calibrate lai agent team theo BRD da khoa, thay thong tin sai trong team.md bang thong tin dung, roi de xuat patch cho toi review truoc khi apply.
 ```
-Implement login page with email/password. AC: validates email format, shows error, submits to /api/auth/login
-```
-→ Kỳ vọng: Agent chỉ làm đúng AC, không tự thêm "password reset", "remember me"
 
-**Test 2: No Silent Assumptions**
-```
-Add caching to the app
-```
-→ Kỳ vọng: Agent HỎI "cache gì? Redis? in-memory? API responses?" thay vì tự assume
+### 2.4 Kiem tra calibration marker
 
-**Test 3: Budget discipline**
-→ Check xem agent response có vượt word budget trong rubric.md không
+Trong `team.md`, section `Config Maintenance` se bat dau voi marker bootstrap. Sau khi Tech Lead calibrate xong, marker do phai duoc thay bang trang thai calibrated.
+
+Neu van con marker bootstrap hoac con nhieu `TBD`, `stackmoss check` se canh bao config chua san sang.
+
+```bash
+stackmoss check
+```
 
 ---
 
-## Bước 4: Test với dự án đã có repo
+## 3. Test voi repo da co san
 
-### 4.1 CD vào repo đang có
+### 3.1 Di vao repo
 
 ```bash
 cd E:\MyExistingProject
 ```
 
-### 4.2 Chạy inject (scan repo)
+### 3.2 Chay migration flow
 
 ```bash
 stackmoss inject
-```
-
-→ Tạo `MIGRATION_REPORT.md` với:
-- **Facts:** Những gì chắc chắn từ code scan
-- **Hypotheses:** Phỏng đoán (có confidence %)
-- **Questions:** Cần anh trả lời trước khi dùng
-
-### 4.3 Trả lời câu hỏi
-
-```bash
 stackmoss resolve
-```
-
-→ Interactive Q&A cho mỗi question trong MIGRATION_REPORT
-
-### 4.4 Promote lên OPERATIONAL
-
-```bash
 stackmoss promote --confirm
 ```
 
-→ 4 hard criteria:
-1. Questions = 0
-2. Ít nhất 1 alias verified
-3. Config valid
-4. User explicit confirm
-
-### 4.5 Chạy operational commands
+### 3.3 Kiem tra operational flow
 
 ```bash
-stackmoss check           # Validate config + word budgets
-stackmoss run test        # Execute "npm test" via alias
-stackmoss patch list      # Xem pending patches
+stackmoss check
+stackmoss run test
+stackmoss patch list
+```
+
+Ky vong:
+
+- `inject` sync repo facts vao `PROJECT_FACTS`
+- `resolve` dong cac open questions
+- `promote` dua state sang `OPERATIONAL`
+- `check` bao neu team van chua duoc TL calibrate
+
+---
+
+## 4. Test agent behavior trong IDE
+
+Mo project trong Claude Code, Cursor, hoac Roo.
+
+Kiem tra 3 diem:
+
+1. Agent khong duoc silently assume khi BRD chua khoa
+2. Tech Lead phai de xuat reshape team neu stack thuc te khac template
+3. Moi patch config phai yeu cau ban confirm truoc khi apply
+
+Prompt goi y:
+
+```text
+Tech Lead, day la BRD da khoa. Hay calibrate lai agent team cho repo nay, de xuat moi thay doi role hoac command can thiet, nhung khong duoc apply patch khi chua hoi toi.
 ```
 
 ---
 
-## Compile Target khác
+## 5. Lenh can nho
 
-### Dùng Cursor thay Claude Code
-
-Trước khi chạy `stackmoss new`, edit `stackmoss.config.json`:
-```json
-{
-  "compileTarget": "Cursor"
-}
+```bash
+stackmoss new <name>
+stackmoss inject
+stackmoss resolve
+stackmoss promote --confirm
+stackmoss check
+stackmoss run <alias>
+stackmoss patch list
+stackmoss patch apply <id>
+stackmoss patch reject "<reason>" <id>
+stackmoss upgrade
 ```
-
-Output: `.cursor/rules/*.mdc` (YAML frontmatter)
-
-### Dùng Antigravity (atomic split)
-
-```json
-{
-  "compileTarget": "Antigravity"
-}
-```
-
-Output: `.agents/skills/<role>--<cap>/SKILL.md` (1 file per capability)
 
 ---
 
-## Troubleshooting
+## 6. Troubleshooting
 
-| Vấn đề | Fix |
+| Van de | Cach xu ly |
 |:---|:---|
-| `stackmoss: command not found` | `npm install -g stackmoss` |
-| Permission denied | Terminal as Admin |
-| `ENOENT` error | Chạy trong thư mục trống hoặc project root |
-| Output không có `.claude/` | Check `stackmoss.config.json` compileTarget |
-| Files không hiện trong Cursor | Restart IDE |
-
----
-
-## Tóm tắt commands
-
-```bash
-stackmoss new <name>          # Tạo project + intake + generate + compile
-stackmoss inject              # Scan existing repo → MIGRATION_REPORT
-stackmoss resolve             # Trả lời câu hỏi từ scan
-stackmoss promote --confirm   # MIGRATING → OPERATIONAL
-stackmoss run <alias>         # Execute command, auto-patch on fail
-stackmoss check               # Config + budget validation
-stackmoss patch list/apply/reject
-stackmoss upgrade [--apply]   # Update constitution only
-```
+| `stackmoss: command not found` | Cai lai bang `npm install -g stackmoss` |
+| `check` bao `calibration_needed` | Cho Tech Lead calibrate lai team va thay marker bootstrap |
+| `run` hoac `patch` canh bao bootstrap calibration state | Team van la bootstrap team, chua duoc TL calibrate day du |
+| Compile output khong thay doi | Sua `team.md`, sau do recompile/generate lai |

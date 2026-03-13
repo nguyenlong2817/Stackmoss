@@ -28,7 +28,7 @@ describe('Template: stackmoss.config.json', () => {
         expect(config.userType).toBe('BizLed');
         expect(config.projectType).toBe('MVP');
         expect(config.language).toBe('en');
-        expect(config.targets).toEqual(['ClaudeCodeV2']);
+        expect(config.targets).toEqual(['ClaudeCode']);
         expect(config.mode).toBe('suggest_only');
         expect(config.intakeMode).toBe('fast');
     });

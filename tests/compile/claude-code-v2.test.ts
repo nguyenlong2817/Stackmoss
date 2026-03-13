@@ -62,4 +62,16 @@ describe('Claude Code V2 Compile Target', () => {
         expect(claudeMd.content).toContain('Tech Lead');
         expect(claudeMd.content).toContain('Developer');
     });
+
+    it('embeds team maintenance contract in root and TL rule', () => {
+        const files = compileClaudeCodeV2(['TL(guide)', 'DEV'], [], 'test-project');
+
+        const claudeMd = files.find((f) => f.path === 'CLAUDE.md')!;
+        const tlRule = files.find((f) => f.path === '.claude/rules/tl.md')!;
+
+        expect(claudeMd.content).toContain('## Team Maintenance');
+        expect(claudeMd.content).toContain('Tech Lead must recalibrate the team');
+        expect(tlRule.content).toContain('Tech Lead is the single writer for shared team config');
+        expect(tlRule.content).toContain('Ask the user before applying any config patch');
+    });
 });

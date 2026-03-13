@@ -86,6 +86,14 @@ describe('Antigravity Compile Target', () => {
             expect(files[0].path).toContain('security--scan');
         });
 
+        it('keeps QA(light) variant from emitting regression skill', () => {
+            const files = compileAntigravity(['QA(light)'], [], 'test-project');
+            const paths = files.map((file) => file.path);
+
+            expect(paths).toContain('.agents/skills/quality-assurance--test/SKILL.md');
+            expect(paths).not.toContain('.agents/skills/quality-assurance--regression/SKILL.md');
+        });
+
         it('handles unknown roles with fallback', () => {
             const files = compileAntigravity(['CUSTOM'], [], 'test-project');
             expect(files.length).toBe(1);

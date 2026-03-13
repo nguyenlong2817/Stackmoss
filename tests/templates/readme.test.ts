@@ -27,6 +27,7 @@ describe('Template: README_AGENT_TEAM.md', () => {
         expect(result.content).toContain('Bước 1');
         expect(result.content).toContain('Bước 2');
         expect(result.content).toContain('Bước 3');
+        expect(result.content).toContain('Bước 4');
     });
 
     it('references team.md', () => {
@@ -47,5 +48,14 @@ describe('Template: README_AGENT_TEAM.md', () => {
         expect(result.content).toContain('stackmoss.config.json');
         expect(result.content).toContain('NORTH_STAR.md');
         expect(result.content).toContain('NON_GOALS.md');
+    });
+
+    it('tells the user to lock BRD and calibrate via Tech Lead first', () => {
+        const result = generateReadme(createSampleInput());
+
+        expect(result.content).toContain('Khóa BRD / North Star');
+        expect(result.content).toContain('calibrate lại agent team');
+        expect(result.content).toContain('Calibration status: bootstrap');
+        expect(result.content).toContain('Chỉ Tech Lead được chuẩn bị patch cho config chung');
     });
 });

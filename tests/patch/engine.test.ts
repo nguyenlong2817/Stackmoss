@@ -87,7 +87,12 @@ describe('Patch Engine', () => {
     it('applies proposal to target file', () => {
         mkdirSync(TEST_DIR, { recursive: true });
         const teamPath = join(TEST_DIR, 'team.md');
-        writeFileSync(teamPath, 'dev: `npm run dev`\nbuild: `tsc`', 'utf-8');
+        writeFileSync(teamPath, [
+            '## ROLES',
+            '- [DEV-ENV] Commands',
+            '  dev: `npm run dev`',
+            '  build: `tsc`',
+        ].join('\n'), 'utf-8');
 
         const proposal = createProposal(
             TEST_DIR,
@@ -95,8 +100,8 @@ describe('Patch Engine', () => {
             'npm run dev',
             'err',
             createTestFix({
-                oldContent: 'dev: `npm run dev`',
-                newContent: 'dev: `npm run start`',
+                oldContent: '  dev: `npm run dev`',
+                newContent: '  dev: `npm run start`',
             }),
         );
 
@@ -152,14 +157,21 @@ describe('Patch Engine', () => {
     it('rejects apply on already-applied proposal', () => {
         mkdirSync(TEST_DIR, { recursive: true });
         const teamPath = join(TEST_DIR, 'team.md');
-        writeFileSync(teamPath, 'dev: `npm run dev`', 'utf-8');
+        writeFileSync(teamPath, [
+            '## ROLES',
+            '- [DEV-ENV] Commands',
+            '  dev: `npm run dev`',
+        ].join('\n'), 'utf-8');
 
         const proposal = createProposal(
             TEST_DIR,
             'run_fail',
             'cmd',
             'err',
-            createTestFix(),
+            createTestFix({
+                oldContent: '  dev: `npm run dev`',
+                newContent: '  dev: `npm run dev`',
+            }),
         );
 
         applyProposal(TEST_DIR, proposal.id);
@@ -172,5 +184,65 @@ describe('Patch Engine', () => {
     it('returns empty list when no patches dir', () => {
         const proposals = listProposals(TEST_DIR);
         expect(proposals).toEqual([]);
+    });
+
+    it('applies changes only inside the declared section', () => {
+        mkdirSync(TEST_DIR, { recursive: true });
+        const teamPath = join(TEST_DIR, 'team.md');
+        writeFileSync(teamPath, [
+            '## CONSTITUTION',
+            '- [DEV-ENV] Do not touch this copy',
+            '',
+            '## ROLES',
+            '- [DEV-ENV] Commands',
+            '  dev: `npm run dev`',
+        ].join('\n'), 'utf-8');
+
+        const proposal = createProposal(
+            TEST_DIR,
+            'run_fail',
+            'cmd',
+            'err',
+            createTestFix({
+                oldContent: 'npm run dev',
+                newContent: 'npm run start',
+            }),
+        );
+
+        const result = applyProposal(TEST_DIR, proposal.id);
+
+        expect(result.success).toBe(true);
+        const updated = readFileSync(teamPath, 'utf-8');
+        expect(updated).toContain('- [DEV-ENV] Do not touch this copy');
+        expect(updated).toContain('`npm run start`');
+    });
+
+    it('rejects patches that leave a capability above BRD max budget', () => {
+        mkdirSync(TEST_DIR, { recursive: true });
+        const teamPath = join(TEST_DIR, 'team.md');
+        const oversized = Array.from({ length: 181 }, (_, index) => `word${index}`).join(' ');
+        writeFileSync(teamPath, [
+            '## ROLES',
+            '- [QA-TEST] Test capability',
+            `  note: ${oversized}`,
+        ].join('\n'), 'utf-8');
+
+        const proposal = createProposal(
+            TEST_DIR,
+            'check_fail',
+            'cmd',
+            'err',
+            {
+                targetFile: 'team.md',
+                section: '[QA-TEST]',
+                oldContent: oversized,
+                newContent: Array.from({ length: 180 }, (_, index) => `word${index}`).join(' '),
+            },
+        );
+
+        const result = applyProposal(TEST_DIR, proposal.id);
+
+        expect(result.success).toBe(false);
+        expect(result.detail).toContain('budget gate');
     });
 });

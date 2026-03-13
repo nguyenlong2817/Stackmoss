@@ -64,7 +64,9 @@ describe('Intake Integration', () => {
             .mockResolvedValueOnce('L')            // Q12b
             .mockResolvedValueOnce('Production');  // Q_PT
 
-        mockInput.mockResolvedValueOnce('User dashboard'); // Q12
+        mockInput
+            .mockResolvedValueOnce('User dashboard') // Q12
+            .mockResolvedValueOnce('No billing in v1'); // non-goal follow-up
 
         const result: IntakeResult = await runIntake();
 

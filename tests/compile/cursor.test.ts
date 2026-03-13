@@ -64,4 +64,23 @@ describe('Cursor Compile Target', () => {
         expect(customFile).toBeDefined();
         expect(customFile!.content).toContain('CUSTOM_ROLE');
     });
+
+    it('renders real always-on rule content instead of placeholders', () => {
+        const files = compileCursor(['TL'], [], 'test-project');
+        const constitution = files.find((file) => file.path === '.cursor/rules/constitution.mdc');
+
+        expect(constitution).toBeDefined();
+        expect(constitution!.content).toContain('replace-only: true');
+        expect(constitution!.content).not.toContain('_Section from team.md. Synced by StackMoss._');
+    });
+
+    it('includes TL-led maintenance rules in cursor output', () => {
+        const files = compileCursor(['TL'], [], 'test-project');
+        const constitution = files.find((file) => file.path === '.cursor/rules/constitution.mdc');
+        const tlRule = files.find((file) => file.path === '.cursor/rules/tl.mdc');
+
+        expect(constitution!.content).toContain('Tech Lead is the single writer for shared team config');
+        expect(tlRule!.content).toContain('Recalibrate the team after BRD lock and repo scan');
+        expect(tlRule!.content).toContain('ask the user before apply');
+    });
 });

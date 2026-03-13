@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
 import { CONFIG_FILENAME } from '../config.js';
 import { runIntake, reportIntake } from '../intake/index.js';
 import { generateAllFiles } from '../templates/index.js';
-import { compileTarget } from '../compile/index.js';
+import { compileTarget, DEFAULT_TARGET } from '../compile/index.js';
 import type { IntakeResult } from '../intake/types.js';
 import type { GeneratedFile, TemplateInput } from '../templates/types.js';
 
@@ -46,6 +46,7 @@ const STACKMOSS_VERSION = (() => {
 // ─── Validation regex: valid folder name ─────────────────────────
 
 const VALID_NAME_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9._-]*$/;
+const RESERVED_WINDOWS_NAMES = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\..*)?$/i;
 
 // ─── 4-method command pattern ────────────────────────────────────
 
@@ -65,6 +66,10 @@ export function parseArgs(name: string | undefined): NewCommandArgs {
             'Use only letters, numbers, dots, hyphens, and underscores. ' +
             'Must start with a letter or number.',
         );
+    }
+
+    if (RESERVED_WINDOWS_NAMES.test(projectName)) {
+        throw new Error(`Invalid project name '${projectName}'. Reserved device names are not allowed.`);
     }
 
     if (projectName.length > 64) {
@@ -145,8 +150,14 @@ export function writeFilesAtomically(
 export function execute(args: NewCommandArgs): NewCommandResult {
     const projectPath = resolve(args.projectName);
 
-    // Create project directory
-    mkdirSync(projectPath, { recursive: true });
+    if (existsSync(projectPath)) {
+        throw new Error(
+            `Folder '${args.projectName}' already exists. ` +
+            'Choose a different name or remove the existing folder.',
+        );
+    }
+
+    mkdirSync(projectPath);
 
     return {
         projectPath,
@@ -199,7 +210,7 @@ export async function handler(name: string | undefined): Promise<void> {
 
         // Compile to Claude Code target
         const compileFiles = compileTarget(
-            'ClaudeCodeV2',
+            DEFAULT_TARGET,
             intakeResult.roles,
             intakeResult.autoAddedRoles,
             args.projectName,

@@ -1,15 +1,7 @@
 /**
  * Command: stackmoss promote --confirm
- * Phase B: Hard gate validation → transition to OPERATIONAL
- * Authority: BRD §13.2, cli-pipeline skill
- *
- * Pattern: parseArgs → checkState → execute → report
- *
- * Promote Criteria (ALL must pass):
- * 1. MIGRATION_REPORT.md has zero open questions
- * 2. At least 1 command in [DEV-ENV] verified
- * 3. No critical hypothesis with confidence < 80%
- * 4. User passed --confirm flag
+ * Phase B: Hard gate validation -> transition to OPERATIONAL
+ * Authority: BRD §13.2
  */
 
 import { existsSync, readFileSync } from 'node:fs';
@@ -18,7 +10,7 @@ import { CONFIG_FILENAME } from '../config.js';
 import { readState, transitionState } from '../state-machine.js';
 import { MIGRATION_REPORT_FILENAME, parseMigrationReport } from '../scanner/index.js';
 
-// ─── Types ───────────────────────────────────────────────────────
+const OPEN_QUESTIONS_FILENAME = 'OPEN_QUESTIONS.md';
 
 export interface PromoteCriterion {
     name: string;
@@ -32,7 +24,69 @@ export interface PromoteResult {
     promoted: boolean;
 }
 
-// ─── 4-method command pattern ────────────────────────────────────
+function countOpenQuestionsFileUnresolved(projectPath: string): number {
+    const openQuestionsPath = join(projectPath, OPEN_QUESTIONS_FILENAME);
+    if (!existsSync(openQuestionsPath)) {
+        return 0;
+    }
+
+    const content = readFileSync(openQuestionsPath, 'utf-8');
+    const lines = content.split('\n');
+    const startIndex = lines.findIndex((line) => line.startsWith('## Chưa được trả lời'));
+
+    if (startIndex === -1) {
+        return (content.match(/^- \[ \]/gm) ?? []).length;
+    }
+
+    const sectionLines: string[] = [];
+    for (let index = startIndex; index < lines.length; index++) {
+        if (index > startIndex && lines[index].startsWith('## ')) {
+            break;
+        }
+        sectionLines.push(lines[index]);
+    }
+
+    return (sectionLines.join('\n').match(/^- \[ \]/gm) ?? []).length;
+}
+
+function getVerifiedDevEnvCommand(reportPath: string): { passed: boolean; detail: string } {
+    if (!existsSync(reportPath)) {
+        return {
+            passed: false,
+            detail: `${MIGRATION_REPORT_FILENAME} not found`,
+        };
+    }
+
+    const content = readFileSync(reportPath, 'utf-8');
+    const lines = content.split('\n');
+    const startIndex = lines.findIndex((line) => line.startsWith('## FACTS'));
+    const sectionLines: string[] = [];
+
+    if (startIndex !== -1) {
+        for (let index = startIndex; index < lines.length; index++) {
+            if (index > startIndex && lines[index].startsWith('## ')) {
+                break;
+            }
+            sectionLines.push(lines[index]);
+        }
+    }
+
+    const verifiedCommands = sectionLines
+        .map((line) => line.trim())
+        .filter((line) => /(Run command|Build command|Test command)/i.test(line));
+
+    if (verifiedCommands.length === 0) {
+        return {
+            passed: false,
+            detail: 'No verified [DEV-ENV] command found in MIGRATION_REPORT.md facts',
+        };
+    }
+
+    return {
+        passed: true,
+        detail: `Verified [DEV-ENV] commands: ${verifiedCommands.join('; ')}`,
+    };
+}
 
 export function parseArgs(options: { confirm?: boolean }): {
     projectPath: string;
@@ -76,21 +130,22 @@ export function execute(
     hasConfirmFlag: boolean,
 ): PromoteResult {
     const criteria: PromoteCriterion[] = [];
+    const projectPath = resolve('.');
 
-    // ── Criterion 1: No unresolved questions ─────────────────
     if (existsSync(reportPath)) {
         const content = readFileSync(reportPath, 'utf-8');
         const parsed = parseMigrationReport(content);
+        const unresolvedOpenQuestions = countOpenQuestionsFileUnresolved(projectPath);
+        const unresolvedTotal = parsed.unresolvedCount + unresolvedOpenQuestions;
 
         criteria.push({
             name: 'No unresolved open questions',
-            passed: !parsed.hasUnresolvedQuestions,
-            detail: parsed.hasUnresolvedQuestions
-                ? `${parsed.unresolvedCount} unresolved question(s) — run \`stackmoss resolve\``
+            passed: unresolvedTotal === 0,
+            detail: unresolvedTotal > 0
+                ? `${unresolvedTotal} unresolved question(s) — clear MIGRATION_REPORT.md and OPEN_QUESTIONS.md before promote`
                 : `All questions resolved (${parsed.resolvedCount} total)`,
         });
 
-        // ── Criterion 3: No critical low-confidence hypotheses ──
         criteria.push({
             name: 'No critical hypothesis < 80% confidence',
             passed: !parsed.hasCriticalLowConfidence,
@@ -111,38 +166,13 @@ export function execute(
         });
     }
 
-    // ── Criterion 2: At least 1 DEV-ENV command verified ─────
-    // Free tier: check if package.json scripts have dev/start/build
-    const pkgJsonPath = join(resolve('.'), 'package.json');
-    let hasVerifiedCommand = false;
-    let commandDetail = 'No package.json found to verify commands';
-
-    if (existsSync(pkgJsonPath)) {
-        try {
-            const pkg = JSON.parse(readFileSync(pkgJsonPath, 'utf-8')) as {
-                scripts?: Record<string, string>;
-            };
-            const devScripts = ['dev', 'start', 'build'];
-            const found = devScripts.filter((s) => pkg.scripts?.[s]);
-
-            if (found.length > 0) {
-                hasVerifiedCommand = true;
-                commandDetail = `Verified scripts exist: ${found.map((s) => `\`${s}\``).join(', ')}`;
-            } else {
-                commandDetail = 'No dev/start/build scripts found in package.json';
-            }
-        } catch {
-            commandDetail = 'package.json could not be parsed';
-        }
-    }
-
+    const verifiedCommand = getVerifiedDevEnvCommand(reportPath);
     criteria.push({
         name: 'At least 1 DEV-ENV command verified',
-        passed: hasVerifiedCommand,
-        detail: commandDetail,
+        passed: verifiedCommand.passed,
+        detail: verifiedCommand.detail,
     });
 
-    // ── Criterion 4: --confirm flag ──────────────────────────
     criteria.push({
         name: 'User passed --confirm flag',
         passed: hasConfirmFlag,
@@ -151,30 +181,33 @@ export function execute(
             : 'Missing --confirm flag — run `stackmoss promote --confirm`',
     });
 
-    // ── Evaluate ─────────────────────────────────────────────
-    const allPassed = criteria.every((c) => c.passed);
+    const allPassed = criteria.every((criterion) => criterion.passed);
 
     if (allPassed) {
         transitionState(configPath, 'MIGRATING', 'OPERATIONAL');
     }
 
-    return { criteria, allPassed, promoted: allPassed };
+    return {
+        criteria,
+        allPassed,
+        promoted: allPassed,
+    };
 }
 
 export function report(result: PromoteResult): void {
     console.log('\n📋 Promote Criteria Check:\n');
 
-    for (const c of result.criteria) {
-        const icon = c.passed ? '✅' : '❌';
-        console.log(`   ${icon} ${c.name}`);
-        console.log(`      ${c.detail}`);
+    for (const criterion of result.criteria) {
+        const icon = criterion.passed ? '✅' : '❌';
+        console.log(`   ${icon} ${criterion.name}`);
+        console.log(`      ${criterion.detail}`);
     }
 
     console.log('');
 
     if (result.promoted) {
         console.log('🎉 Promoted to OPERATIONAL!');
-        console.log('   State: MIGRATING → OPERATIONAL');
+        console.log('   State: MIGRATING -> OPERATIONAL');
         console.log('');
         console.log('   You can now use Phase C commands:');
         console.log('   - stackmoss run <alias>');
@@ -185,9 +218,6 @@ export function report(result: PromoteResult): void {
     }
 }
 
-/**
- * Full command handler
- */
 export function handler(options: { confirm?: boolean }): void {
     const { configPath, reportPath, hasConfirmFlag } = parseArgs(options);
     checkState(configPath);

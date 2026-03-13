@@ -18,6 +18,7 @@
 import type { GeneratedFile } from '../templates/types.js';
 import { extractRoleId } from '../templates/team.js';
 import { ROLE_CAPABILITIES } from './claude-code.js';
+import { getCapabilitiesForRole } from '../budgets.js';
 
 // ─── Slug Helpers ────────────────────────────────────────────────
 
@@ -123,7 +124,10 @@ _Atomic skill file. Configure capabilities as needed._
         }
 
         // Split each capability into its own skill file
-        for (const cap of def.capabilities) {
+        const allowedCapabilities = new Set(getCapabilitiesForRole(role));
+        for (const cap of def.capabilities.filter(
+            (item) => allowedCapabilities.size === 0 || allowedCapabilities.has(item.id),
+        )) {
             const slug = capabilityToSlug(cap.id);
             files.push({
                 path: `.agents/skills/${slug}/SKILL.md`,

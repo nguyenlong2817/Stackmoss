@@ -38,9 +38,8 @@ export function getProjectType(answers: RawAnswers): ProjectType {
         return raw as ProjectType;
     }
 
-    // Q_PT is required — if missing, default to MVP with warning
     if (!raw) {
-        return 'MVP';
+        throw new Error('Project type is required (Q_PT).');
     }
 
     throw new Error(`Invalid project type: '${raw}'. Valid: ${valid.join(', ')}`);

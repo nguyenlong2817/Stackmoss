@@ -29,7 +29,28 @@ function setup(opts: {
     writeFileSync(join(TEST_DIR, 'stackmoss.config.json'), JSON.stringify({
         schemaVersion: '1.0',
         state: 'OPERATIONAL',
-        projectName: 'test',
+        userType: 'BizLed',
+        projectType: 'MVP',
+        language: 'en',
+        targets: ['ClaudeCode'],
+        mode: 'suggest_only',
+        intakeMode: 'fast',
+        budgets: {
+            capabilityDefault: 120,
+            capabilityMax: 240,
+            teamTotalMax: 1800,
+            migrationReport: 700,
+        },
+        thresholds: {
+            promoteRequiresZeroQuestions: true,
+            promoteRequiresVerifiedAlias: true,
+            minHypothesisConfidence: 0.8,
+            patchTriggerMinRepeat: 2,
+        },
+        autoAddRoles: {
+            securityLite: false,
+            devOpsLite: false,
+        },
     }, null, 2), 'utf-8');
 
     // team.md
@@ -112,5 +133,31 @@ describe('Check Command', () => {
 
         const structureIssues = result.issues.filter((i) => i.category === 'structure_invalid');
         expect(structureIssues.length).toBeGreaterThan(0);
+    });
+
+    it('flags bootstrap team config that still needs TL calibration', () => {
+        setup({
+            teamContent: `# Team
+## CONSTITUTION
+Rules here.
+
+## ROLES
+TL, DEV
+
+## WORKING CONTRACT
+### Config Maintenance
+- Calibration status: bootstrap pending TL recalibration after BRD lock + repo scan
+
+## PROJECT_FACTS
+- Package manager: TBD
+`,
+        });
+        process.chdir(TEST_DIR);
+
+        const result = checkExecute(TEST_DIR);
+
+        const issue = result.issues.find((i) => i.category === 'calibration_needed');
+        expect(issue).toBeDefined();
+        expect(result.allClear).toBe(false);
     });
 });

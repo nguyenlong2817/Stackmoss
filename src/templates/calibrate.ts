@@ -27,10 +27,12 @@ For optimal results, let your AI agent scan this repo and customize the config.
 2. Say: **"Calibrate the agent team for this repo"**
 3. The agent will:
    - Scan repo structure, package.json, configs, and code patterns
+   - Confirm BRD/NORTH_STAR is locked before changing delivery lanes
    - Update \`team.md\` PROJECT_FACTS with actual repo details
-   - Adjust capability budgets (±20%) based on codebase complexity
+   - Replace the bootstrap calibration status line once the repo facts are verified
+   - Adjust the team shape for the real stack (for example split DEV lanes, trim roles, add stack-specific coverage)
    - Add project-specific rules per role
-   - Flag missing or over-provisioned roles
+   - Propose changes to you before applying any config patch
 4. Review the changes, then run: \`stackmoss check\`
 
 ## When to Re-calibrate
@@ -108,6 +110,12 @@ Edit the \`## PROJECT_FACTS\` section with actual repo details:
 - Deploy: [docker/vercel/etc]
 \`\`\`
 
+Also replace the bootstrap marker in \`## WORKING CONTRACT > Config Maintenance\`:
+
+\`\`\`markdown
+- Calibration status: calibrated for [detected stack/topology]
+\`\`\`
+
 ## Step 4: ADJUST BUDGETS
 
 Review capability budgets in role rule files (location depends on compile target):
@@ -121,6 +129,12 @@ Adjustments:
 - **Simple CRUD**: reduce architecture, increase implementation
 
 ## Step 5: ADD PROJECT RULES
+
+Tech Lead may also reshape the team after BRD lock:
+- split \`DEV\` into project-specific delivery lanes when the stack requires it
+- reduce unnecessary roles for simpler repos
+- strengthen QA / OPS / SEC coverage when the repo proves that need
+- keep all edits replace-only inside existing sections
 
 For each role, add 1-3 project-specific rules based on detected patterns:
 
@@ -146,6 +160,8 @@ List what changed and why:
 ## CONSTRAINTS
 
 - **Replace-only**: do not inflate total word count beyond +20%
+- **Single writer**: only Tech Lead prepares shared team-config patches
+- **Confirm-first**: ask the user before applying any config patch
 - **Ask before removing** any role from the template
 - **Preserve CONSTITUTION** rules — governance stays unchanged
 - **Current roles**: ${roles.join(', ')}

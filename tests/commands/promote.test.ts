@@ -13,21 +13,21 @@ import type { ScanResult } from '../../src/scanner/types.js';
 const TEST_DIR = join(process.cwd(), '__test_promote__');
 const CONFIG_PATH = join(TEST_DIR, 'stackmoss.config.json');
 const REPORT_PATH = join(TEST_DIR, 'MIGRATION_REPORT.md');
-const PKG_PATH = join(TEST_DIR, 'package.json');
+const OPEN_QUESTIONS_PATH = join(TEST_DIR, 'OPEN_QUESTIONS.md');
 
 function setup(opts: {
     state?: string;
     unresolvedQuestions?: boolean;
     criticalLowConfidence?: boolean;
-    hasPackageJson?: boolean;
-    hasScripts?: boolean;
+    hasVerifiedDevEnv?: boolean;
+    openQuestionsFileUnresolved?: boolean;
 } = {}): void {
     const {
         state = 'MIGRATING',
         unresolvedQuestions = false,
         criticalLowConfidence = false,
-        hasPackageJson = true,
-        hasScripts = true,
+        hasVerifiedDevEnv = true,
+        openQuestionsFileUnresolved = false,
     } = opts;
 
     mkdirSync(TEST_DIR, { recursive: true });
@@ -42,7 +42,12 @@ function setup(opts: {
 
     // Report
     const scanResult: ScanResult = {
-        facts: [{ category: 'PM', value: 'npm', source: 'lock' }],
+        facts: hasVerifiedDevEnv
+            ? [
+                { category: 'PM', value: 'npm', source: 'lock' },
+                { category: 'Run command', value: '`npm run dev`', source: 'package.json scripts' },
+            ]
+            : [{ category: 'PM', value: 'npm', source: 'lock' }],
         hypotheses: criticalLowConfidence
             ? [{ category: 'Monorepo', value: 'YES', confidence: 55, source: 'apps/', critical: true }]
             : [{ category: 'DB', value: 'PG', confidence: 85, source: 'deps', critical: true }],
@@ -52,12 +57,12 @@ function setup(opts: {
     };
     writeFileSync(REPORT_PATH, renderMigrationReport('test', scanResult), 'utf-8');
 
-    // Package.json
-    if (hasPackageJson) {
-        const pkg = hasScripts
-            ? { name: 'test', scripts: { dev: 'next dev', build: 'next build' } }
-            : { name: 'test' };
-        writeFileSync(PKG_PATH, JSON.stringify(pkg), 'utf-8');
+    if (openQuestionsFileUnresolved) {
+        writeFileSync(
+            OPEN_QUESTIONS_PATH,
+            '# Open Questions\n\n## Chưa được trả lời\n- [ ] Q1: Deploy target?\n',
+            'utf-8',
+        );
     }
 }
 
@@ -125,8 +130,8 @@ describe('Promote Command', () => {
         expect(hypCriterion?.passed).toBe(false);
     });
 
-    it('blocks when no dev scripts found', () => {
-        setup({ hasScripts: false });
+    it('blocks when no verified DEV-ENV command is found', () => {
+        setup({ hasVerifiedDevEnv: false });
         process.chdir(TEST_DIR);
 
         const result = promoteExecute(CONFIG_PATH, REPORT_PATH, true);
@@ -134,6 +139,17 @@ describe('Promote Command', () => {
         expect(result.allPassed).toBe(false);
         const devCriterion = result.criteria.find((c) => c.name.includes('DEV-ENV'));
         expect(devCriterion?.passed).toBe(false);
+    });
+
+    it('blocks when OPEN_QUESTIONS.md still has unresolved items', () => {
+        setup({ openQuestionsFileUnresolved: true });
+        process.chdir(TEST_DIR);
+
+        const result = promoteExecute(CONFIG_PATH, REPORT_PATH, true);
+
+        expect(result.allPassed).toBe(false);
+        const questionCriterion = result.criteria.find((c) => c.name.includes('open questions'));
+        expect(questionCriterion?.passed).toBe(false);
     });
 
     it('transitions state to OPERATIONAL on success', () => {

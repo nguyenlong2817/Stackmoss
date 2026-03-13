@@ -51,7 +51,9 @@ function mockAllInterviewAnswers(overrides?: Record<string, string>) {
         .mockResolvedValueOnce(vals['Q12b']!)  // Q12b (sub-question)
         .mockResolvedValueOnce(vals['Q_PT']!); // Q_PT
 
-    mockInput.mockResolvedValueOnce(vals['Q12']!); // Q12 (text)
+    mockInput
+        .mockResolvedValueOnce(vals['Q12']!) // Q12
+        .mockResolvedValueOnce(vals['Q12_NON_GOAL'] ?? 'No admin portal'); // completeness gate follow-up
 }
 
 describe('Interview Mode', () => {
@@ -91,6 +93,7 @@ describe('Interview Mode', () => {
             .mockResolvedValueOnce('MVP');          // Q_PT
 
         mockInput.mockResolvedValueOnce('Landing page'); // Q12
+        mockInput.mockResolvedValueOnce('No offline mode'); // non-goal follow-up
 
         const result = await runInterviewMode();
 
@@ -118,6 +121,7 @@ describe('Interview Mode', () => {
             .mockResolvedValueOnce('sme');         // Q2 re-ask (completeness gate)
 
         mockInput.mockResolvedValueOnce('API Service'); // Q12
+        mockInput.mockResolvedValueOnce('No billing yet'); // non-goal follow-up
 
         const result = await runInterviewMode();
 

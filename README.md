@@ -1,127 +1,162 @@
 <div align="center">
 
-# 🌿 StackMoss
+# StackMoss
 
 **Runtime-agnostic agent team governance**
 
-Scaffold, test, and ship AI agent teams for **Claude Code**, **Cursor**, and **Antigravity** — deterministic, eval-ready, no LLM required.
+Scaffold, calibrate, and operate AI agent teams for **Claude Code**, **Cursor**, **Roo**, and **Antigravity** with deterministic logic only.
 
 [![npm version](https://img.shields.io/npm/v/stackmoss?style=flat-square&color=brightgreen)](https://www.npmjs.com/package/stackmoss)
 [![license](https://img.shields.io/npm/l/stackmoss?style=flat-square&color=blue)](LICENSE)
-[![tests](https://img.shields.io/badge/tests-265%20passed-brightgreen?style=flat-square)]()
+[![tests](https://img.shields.io/badge/tests-308%20passed-brightgreen?style=flat-square)]()
 [![node](https://img.shields.io/node/v/stackmoss?style=flat-square)](package.json)
 
 </div>
 
 ---
 
-## ✨ What is StackMoss?
+## What is StackMoss?
 
-StackMoss generates **agent team configurations** — structured role definitions, capabilities, rules, and **eval harnesses** — that AI coding assistants auto-read to understand your project's team structure.
+StackMoss generates **agent team configurations**: structured roles, capabilities, governance rules, compile targets, and eval harnesses that AI coding assistants can read directly.
 
-**No LLM calls. No cloud. Pure deterministic logic. Eval-ready out of the box.**
+It is designed around a strict contract:
 
-```
-You answer 7 questions → StackMoss generates your entire agent team config
-```
+- Deterministic logic only. No LLM calls inside the CLI pipeline.
+- `team.md` is the source of truth.
+- Config changes are replace-only, budget-bounded, and proposal-driven.
+- The generated team is a **bootstrap team**, not a permanent assumption.
 
 ---
 
-## 📦 Install
+## Install
 
 ```bash
 npm install -g stackmoss
 ```
 
-## 🚀 Quick Start
+---
+
+## Quick Start
 
 ```bash
 stackmoss new my-project
+cd my-project
 ```
 
-Answer 7 questions → get a complete agent team:
+Answer the intake questions and StackMoss will generate:
 
-```
+```text
 my-project/
-├── team.md                     # Roles & capabilities
-├── FEATURES.md                 # Feature tracking
-├── NORTH_STAR.md               # Project vision
-├── stackmoss.config.json       # State machine config
-│
-├── CLAUDE.md                   # ← Claude Code reads this
-├── .claude/rules/              # ← Per-role rules
-│   ├── tl.md                   #    Tech Lead
-│   ├── dev.md                  #    Developer
-│   └── qa.md                   #    QA
-│
-└── evals/                      # ← Eval harness (plug into any runner)
-    ├── rubric.md               #    Pass/fail criteria
-    ├── cases/                  #    Test scenarios
-    └── expected/               #    Golden output patterns
+|-- team.md
+|-- FEATURES.md
+|-- NORTH_STAR.md
+|-- NON_GOALS.md
+|-- README_AGENT_TEAM.md
+|-- stackmoss.config.json
+|-- CLAUDE.md
+|-- .claude/
+|-- .cursor/
+|-- .roo/
+`-- evals/
 ```
 
-> 📖 **[Full Quick Start Guide →](QUICK_START.md)**
+Then use the team in this order:
+
+1. Lock the BRD or `NORTH_STAR.md` before real feature delivery.
+2. Ask **Tech Lead** to scan the repo and recalibrate the team to the real stack, topology, and delivery lanes.
+3. Review the proposed config patch.
+4. Only after confirmation, let the team start shipping features.
+
+> Full walkthrough: [QUICK_START.md](QUICK_START.md)
 
 ---
 
-## 🎯 Compile Targets
+## Operating Model
 
-StackMoss compiles the same `team.md` → different AI tool formats:
+### Bootstrap -> Calibrate -> Operate
+
+- `stackmoss new` creates a valid bootstrap team from intake answers.
+- After the BRD is locked and the repo is available, **Tech Lead must recalibrate** the team.
+- DEV, QA, OPS, and other roles can emit verified signals, but **Tech Lead is the single writer** for shared team config.
+- Shared config is updated by replacing stale facts with correct facts, never by appending history logs.
+- Every config patch requires user confirmation before apply.
+
+### Existing repo flow
+
+```bash
+stackmoss inject
+stackmoss resolve
+stackmoss promote --confirm
+stackmoss check
+```
+
+`inject` syncs repo facts into `PROJECT_FACTS`, `resolve` clears open questions, and `promote` moves the project into `OPERATIONAL` state.
+
+---
+
+## Compile Targets
 
 | Target | Output | Use with |
 |:---|:---|:---|
-| **ClaudeCodeV2** *(default)* | `CLAUDE.md` + `.claude/rules/*.md` | Claude Code |
-| **Cursor** | `.cursor/rules/*.mdc` | Cursor IDE |
-| **Antigravity** | `.agents/skills/<cap>/SKILL.md` | Antigravity |
-| ClaudeCode *(legacy)* | `.claude/skills/*.skill.md` | Claude Code v1 |
+| `ClaudeCodeV2` | `CLAUDE.md` + `.claude/rules/*.md` | Claude Code |
+| `Cursor` | `.cursor/rules/*.mdc` | Cursor |
+| `Roo` | `.roo/skills/*.md` | Roo |
+| `Antigravity` | `.agents/skills/<cap>/SKILL.md` | Antigravity |
+| `ClaudeCode` | `.claude/skills/*.skill.md` | Claude Code legacy |
 
 ---
 
-## 🔄 Full Command Pipeline
+## Full Command Pipeline
 
-```
-GLOBAL ──────────▶ MIGRATING ─────────▶ OPERATIONAL
-  stackmoss new       inject               run
-                      resolve              check
-                      promote              patch
+```text
+GLOBAL ----------> MIGRATING ----------> OPERATIONAL
+  new                inject                run
+                     resolve               check
+                     promote               patch
                                            upgrade
 ```
 
 | Command | Description |
 |:---|:---|
-| `stackmoss new <name>` | Create project + intake + generate + compile |
-| `stackmoss inject` | Scan existing repo → MIGRATION_REPORT.md |
-| `stackmoss resolve` | Interactive Q&A for open questions |
-| `stackmoss promote --confirm` | 4 criteria gate → OPERATIONAL |
-| `stackmoss run <alias>` | Execute command, auto-patch on failure |
-| `stackmoss check` | Config sanity + word budget validation |
-| `stackmoss patch apply/reject` | Manage patch proposals |
-| `stackmoss upgrade [--apply]` | CONSTITUTION-only merge |
+| `stackmoss new <name>` | Create a new StackMoss project |
+| `stackmoss inject` | Scan an existing repo and sync migration facts |
+| `stackmoss resolve` | Answer unresolved migration questions |
+| `stackmoss promote --confirm` | Transition from `MIGRATING` to `OPERATIONAL` |
+| `stackmoss run <alias>` | Run a command alias with patch proposal on failure |
+| `stackmoss check` | Validate config, budgets, and calibration readiness |
+| `stackmoss patch list/apply/reject` | Manage patch proposals |
+| `stackmoss upgrade` | Merge `CONSTITUTION` only |
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
-- **Deterministic** — no LLM required for any command
-- **Atomic writes** — all-or-nothing file generation
-- **State-aware** — commands validate state before execution
-- **Word budgets** — enforced per capability section
-- **Self-improving** — auto-generates patch proposals on command failure
+- Deterministic pack and role selection
+- Atomic writes for generated files
+- State-machine enforcement for every command
+- Replace-only patch flow with budget gate
+- TL-led calibration contract for real projects
 
 ---
 
-## 🧪 Development
+## Development
 
 ```bash
 git clone https://github.com/nguyenlong2817/Stackmoss.git
 cd Stackmoss
 npm install
+npm test
 npm run build
-npm test           # 265 tests, 29 files
 ```
+
+Current verification status:
+
+- `308` passing tests
+- `36` test files
+- TypeScript build passes
 
 ---
 
-## 📄 License
+## License
 
-MIT © [StackMoss](LICENSE)
+MIT © StackMoss

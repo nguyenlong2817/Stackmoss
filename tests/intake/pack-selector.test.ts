@@ -43,8 +43,8 @@ describe('Pack Selector', () => {
             expect(getProjectType({ Q_PT: 'LibraryAPI' })).toBe('LibraryAPI');
         });
 
-        it('should default to MVP if Q_PT is missing', () => {
-            expect(getProjectType({})).toBe('MVP');
+        it('should throw if Q_PT is missing', () => {
+            expect(() => getProjectType({})).toThrow('Project type is required');
         });
 
         it('should throw for invalid Q_PT value', () => {

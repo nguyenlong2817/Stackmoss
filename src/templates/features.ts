@@ -7,18 +7,25 @@
 
 import type { GeneratedFile, TemplateInput } from './types.js';
 
+function sanitizeFeatureName(rawName: string): string {
+    const singleLine = rawName.replace(/\r?\n+/g, ' ');
+    const normalized = singleLine.replace(/\s+/g, ' ').trim();
+    return normalized || 'Untitled feature';
+}
+
 // ─── Generator ───────────────────────────────────────────────────
 
 export function generateFeatures(input: TemplateInput): GeneratedFile {
     const { projectName, intake } = input;
     const { firstFeature } = intake;
+    const featureName = sanitizeFeatureName(firstFeature.name);
 
     const content = `# FEATURES — ${projectName}
 _Managed by Tech Lead. Cập nhật sau mỗi feature cycle._
 
 ---
 
-## F1: ${firstFeature.name} (appetite: ${firstFeature.appetite})
+## F1: ${featureName} (appetite: ${firstFeature.appetite})
 
 **Outcome:**
 - [Kết quả đo được khi feature hoàn thành]

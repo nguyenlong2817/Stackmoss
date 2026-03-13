@@ -1,9 +1,7 @@
 /**
  * Command: stackmoss resolve
- * Phase B: Interactively answer open questions from MIGRATION_REPORT
- * Authority: BRD §7, §13, cli-pipeline skill, Appendix B
- *
- * Pattern: parseArgs → checkState → execute → report
+ * Phase B: interactively answer open questions from MIGRATION_REPORT.md
+ * Authority: BRD §13 / Appendix B
  */
 
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
@@ -13,20 +11,21 @@ import { CONFIG_FILENAME } from '../config.js';
 import { readState } from '../state-machine.js';
 import { MIGRATION_REPORT_FILENAME } from '../scanner/index.js';
 
-// ─── Types ───────────────────────────────────────────────────────
-
 interface ResolveResult {
     totalQuestions: number;
     resolvedThisSession: number;
     remainingUnresolved: number;
 }
 
-// ─── Regex patterns for MIGRATION_REPORT ─────────────────────────
-
 const UNRESOLVED_PATTERN = /^- \[ \] \*\*\[([^\]]+)\]\*\* (.+)$/;
 const RESOLVED_SECTION_HEADER = '### Đã trả lời';
 
-// ─── 4-method command pattern ────────────────────────────────────
+interface ResolvedEntry {
+    lineIdx: number;
+    id: string;
+    text: string;
+    answer: string;
+}
 
 export function parseArgs(): { projectPath: string; configPath: string; reportPath: string } {
     const projectPath = resolve('.');
@@ -61,24 +60,66 @@ export function checkState(configPath: string): void {
     }
 }
 
-export async function execute(reportPath: string): Promise<ResolveResult> {
-    let content = readFileSync(reportPath, 'utf-8');
-    const lines = content.split('\n');
-
-    // Find all unresolved questions
-    const unresolvedIndices: { lineIdx: number; id: string; text: string }[] = [];
-    for (let i = 0; i < lines.length; i++) {
-        const match = lines[i].match(UNRESOLVED_PATTERN);
-        if (match) {
-            unresolvedIndices.push({
-                lineIdx: i,
-                id: match[1],
-                text: match[2].replace(/\s*_\(.+\)_\s*$/, ''),  // Remove impact note
-            });
-        }
+function upsertResolvedSection(lines: string[], resolvedEntries: ResolvedEntry[]): string[] {
+    if (resolvedEntries.length === 0) {
+        return lines;
     }
 
-    if (unresolvedIndices.length === 0) {
+    const nextLines = [...lines];
+    let resolvedHeaderIndex = nextLines.findIndex((line) => line.trim() === RESOLVED_SECTION_HEADER);
+
+    if (resolvedHeaderIndex === -1) {
+        const openQuestionsIndex = nextLines.findIndex((line) => line.includes('## OPEN QUESTIONS'));
+        let insertIndex = nextLines.length;
+
+        if (openQuestionsIndex !== -1) {
+            for (let index = openQuestionsIndex + 1; index < nextLines.length; index++) {
+                if (nextLines[index].startsWith('## ') || nextLines[index] === '---') {
+                    insertIndex = index;
+                    break;
+                }
+            }
+        }
+
+        nextLines.splice(insertIndex, 0, '', RESOLVED_SECTION_HEADER);
+        resolvedHeaderIndex = nextLines.findIndex((line) => line.trim() === RESOLVED_SECTION_HEADER);
+    }
+
+    let insertAfter = resolvedHeaderIndex + 1;
+    while (insertAfter < nextLines.length) {
+        const line = nextLines[insertAfter];
+        if (line.startsWith('## ') || line === '---') {
+            break;
+        }
+        insertAfter++;
+    }
+
+    const rendered = resolvedEntries.map(
+        (entry) => `- [x] **[${entry.id}]** ${entry.text} → ${entry.answer}`,
+    );
+    nextLines.splice(insertAfter, 0, ...rendered);
+    return nextLines;
+}
+
+export async function execute(reportPath: string): Promise<ResolveResult> {
+    const content = readFileSync(reportPath, 'utf-8');
+    const lines = content.split('\n');
+
+    const unresolvedEntries: { lineIdx: number; id: string; text: string }[] = [];
+    for (let index = 0; index < lines.length; index++) {
+        const match = lines[index].match(UNRESOLVED_PATTERN);
+        if (!match) {
+            continue;
+        }
+
+        unresolvedEntries.push({
+            lineIdx: index,
+            id: match[1],
+            text: match[2].replace(/\s*_\(.+\)_\s*$/, ''),
+        });
+    }
+
+    if (unresolvedEntries.length === 0) {
         return {
             totalQuestions: 0,
             resolvedThisSession: 0,
@@ -86,11 +127,11 @@ export async function execute(reportPath: string): Promise<ResolveResult> {
         };
     }
 
-    console.log(`\n📋 ${unresolvedIndices.length} open question(s) to resolve:\n`);
+    console.log(`\n📋 ${unresolvedEntries.length} open question(s) to resolve:\n`);
 
-    let resolvedCount = 0;
+    const resolvedEntries: ResolvedEntry[] = [];
 
-    for (const item of unresolvedIndices) {
+    for (const item of unresolvedEntries) {
         console.log(`\n❓ [${item.id}] ${item.text}`);
 
         const action = await select({
@@ -102,50 +143,41 @@ export async function execute(reportPath: string): Promise<ResolveResult> {
             ],
         });
 
-        if (action === 'stop') break;
-        if (action === 'skip') continue;
+        if (action === 'stop') {
+            break;
+        }
+
+        if (action === 'skip') {
+            continue;
+        }
 
         const answer = await input({
             message: 'Your answer:',
         });
 
         if (answer.trim().length > 0) {
-            // Mark as resolved in content
-            lines[item.lineIdx] = `- [x] **[${item.id}]** ${item.text} → ${answer.trim()}`;
-            resolvedCount++;
+            resolvedEntries.push({
+                lineIdx: item.lineIdx,
+                id: item.id,
+                text: item.text,
+                answer: answer.trim(),
+            });
         }
     }
 
-    // Ensure "Đã trả lời" section exists
-    if (resolvedCount > 0) {
-        const resolvedSectionIdx = lines.findIndex((l) => l.trim() === RESOLVED_SECTION_HEADER);
-        if (resolvedSectionIdx === -1) {
-            // Find the OPEN QUESTIONS section end and insert resolved section
-            const openQIdx = lines.findIndex((l) => l.includes('## OPEN QUESTIONS'));
-            if (openQIdx !== -1) {
-                // Find end: next ## or ---
-                let insertIdx = lines.length;
-                for (let i = openQIdx + 1; i < lines.length; i++) {
-                    if (lines[i].startsWith('---') || (lines[i].startsWith('## ') && i > openQIdx)) {
-                        insertIdx = i;
-                        break;
-                    }
-                }
-                lines.splice(insertIdx, 0, '', RESOLVED_SECTION_HEADER);
-            }
-        }
-
-        // Write updated content
-        writeFileSync(reportPath, lines.join('\n'), 'utf-8');
+    if (resolvedEntries.length > 0) {
+        const resolvedLineIndexes = new Set(resolvedEntries.map((entry) => entry.lineIdx));
+        const unresolvedRemoved = lines.filter((_, index) => !resolvedLineIndexes.has(index));
+        const updatedLines = upsertResolvedSection(unresolvedRemoved, resolvedEntries);
+        writeFileSync(reportPath, updatedLines.join('\n'), 'utf-8');
     }
 
-    // Recount unresolved
     const updatedContent = readFileSync(reportPath, 'utf-8');
     const remainingUnresolved = (updatedContent.match(/^- \[ \] \*\*\[/gm) ?? []).length;
 
     return {
-        totalQuestions: unresolvedIndices.length,
-        resolvedThisSession: resolvedCount,
+        totalQuestions: unresolvedEntries.length,
+        resolvedThisSession: resolvedEntries.length,
         remainingUnresolved,
     };
 }
@@ -164,15 +196,13 @@ export function report(result: ResolveResult): void {
     if (result.remainingUnresolved > 0) {
         console.log(`   ⚠️  ${result.remainingUnresolved} question(s) still unresolved.`);
         console.log('   Run `stackmoss resolve` again to continue.');
-    } else {
-        console.log('   ✅ All questions resolved — ready to promote!');
-        console.log('   Run `stackmoss promote --confirm`');
+        return;
     }
+
+    console.log('   ✅ All questions resolved — ready to promote!');
+    console.log('   Run `stackmoss promote --confirm`');
 }
 
-/**
- * Full command handler
- */
 export async function handler(): Promise<void> {
     const { configPath, reportPath } = parseArgs();
     checkState(configPath);

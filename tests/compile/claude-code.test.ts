@@ -72,6 +72,13 @@ describe('Compile: Claude Code', () => {
 
         expect(result[0].content).toContain('my-app');
     });
+
+    it('preserves QA(light) as test-only capability set', () => {
+        const result = compileClaudeCode(['QA(light)'], [], 'my-app');
+
+        expect(result[0].content).toContain('QA-TEST');
+        expect(result[0].content).not.toContain('QA-REGRESSION');
+    });
 });
 
 describe('roleToSlug', () => {
