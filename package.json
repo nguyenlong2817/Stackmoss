@@ -1,6 +1,6 @@
 {
   "name": "stackmoss",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Runtime-agnostic agent team governance — scaffold, test, and ship AI agent teams anywhere",
   "type": "module",
   "bin": {
