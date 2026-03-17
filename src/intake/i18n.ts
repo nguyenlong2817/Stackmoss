@@ -142,7 +142,7 @@ const EN: I18nStrings = {
     reportFeature: 'Bootstrap F1',
     reportSkipped: 'Skipped',
     reportBrd: 'BRD',
-    qRolesText: 'Which roles do you want on your team? (defaults pre-selected)',
+    qRolesText: 'Which roles do you want on your team? (Space = toggle, Enter = confirm)',
     cancelled: '\nCancelled.\n',
 };
 
@@ -215,7 +215,7 @@ const VI: I18nStrings = {
     reportFeature: 'Bootstrap F1',
     reportSkipped: 'Skipped',
     reportBrd: 'BRD',
-    qRolesText: 'Ban muon nhung role nao trong team? (mac dinh da chon san)',
+    qRolesText: 'Ban muon nhung role nao trong team? (Space = chon/bo, Enter = xac nhan)',
     cancelled: '\nDa huy.\n',
 };
 

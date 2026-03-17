@@ -38,7 +38,32 @@ Tech Lead phai:
 - Dam bao team shape, commands, paths, va facts hop ly
 - Neu on thi moi cho apply
 
-### Buoc 4 - Chay sanity check
+### Buoc 4 - Thiet lap GitHub va MCP Server
+Da so vibe coder bo qua buoc nay — nhung day la buoc bat buoc de agent team lam viec duoc.
+
+**GitHub:**
+1. Tao repository tren GitHub (public hoac private)
+2. Push code hien tai len: \`git remote add origin <url>\` roi \`git push -u origin main\`
+3. Tao \`.gitignore\` neu chua co (bao gom \`node_modules/\`, \`.env\`, etc.)
+
+**MCP Server cho runtime dang dung:**
+
+| Runtime | Cach thiet lap MCP |
+|---|---|
+| Claude Code | Chay \`claude mcp add\` hoac tao \`.claude/mcp.json\` voi server config |
+| Cursor | Vao Settings > MCP > Add Server, hoac tao \`.cursor/mcp.json\` |
+| VS Code / Copilot | Tao \`.vscode/mcp.json\` hoac cau hinh trong Settings |
+| Codex | Tao \`.codex/mcp.json\` voi server config |
+| Antigravity | Tao \`.agent/mcp.json\` voi server config |
+
+MCP Servers pho bien can thiet lap:
+- **GitHub MCP** — de agent doc/ghi issues, PRs, code search
+- **Database MCP** (Postgres, Supabase) — de agent query schema va data
+- **File system / Search** — de agent tim file va doc code
+
+> Khong co MCP server, agent team chi la text. Co MCP server, agent team co tay chan.
+
+### Buoc 5 - Chay sanity check
 \`\`\`
 stackmoss check
 \`\`\`
@@ -48,7 +73,7 @@ Neu muon test hanh vi team that:
 stackmoss eval smoke
 \`\`\`
 
-### Buoc 5 - Bat dau feature work
+### Buoc 6 - Bat dau feature work
 Sau khi calibration on:
 - Yeu cau Tech Lead break down F1
 - Assign subtasks cho team
@@ -133,7 +158,32 @@ Tech Lead must:
 - Make sure team shape, commands, paths, and facts are reasonable
 - Only then approve apply
 
-### Step 4 - Run sanity checks
+### Step 4 - Set up GitHub and MCP Server
+Most vibe coders skip this — but this is mandatory for the agent team to actually work.
+
+**GitHub:**
+1. Create a repository on GitHub (public or private)
+2. Push your code: \`git remote add origin <url>\` then \`git push -u origin main\`
+3. Create \`.gitignore\` if missing (include \`node_modules/\`, \`.env\`, etc.)
+
+**MCP Server for your runtime:**
+
+| Runtime | How to set up MCP |
+|---|---|
+| Claude Code | Run \`claude mcp add\` or create \`.claude/mcp.json\` with server config |
+| Cursor | Go to Settings > MCP > Add Server, or create \`.cursor/mcp.json\` |
+| VS Code / Copilot | Create \`.vscode/mcp.json\` or configure in Settings |
+| Codex | Create \`.codex/mcp.json\` with server config |
+| Antigravity | Create \`.agent/mcp.json\` with server config |
+
+Common MCP Servers to set up:
+- **GitHub MCP** — so agents can read/write issues, PRs, search code
+- **Database MCP** (Postgres, Supabase) — so agents can query schema and data
+- **File system / Search** — so agents can find files and read code
+
+> Without MCP servers, your agent team is just text. With MCP servers, your agent team has hands.
+
+### Step 5 - Run sanity checks
 \`\`\`
 stackmoss check
 \`\`\`
@@ -143,7 +193,7 @@ If you want to test live team behavior:
 stackmoss eval smoke
 \`\`\`
 
-### Step 5 - Start feature work
+### Step 6 - Start feature work
 After calibration is healthy:
 - Ask Tech Lead to break down F1
 - Assign subtasks to the team
