@@ -7,6 +7,7 @@ import { t } from './i18n.js';
 
 function buildRoleChoices() {
     return [
+        { label: '🤷 Not sure — let Tech Lead decide after BRD is finalized', value: '_skip_roles' },
         { label: '── Leadership ──', value: '_header_leadership' },
         { label: 'Tech Lead (TL)', value: 'TL' },
         { label: 'Tech Lead Guide (TL(guide))', value: 'TL(guide)' },

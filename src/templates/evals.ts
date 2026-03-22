@@ -308,6 +308,11 @@ const TRIGGER_EVAL_CASES: Record<string, TriggerEvalCase[]> = {
         { prompt: 'I\'m not sure what the feature should actually do.', shouldTrigger: ['BA-REQ'], shouldNotTrigger: ['DEV-IMPL'], rationale: 'Unclear requirements need BA clarification before coding.' },
         { prompt: 'How do we know this feature is done?', shouldTrigger: ['BA-AC'], shouldNotTrigger: ['QA-TEST'], rationale: 'Defining done criteria is AC writing, not testing.' },
     ],
+    PM: [
+        { prompt: 'I have an idea but I don\'t know what to build for v1.', shouldTrigger: ['PM-BRD'], shouldNotTrigger: ['DEV-IMPL'], rationale: 'Undefined product scope needs PM to run BRD discovery.' },
+        { prompt: 'Help me define the product scope and non-goals.', shouldTrigger: ['PM-BRD'], shouldNotTrigger: ['TL-ARCH'], rationale: 'Product scope definition is PM work, not architecture.' },
+        { prompt: 'What should we build next quarter?', shouldTrigger: ['PM-ROADMAP'], shouldNotTrigger: ['DEV-IMPL'], rationale: 'Quarterly planning is roadmap work.' },
+    ],
     DEV: [
         { prompt: 'Build the login page with email and password fields.', shouldTrigger: ['DEV-IMPL'], shouldNotTrigger: ['TL-ARCH'], rationale: 'Specific feature implementation is DEV work.' },
         { prompt: 'Why is this test failing with a timeout error?', shouldTrigger: ['DEV-DEBUG'], shouldNotTrigger: ['DEV-IMPL'], rationale: 'Debugging a failure is debug work, not new implementation.' },

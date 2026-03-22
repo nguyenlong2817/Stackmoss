@@ -80,13 +80,36 @@ We'll use Postgres because it's better.
     PM: {
         ironLaw: 'NO FEATURE SHIPS WITHOUT A CLEAR SUCCESS METRIC',
         whenToUse: [
+            'Product scope is unclear — user needs help defining what to build',
+            'BRD does not exist yet and needs to be created from scratch',
+            'BRD is a draft and needs finalization before development begins',
             'Defining or updating the product roadmap',
-            'Prioritizing backlog items',
+            'Prioritizing backlog items using impact-driven frameworks',
             'Evaluating feature trade-offs and cost-benefit',
             'Preparing stakeholder demos or status reports',
             'Go/no-go decisions for feature releases',
         ],
-        process: `### Feature Prioritization (RICE Framework)
+        process: `### BRD Discovery Process (Pre-BRD)
+Use this when the user has no BRD or only a rough idea:
+1. **Problem framing** — what pain point does this solve? Who feels the pain?
+2. **Solution hypothesis** — how do we believe this solves the problem?
+3. **Target user** — who specifically uses this? (persona, not "everyone")
+4. **Scope boundaries** — what is IN scope for v1, what is explicitly OUT?
+5. **Success metric** — what single metric proves this worked? (activation rate, revenue, time saved)
+6. **Constraints** — budget, timeline, regulatory, team skill limitations
+7. **Write BRD** — compile into structured doc: Problem, Solution, Scope, Non-Goals, Success Criteria, Constraints
+8. **Review and lock** — walk through with stakeholders, adjust, then mark as LOCKED
+
+### Stakeholder Interview Template
+When the user is unsure about scope, ask these in order:
+- "What problem are you trying to solve?"
+- "Who is the primary user and what do they need?"
+- "What would make you consider v1 successful?"
+- "What are you explicitly NOT building in this phase?"
+- "What is the deadline or budget constraint?"
+- "Are there regulatory or compliance requirements?"
+
+### Feature Prioritization (RICE Framework)
 1. **Reach** — how many users does this affect per quarter?
 2. **Impact** — how much does this move the needle? (3=massive, 2=high, 1=medium, 0.5=low)
 3. **Confidence** — how sure are we about reach/impact? (100%/80%/50%)
@@ -94,21 +117,58 @@ We'll use Postgres because it's better.
 5. **Score** = (Reach × Impact × Confidence) / Effort
 6. **Stack rank** — highest RICE score wins, with strategic overrides documented
 
+### MVP Scoping Checklist
+- [ ] Core user flow identified (max 3 flows for v1)
+- [ ] Each flow has measurable success criteria
+- [ ] Non-goals are explicit and documented
+- [ ] Technical feasibility confirmed by Tech Lead
+- [ ] Timeline estimated with appetite sizing (XS/S/M/L/XL)
+
 ### Release Readiness Checklist
 - Feature meets acceptance criteria (verified by QA)
 - Success metric is instrumented and dashboarded
 - Rollback plan documented
 - Stakeholder demo completed
 - Release notes drafted`,
+        goodBad: `**Good BRD scope:**
+\`\`\`markdown
+## Problem
+Small merchants cannot accept online vouchers because existing platforms charge 15-30% commissions.
+
+## Solution
+A self-service voucher platform where merchants set their own pricing (0-5% fee).
+
+## v1 Scope
+- Merchant signup and store creation
+- Voucher creation with QR codes
+- Customer purchase and redemption
+
+## Non-Goals (v1)
+- Analytics dashboard (v2)
+- Multi-currency support (v3)
+- Affiliate program (future)
+
+## Success Metric
+10 active merchants with ≥50 vouchers sold in first month.
+\`\`\`
+
+**Bad BRD scope:**
+\`\`\`markdown
+Build a voucher platform. It should be easy to use and have lots of features.
+\`\`\``,
         antiPatterns: [
+            'Starting development without a locked BRD — scope will drift',
             'HiPPO decisions — highest paid person\'s opinion overriding data',
             'Feature factory — shipping features without measuring outcomes',
             'Scope creep — "just one more thing" without adjusting timeline',
             'Vanity metrics — tracking signups instead of activation/retention',
+            'Skipping non-goals — everything is in scope until you say it\'s not',
             'Proxy metrics — optimizing what\'s easy to measure, not what matters',
         ],
         checklist: [
+            'BRD exists and is marked LOCKED before any development begins',
             'Every feature has a measurable success metric',
+            'Non-goals are explicit and reviewed with Tech Lead',
             'Backlog is prioritized with documented rationale',
             'Stakeholders are aligned before development starts',
             'Release has a rollback plan',

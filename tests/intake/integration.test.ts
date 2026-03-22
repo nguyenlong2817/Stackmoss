@@ -38,11 +38,11 @@ describe('Intake Integration', () => {
         expect(result.persona).toBe('BizLed');
         expect(result.projectType).toBe('MVP');
         expect(result.brdStatus).toBe('none');
-        expect(result.roles).toEqual(['TL', 'BA', 'FS', 'QA', 'DOCS']);
+        expect(result.roles).toEqual(['TL', 'PM', 'BA', 'FS', 'QA', 'DOCS']);
         expect(result.autoAddedRoles).toContain('SEC-lite');
         expect(result.idea).toBe('Retail ops copilot');
         expect(result.domain).toBe('Retail operations');
-        expect(result.firstFeature.name).toBe('Lock BRD with Tech Lead and BA');
+        expect(result.firstFeature.name).toBe('Finalize BRD with Product Manager, then calibrate team');
         expect(result.firstFeature.appetite).toBe('M');
     });
 
@@ -102,7 +102,7 @@ describe('Intake Integration', () => {
         expect(result.autoAddedRoles).toHaveLength(0);
     });
 
-    it('adds BA when BRD is not locked even for non-BizLed personas', async () => {
+    it('adds PM and BA when BRD is not locked even for non-BizLed personas', async () => {
         mockSelect
             .mockResolvedValueOnce('en')
             .mockResolvedValueOnce('fast')
@@ -118,7 +118,8 @@ describe('Intake Integration', () => {
 
         const result = await runIntake();
 
+        expect(result.roles).toContain('PM');
         expect(result.roles).toContain('BA');
-        expect(result.firstFeature.name).toBe('Lock BRD with Tech Lead and BA');
+        expect(result.firstFeature.name).toBe('Finalize BRD with Product Manager, then calibrate team');
     });
 });

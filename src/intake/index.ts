@@ -38,7 +38,7 @@ function deriveBootstrapFeature(brdStatus: BrdStatus): { name: string; appetite:
     }
 
     return {
-        name: 'Lock BRD with Tech Lead and BA',
+        name: 'Finalize BRD with Product Manager, then calibrate team',
         appetite: 'M',
     };
 }
@@ -47,11 +47,20 @@ function ensureBrdLockRoles(
     roles: string[],
     brdStatus: BrdStatus,
 ): string[] {
-    if (brdStatus === 'locked' || roles.includes('BA')) {
+    if (brdStatus === 'locked') {
         return roles;
     }
 
-    return [...roles.slice(0, 1), 'BA', ...roles.slice(1)];
+    // BRD not finalized: ensure PM (product strategy) and BA (requirements) are on the team
+    const result = [...roles];
+    if (!roles.some((r) => r.match(/^PM/))) {
+        result.splice(1, 0, 'PM'); // PM right after TL
+    }
+    if (!roles.includes('BA')) {
+        const pmIndex = result.findIndex((r) => r.match(/^PM/));
+        result.splice(pmIndex + 1, 0, 'BA'); // BA right after PM
+    }
+    return result;
 }
 
 function dedupeAutoAddedRoles(
