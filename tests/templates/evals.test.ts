@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { generateRubric, generateCases, generateExpected, generateEvals } from '../../src/templates/evals.js';
+import { generateRubric, generateCases, generateExpected, generateTriggerEval, generateEvals } from '../../src/templates/evals.js';
 import type { TemplateInput } from '../../src/templates/types.js';
 import type { IntakeResult } from '../../src/intake/types.js';
 
@@ -15,6 +15,9 @@ function makeInput(overrides?: Partial<IntakeResult>): TemplateInput {
         skippedQuestions: [],
         persona: 'DevLed',
         projectType: 'Production',
+        brdStatus: 'none',
+        idea: 'Test project idea',
+        domain: 'SaaS',
         roles: ['TL(guide)', 'DEV', 'QA(light)'],
         autoAddedRoles: ['SEC-lite'],
         firstFeature: { name: 'Auth', appetite: 'S' },
@@ -123,6 +126,44 @@ describe('Eval Harness Output', () => {
         });
     });
 
+    describe('generateTriggerEval', () => {
+        it('generates evals/trigger-eval.md', () => {
+            const file = generateTriggerEval(makeInput());
+            expect(file.path).toBe('evals/trigger-eval.md');
+        });
+
+        it('includes project name in header', () => {
+            const file = generateTriggerEval(makeInput());
+            expect(file.content).toContain('# Trigger Quality Eval — test-project');
+        });
+
+        it('includes should-trigger and should-not-trigger tables', () => {
+            const file = generateTriggerEval(makeInput());
+            expect(file.content).toContain('Should Trigger');
+            expect(file.content).toContain('Should NOT Trigger');
+        });
+
+        it('includes cases for selected roles', () => {
+            const file = generateTriggerEval(makeInput());
+            // TL and DEV are in default roles
+            expect(file.content).toContain('TL-ARCH');
+            expect(file.content).toContain('DEV-IMPL');
+        });
+
+        it('filters cases to only selected roles', () => {
+            const file = generateTriggerEval(makeInput({ roles: ['DEV'], autoAddedRoles: [] }));
+            expect(file.content).toContain('DEV-IMPL');
+            // TL prompts should not appear when TL is not selected
+            expect(file.content).not.toContain('decide between REST and GraphQL');
+            expect(file.content).not.toContain('review this PR before we merge');
+        });
+
+        it('includes rationale for each case', () => {
+            const file = generateTriggerEval(makeInput());
+            expect(file.content).toContain('Rationale');
+        });
+    });
+
     describe('generateEvals (combined)', () => {
         it('returns rubric + cases + expected', () => {
             const files = generateEvals(makeInput());
@@ -133,19 +174,19 @@ describe('Eval Harness Output', () => {
             expect(paths.some((p) => p.startsWith('evals/expected/'))).toBe(true);
         });
 
-        it('for Production: 1 rubric + 5 cases + 5 expected = 11 files', () => {
+        it('for Production: 1 rubric + 5 cases + 5 expected + 1 trigger = 12 files', () => {
             const files = generateEvals(makeInput({ projectType: 'Production' }));
-            expect(files.length).toBe(11); // 1 + 5 + 5
+            expect(files.length).toBe(12); // 1 + 5 + 5 + 1
         });
 
-        it('for MVP: 1 rubric + 5 cases + 5 expected = 11 files', () => {
+        it('for MVP: 1 rubric + 5 cases + 5 expected + 1 trigger = 12 files', () => {
             const files = generateEvals(makeInput({ projectType: 'MVP' }));
-            expect(files.length).toBe(11);
+            expect(files.length).toBe(12);
         });
 
-        it('for InternalTool: 1 rubric + 4 cases + 4 expected = 9 files', () => {
+        it('for InternalTool: 1 rubric + 4 cases + 4 expected + 1 trigger = 10 files', () => {
             const files = generateEvals(makeInput({ projectType: 'InternalTool' }));
-            expect(files.length).toBe(9); // no project-type-specific case
+            expect(files.length).toBe(10); // no project-type-specific case
         });
     });
 });

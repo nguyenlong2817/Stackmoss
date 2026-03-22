@@ -3,9 +3,10 @@
  * Authority: Claude Skills 2.0 analysis, implementation_plan F14
  *
  * Generates eval-ready structure:
- *   evals/rubric.md       — testable criteria from CONSTITUTION + capabilities
- *   evals/cases/*.md      — test scenarios per project type
- *   evals/expected/*.md   — golden output patterns
+ *   evals/rubric.md           — testable criteria from CONSTITUTION + capabilities
+ *   evals/cases/*.md          — test scenarios per project type
+ *   evals/expected/*.md       — golden output patterns
+ *   evals/trigger-eval.md     — trigger quality tests per role
  *
  * StackMoss generates STRUCTURE, not a runner.
  * Users plug into any eval runner (Claude's, CI, manual diff).
@@ -288,16 +289,115 @@ export function generateExpected(input: TemplateInput): GeneratedFile[] {
     }));
 }
 
+// ─── Trigger Quality Eval ────────────────────────────────────────
+
+export interface TriggerEvalCase {
+    prompt: string;
+    shouldTrigger: string[];
+    shouldNotTrigger: string[];
+    rationale: string;
+}
+
+const TRIGGER_EVAL_CASES: Record<string, TriggerEvalCase[]> = {
+    TL: [
+        { prompt: 'We need to decide between REST and GraphQL for our API layer.', shouldTrigger: ['TL-ARCH'], shouldNotTrigger: ['DEV-IMPL'], rationale: 'Cross-module tech stack decision requires TL architecture guidance.' },
+        { prompt: 'Can you review this PR before we merge?', shouldTrigger: ['TL-REVIEW'], shouldNotTrigger: ['TL-PLAN'], rationale: 'PR review is a merge gate, not planning work.' },
+        { prompt: 'What should we build next?', shouldTrigger: ['TL-PLAN'], shouldNotTrigger: ['DEV-IMPL'], rationale: 'Feature sequencing is planning work, not implementation.' },
+    ],
+    BA: [
+        { prompt: 'I\'m not sure what the feature should actually do.', shouldTrigger: ['BA-REQ'], shouldNotTrigger: ['DEV-IMPL'], rationale: 'Unclear requirements need BA clarification before coding.' },
+        { prompt: 'How do we know this feature is done?', shouldTrigger: ['BA-AC'], shouldNotTrigger: ['QA-TEST'], rationale: 'Defining done criteria is AC writing, not testing.' },
+    ],
+    DEV: [
+        { prompt: 'Build the login page with email and password fields.', shouldTrigger: ['DEV-IMPL'], shouldNotTrigger: ['TL-ARCH'], rationale: 'Specific feature implementation is DEV work.' },
+        { prompt: 'Why is this test failing with a timeout error?', shouldTrigger: ['DEV-DEBUG'], shouldNotTrigger: ['DEV-IMPL'], rationale: 'Debugging a failure is debug work, not new implementation.' },
+        { prompt: 'How do I install the project dependencies?', shouldTrigger: ['DEV-ENV'], shouldNotTrigger: ['DEV-IMPL'], rationale: 'Dependency installation is environment work.' },
+    ],
+    QA: [
+        { prompt: 'Test if the signup flow works with invalid email.', shouldTrigger: ['QA-TEST'], shouldNotTrigger: ['DEV-IMPL'], rationale: 'Verifying feature against edge case is QA work.' },
+        { prompt: 'Did the refactor break anything?', shouldTrigger: ['QA-REGRESSION'], shouldNotTrigger: ['QA-TEST'], rationale: 'Checking for side effects is regression, not feature testing.' },
+    ],
+    SEC: [
+        { prompt: 'Is our password hashing secure enough?', shouldTrigger: ['SEC-SCAN'], shouldNotTrigger: ['DEV-IMPL'], rationale: 'Security posture of auth is SEC domain.' },
+    ],
+    DOCS: [
+        { prompt: 'Update the README with the new CLI commands.', shouldTrigger: ['DOCS-README'], shouldNotTrigger: ['DEV-IMPL'], rationale: 'Documentation update is DOCS work.' },
+    ],
+    OPS: [
+        { prompt: 'How do I deploy this to the VPS?', shouldTrigger: ['OPS-DEPLOY'], shouldNotTrigger: ['DEV-ENV'], rationale: 'Production deployment is OPS, not local dev environment.' },
+    ],
+    FE: [
+        { prompt: 'Add a modal that shows when the user clicks the edit button.', shouldTrigger: ['FE-UI'], shouldNotTrigger: ['BE-API'], rationale: 'UI component is frontend work.' },
+        { prompt: 'Make the button colors match the design spec.', shouldTrigger: ['FE-STYLE'], shouldNotTrigger: ['FE-UI'], rationale: 'Visual polish against spec is styling, not component logic.' },
+    ],
+    BE: [
+        { prompt: 'Create a POST /api/products endpoint.', shouldTrigger: ['BE-API'], shouldNotTrigger: ['FE-UI'], rationale: 'API endpoint creation is backend work.' },
+        { prompt: 'Add a migration for the new orders table.', shouldTrigger: ['BE-DB'], shouldNotTrigger: ['BE-API'], rationale: 'Database migration is schema work, not API logic.' },
+    ],
+    FS: [
+        { prompt: 'Wire up the product list page to fetch from our API.', shouldTrigger: ['FS-INTEGRATE'], shouldNotTrigger: ['FE-UI'], rationale: 'API-to-UI data wiring is fullstack integration.' },
+    ],
+    DEVOPS: [
+        { prompt: 'Set up GitHub Actions for automated testing.', shouldTrigger: ['DEVOPS-CI'], shouldNotTrigger: ['DEV-ENV'], rationale: 'CI pipeline setup is DevOps, not local environment.' },
+    ],
+};
+
+function getTriggerCasesForRoles(roleIds: string[]): TriggerEvalCase[] {
+    const cases: TriggerEvalCase[] = [];
+    const seen = new Set<string>();
+    for (const roleId of roleIds) {
+        const baseId = extractRoleId(roleId);
+        if (seen.has(baseId)) continue;
+        seen.add(baseId);
+        const roleCases = TRIGGER_EVAL_CASES[baseId];
+        if (roleCases) cases.push(...roleCases);
+    }
+    return cases;
+}
+
+export function generateTriggerEval(input: TemplateInput): GeneratedFile {
+    const { projectName, intake } = input;
+    const allRoles = [...intake.roles, ...intake.autoAddedRoles];
+    const cases = getTriggerCasesForRoles(allRoles);
+
+    const caseRows = cases.map((c, i) =>
+        `### T${i + 1}\n\n` +
+        `**Prompt**: "${c.prompt}"\n\n` +
+        `| Should Trigger | Should NOT Trigger |\n` +
+        `|:---|:---|\n` +
+        `| ${c.shouldTrigger.join(', ')} | ${c.shouldNotTrigger.join(', ')} |\n\n` +
+        `**Rationale**: ${c.rationale}`,
+    ).join('\n\n---\n\n');
+
+    const content = `# Trigger Quality Eval — ${projectName}
+_Auto-generated by StackMoss. Tests whether role triggers match realistic user prompts._
+
+## How to Use
+
+1. For each case below, send the **Prompt** to the agent team.
+2. Check that the **Should Trigger** capability activates.
+3. Confirm the **Should NOT Trigger** capabilities stay inactive.
+4. A mismatch indicates the trigger text needs refinement.
+
+---
+
+${caseRows}
+`;
+
+    return { path: 'evals/trigger-eval.md', content };
+}
+
 // ─── Public API ──────────────────────────────────────────────────
 
 /**
  * Generate all eval harness files.
- * Returns rubric + cases + expected outputs.
+ * Returns rubric + cases + expected outputs + trigger eval.
  */
 export function generateEvals(input: TemplateInput): GeneratedFile[] {
     return [
         generateRubric(input),
         ...generateCases(input),
         ...generateExpected(input),
+        generateTriggerEval(input),
     ];
 }

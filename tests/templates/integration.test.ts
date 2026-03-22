@@ -36,7 +36,7 @@ describe('Template Engine: generateAllFiles', () => {
 
         const paths = files.map((file) => file.path);
         expect(paths).toContain('OPEN_QUESTIONS.md');
-        expect(files.length).toBe(21);
+        expect(files.length).toBe(22);
     });
 
     it('all files have non-empty content', () => {
@@ -47,10 +47,10 @@ describe('Template Engine: generateAllFiles', () => {
         }
     });
 
-    it('generates correct total files (7 core + 11 evals + 2 calibration = 20 without skips)', () => {
+    it('generates correct total files (7 core + 12 evals + 2 calibration = 21 without skips)', () => {
         const files = generateAllFiles(createSampleInput());
 
-        expect(files).toHaveLength(20);
+        expect(files).toHaveLength(21);
     });
 
     it('config file contains valid JSON', () => {
