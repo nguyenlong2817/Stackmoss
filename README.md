@@ -25,7 +25,7 @@ After bootstrap, your repo is no longer just "prompted". It gets a team that can
 
 - 🏗️ Turn rough product intent into a **Tech Lead-first delivery flow**
 - 👥 Break work into **18 specialized role lanes** — from TL, PM, BA through FE, BE, FS, MOBILE, DEVOPS, DATA, MLE, PE, and BRAND
-- 📏 Enforce working discipline via **7 methodology modules**: planning, TDD, debugging, evidence, review, Git workflow, and execution loop
+- 📏 Enforce working discipline via **8 methodology modules**: planning, TDD, debugging, evidence, review, Git workflow, execution loop, and repo map maintenance
 - 🎯 **Smart trigger descriptions** that activate the right role even when users don't use exact keywords
 - 🔄 Recalibrate to the real repo instead of blindly following a template
 - ✅ Run **trigger quality evals** and portable checks before you trust the team on real feature work
