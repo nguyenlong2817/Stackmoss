@@ -334,6 +334,13 @@ const TRIGGER_EVAL_CASES: Record<string, TriggerEvalCase[]> = {
     FE: [
         { prompt: 'Add a modal that shows when the user clicks the edit button.', shouldTrigger: ['FE-UI'], shouldNotTrigger: ['BE-API'], rationale: 'UI component is frontend work.' },
         { prompt: 'Make the button colors match the design spec.', shouldTrigger: ['FE-STYLE'], shouldNotTrigger: ['FE-UI'], rationale: 'Visual polish against spec is styling, not component logic.' },
+        { prompt: 'The landing page looks too generic and AI-generated.', shouldTrigger: ['FE-TASTE'], shouldNotTrigger: ['FE-UI'], rationale: 'Fixing AI tells and generic design is anti-slop work.' },
+        { prompt: 'Make this dashboard look more premium and polished.', shouldTrigger: ['FE-TASTE'], shouldNotTrigger: ['FE-A11Y'], rationale: 'Visual polish request is design quality, not accessibility.' },
+    ],
+    UIUX: [
+        { prompt: 'Set up the design system tokens for this project.', shouldTrigger: ['UIUX-DESIGN'], shouldNotTrigger: ['FE-STYLE'], rationale: 'Token definition is design system work, not implementation.' },
+        { prompt: 'Audit the current UI — it looks too generic.', shouldTrigger: ['UIUX-AUDIT'], shouldNotTrigger: ['QA-TEST'], rationale: 'Visual quality audit is design work, not functional testing.' },
+        { prompt: 'What should the design atmosphere be for a SaaS dashboard?', shouldTrigger: ['UIUX-AUDIT'], shouldNotTrigger: ['UIUX-PROTO'], rationale: 'Setting atmosphere dials is audit/config work, not prototyping.' },
     ],
     BE: [
         { prompt: 'Create a POST /api/products endpoint.', shouldTrigger: ['BE-API'], shouldNotTrigger: ['FE-UI'], rationale: 'API endpoint creation is backend work.' },

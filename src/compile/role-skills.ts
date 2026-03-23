@@ -219,7 +219,6 @@ Then:  [outcome — observable result]
     // ═══════════════════════════════════════════════════════════════
     // ENGINEERING
     // ═══════════════════════════════════════════════════════════════
-
     FE: {
         ironLaw: 'NO UI COMPONENT WITHOUT A STORYBOOK/TEST CASE FIRST',
         whenToUse: [
@@ -227,6 +226,7 @@ Then:  [outcome — observable result]
             'Implementing design tokens, CSS architecture, or responsive layouts',
             'Accessibility audits — ARIA, keyboard nav, screen readers',
             'Performance optimization — bundle size, LCP, CLS',
+            'Design quality enforcement — catching AI tells, anti-slop, visual polish',
         ],
         process: `### Component Development Workflow
 1. **Design review** — understand the spec from UIUX, identify tokens and variants
@@ -235,18 +235,92 @@ Then:  [outcome — observable result]
 4. **Accessibility pass** — keyboard nav, ARIA labels, focus management, color contrast
 5. **Responsive pass** — mobile-first, breakpoints, touch targets (min 44×44px)
 6. **Performance check** — no layout shifts, lazy-load below fold, minimize re-renders
+7. **Design quality pass** — check AI Tells list, verify anti-slop, test all states
 
 ### CSS Architecture Rules
 - Use design tokens (not magic numbers): \`var(--spacing-md)\` not \`16px\`
 - Component-scoped styles (CSS modules, scoped, or BEM)
 - No \`!important\` — fix specificity at the source
-- Mobile-first media queries: min-width, not max-width`,
+- Mobile-first media queries: min-width, not max-width
+
+### Design Engineering Directives (Bias Correction)
+LLMs have statistical biases toward generic UI patterns. Proactively counter them:
+
+**Typography:**
+- Display/headlines: tighten letter-spacing, reduce line-height. Hierarchy through weight and color, not just massive size
+- Body: relaxed leading, max 65 characters per line (\`max-w-[65ch]\` or equivalent)
+- Use at least 3 font weights (400, 500, 600) — not just Regular + Bold
+- Numbers in data-heavy UIs should use tabular figures (monospace alignment)
+
+**Color calibration:**
+- Max 1 accent color. Keep saturation below 80%
+- The "AI purple/blue neon gradient" aesthetic is BANNED — it screams "AI generated"
+- Stick to one gray family (warm OR cool, never both in the same project)
+- Never use pure \`#000000\` — use off-black, dark charcoal, or tinted dark
+
+**Layout diversification:**
+- Centered hero sections are BANNED for creative/marketing pages — use split screen, left-aligned, or asymmetric layouts
+- The generic "3 equal cards in a row" feature section is BANNED — use 2-column zig-zag, asymmetric grid, or horizontal scroll
+- CSS Grid over flexbox percentage math — never use \`calc()\` percentage hacks for grid layouts
+- Full-height sections must use \`min-h-[100dvh]\` — never \`h-screen\` (iOS Safari viewport jump)
+
+**Interactive states (mandatory):**
+- Loading: skeletal loaders matching layout dimensions — no generic circular spinners
+- Empty states: composed layouts showing how to populate data
+- Error states: clear inline error reporting, not just toast notifications
+- Tactile feedback on press: subtle scale/translate for physical push feel
+
+### AI Tells — Forbidden Patterns
+These visual signatures make UI look "AI-generated". Avoid unless explicitly requested:
+
+**Visual:**
+- No neon outer glows — use inner borders or tinted shadows instead
+- No oversaturated accent colors — desaturate to blend with neutrals
+- No sudden dark sections in an otherwise light page (or vice versa)
+- No flat sections with zero texture — add subtle noise, grain, or depth
+
+**Typography:**
+- No browser default fonts — choose intentional typefaces with character
+- No oversized H1 that "screams" — control hierarchy with weight and color
+- No orphaned single words on last line — use \`text-wrap: balance\`
+
+**Content/Data:**
+- No generic placeholder names (John Doe, Jane Smith) — use creative, realistic names
+- No predictable round numbers (99.99%, $50.00) — use organic data (47.2%, $38.50)
+- No filler words (Elevate, Seamless, Unleash, Next-Gen) — use concrete verbs
+- No broken image placeholder URLs — use reliable placeholder services
+
+**Components:**
+- No generic shadcn/MUI defaults — always customize radii, colors, shadows to match project aesthetic
+- No emoji as UI elements — use proper icon libraries (Phosphor, Radix, Lucide)`,
+        goodBad: `**Good UI (anti-slop):**
+\\\`\\\`\\\`
+- Tinted shadows matching background hue
+- Single accent color, desaturated, consistent
+- Asymmetric hero with intentional whitespace
+- Skeletal loaders sized to match actual content
+- Realistic data: "Dr. Rebecca Asante — 47.2% conversion rate"
+\\\`\\\`\\\`
+
+**Bad UI (AI slop):**
+\\\`\\\`\\\`
+- Purple neon gradient buttons with outer glow
+- 3 perfectly equal feature cards in a row
+- Inter font, centered everything, generic shadows
+- "John Doe — 99.99% satisfaction rate"
+- Loading spinner → content pops in with layout shift
+\\\`\\\`\\\``,
         antiPatterns: [
             'Div soup — use semantic HTML (nav, main, section, article, aside)',
             'Inline styles — use design tokens via CSS variables or theme',
             'Missing alt text — every img needs descriptive alt or role="presentation"',
             'Click-only interactions — all interactive elements must work with keyboard',
             'Testing implementation details — test behavior, not DOM structure',
+            'AI Tell: purple/blue neon gradient aesthetic — the #1 marker of AI-generated UI',
+            'AI Tell: 3 equal cards in a row — the most generic layout pattern',
+            'AI Tell: generic placeholder data (John Doe, 99.99%, Acme Corp)',
+            'AI Tell: using Inter/system font for "premium" designs — choose a distinctive typeface',
+            'Missing interactive states — loading, empty, error states are not optional',
         ],
         checklist: [
             'Component has unit test covering render + interactions',
@@ -255,6 +329,10 @@ Then:  [outcome — observable result]
             'Design tokens used (no hardcoded colors/sizes)',
             'Responsive from 320px to 1920px verified',
             'No layout shifts (CLS < 0.1)',
+            'AI Tells checklist reviewed — no forbidden patterns present',
+            'All 4 interactive states implemented (loading, empty, error, success)',
+            'Color palette uses max 1 accent color with saturation < 80%',
+            'No pure #000000 — off-black or tinted dark used instead',
         ],
     },
 
@@ -522,13 +600,63 @@ Then:  [outcome — observable result]
             'Defining design tokens — colors, typography, spacing, elevation',
             'Creating wireframes or interactive prototypes',
             'Reviewing implemented UI against design specs and heuristics',
+            'Auditing existing UI for AI tells, generic patterns, or visual quality issues',
+            'Establishing design atmosphere — mood, density, motion level for a project',
         ],
-        process: `### Design Token System
-1. **Colors** — semantic names (--color-primary, --color-error), not hex values
-2. **Typography** — scale with ratios (1.25 or 1.333), max 4 sizes per page
+        process: `### Design Atmosphere Configuration
+Before any design work, establish 3 dials that drive all visual decisions:
+
+1. **DESIGN_VARIANCE** (1-10): 1=Predictable Symmetric → 5=Offset Asymmetric → 10=Artsy Chaotic
+2. **MOTION_INTENSITY** (1-10): 1=Static/No movement → 5=Fluid CSS → 10=Cinematic Choreography
+3. **VISUAL_DENSITY** (1-10): 1=Art Gallery Airy → 5=Daily App Balanced → 10=Cockpit Dense
+
+Default baseline: Variance 6, Motion 4, Density 5. Adapt dynamically based on project type:
+- Marketing/portfolio: Variance 8, Motion 6, Density 3
+- Dashboard/SaaS: Variance 3, Motion 3, Density 7
+- E-commerce: Variance 5, Motion 4, Density 5
+
+### Design Token System
+1. **Colors** — semantic names (--color-primary, --color-error), not hex values. Max 1 accent color, saturation < 80%
+2. **Typography** — scale with ratios (1.25 or 1.333), max 4 sizes per page. Tight tracking for headlines, relaxed for body
 3. **Spacing** — 4px base grid (4, 8, 12, 16, 24, 32, 48, 64)
-4. **Elevation** — shadow levels (0-4), consistent across components
-5. **Motion** — easing curves and durations (150ms micro, 300ms transition, 500ms page)
+4. **Elevation** — shadow levels (0-4), tinted to match background hue (not pure black shadows)
+5. **Motion** — easing curves and durations (150ms micro, 300ms transition, 500ms page). Spring physics for interactive elements
+
+### Design Audit Checklist (When Reviewing Existing UI)
+Run this audit before any redesign or quality review:
+
+**Typography audit:**
+- Browser default fonts or Inter everywhere? → Replace with distinctive typeface
+- Headlines lack presence? → Tighten tracking, control weight hierarchy
+- Body text too wide? → Constrain to max 65 characters per line
+- Only Regular/Bold used? → Introduce Medium (500) and SemiBold (600)
+- Orphaned single words on last line? → Fix with text-wrap: balance
+
+**Color/surface audit:**
+- Pure #000000 background? → Replace with off-black or tinted dark
+- Oversaturated accent colors? → Keep saturation below 80%
+- More than one accent color? → Pick one, remove the rest
+- Mixing warm and cool grays? → Stick to one gray family
+- Purple/blue "AI gradient" aesthetic? → Replace with neutral base + singular accent
+- Generic box-shadow? → Tint shadows to match background hue
+- Random dark sections in light page? → Maintain consistent background tone
+
+**Layout audit:**
+- Centered hero on a creative page? → Force split screen or asymmetric layout
+- 3 equal cards in a row? → Use zig-zag, asymmetric grid, or horizontal scroll
+- Complex flexbox percentage math? → Replace with CSS Grid
+- h-screen for full-height? → Replace with min-h-[100dvh]
+
+**Interactivity audit:**
+- Missing loading state? → Add skeletal loaders matching layout dimensions
+- Missing empty state? → Design composed empty layout
+- Missing error state? → Add clear inline error reporting
+- No tactile feedback? → Add subtle scale/translate on press
+
+**Content audit:**
+- Generic placeholder names (John Doe)? → Use creative, realistic names
+- Round numbers (99.99%)? → Use organic data (47.2%)
+- Filler words (Elevate, Seamless)? → Use concrete verbs
 
 ### Usability Heuristics (Nielsen)
 1. System status visibility — user always knows what's happening
@@ -541,12 +669,21 @@ Then:  [outcome — observable result]
             'Pixel-perfect handoff without responsive specs — design for breakpoints',
             'Ignoring edge cases — empty states, loading, error, long text, RTL',
             'Too many typefaces — max 2 font families per project',
+            'AI Tell: purple/blue neon gradient — the #1 marker of AI-generated design',
+            'AI Tell: centered hero + 3 equal feature cards — the most generic layout combo',
+            'AI Tell: generic placeholder data and filler copywriting',
+            'No design atmosphere defined — jumping into design without establishing mood/density/motion',
+            'Inconsistent shadow direction — all shadows must suggest a single light source',
         ],
         checklist: [
+            'Design atmosphere dials set (variance, motion, density) before starting',
             'Design tokens documented and shared with engineering',
             'All states covered: default, hover, active, disabled, loading, error, empty',
             'Responsive breakpoints specified (mobile, tablet, desktop)',
             'Color contrast meets WCAG AA (4.5:1 text, 3:1 large text)',
+            'Design audit checklist run — no AI tells present',
+            'Color palette uses max 1 accent, saturation < 80%, no pure black',
+            'Typography uses distinctive typeface, not browser defaults',
             'Interactive prototype tested with 3+ users before handoff',
         ],
     },
