@@ -51,8 +51,6 @@ Da so vibe coder bo qua buoc nay — nhung day la buoc bat buoc de agent team la
 | Runtime | Cach thiet lap MCP |
 |---|---|
 | Claude Code | Chay \`claude mcp add\` hoac tao \`.claude/mcp.json\` voi server config |
-| Cursor | Vao Settings > MCP > Add Server, hoac tao \`.cursor/mcp.json\` |
-| VS Code / Copilot | Tao \`.vscode/mcp.json\` hoac cau hinh trong Settings |
 | Codex | Tao \`.codex/mcp.json\` voi server config |
 | Antigravity | Tao \`.agent/mcp.json\` voi server config |
 
@@ -84,8 +82,6 @@ Sau khi calibration on:
 | Runtime | Cau truc can co |
 |---|---|
 | Claude Code | \`CLAUDE.md\` + \`.claude/skills/<skill-name>/SKILL.md\` |
-| Cursor | \`.cursor/skills/<skill-name>/SKILL.md\` |
-| VS Code / Copilot | \`.github/copilot-instructions.md\` |
 | Codex | \`AGENTS.md\` + \`.agents/skills/<skill-name>/SKILL.md\` |
 | Antigravity | \`.agent/skills/<skill-name>/SKILL.md\` + \`.agent/rules/*.md\` + \`.agent/workflows/*.md\` |
 
@@ -171,8 +167,6 @@ Most vibe coders skip this — but this is mandatory for the agent team to actua
 | Runtime | How to set up MCP |
 |---|---|
 | Claude Code | Run \`claude mcp add\` or create \`.claude/mcp.json\` with server config |
-| Cursor | Go to Settings > MCP > Add Server, or create \`.cursor/mcp.json\` |
-| VS Code / Copilot | Create \`.vscode/mcp.json\` or configure in Settings |
 | Codex | Create \`.codex/mcp.json\` with server config |
 | Antigravity | Create \`.agent/mcp.json\` with server config |
 
@@ -204,8 +198,6 @@ After calibration is healthy:
 | Runtime | Required structure |
 |---|---|
 | Claude Code | \`CLAUDE.md\` + \`.claude/skills/<skill-name>/SKILL.md\` |
-| Cursor | \`.cursor/skills/<skill-name>/SKILL.md\` |
-| VS Code / Copilot | \`.github/copilot-instructions.md\` |
 | Codex | \`AGENTS.md\` + \`.agents/skills/<skill-name>/SKILL.md\` |
 | Antigravity | \`.agent/skills/<skill-name>/SKILL.md\` + \`.agent/rules/*.md\` + \`.agent/workflows/*.md\` |
 

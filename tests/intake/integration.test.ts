@@ -6,7 +6,7 @@ vi.mock('@inquirer/prompts', () => ({
     checkbox: vi.fn().mockResolvedValue([]),
 }));
 
-import { select, input, checkbox } from '@inquirer/prompts';
+import { select, input } from '@inquirer/prompts';
 import { runIntake } from '../../src/intake/index.js';
 import type { IntakeResult } from '../../src/intake/types.js';
 
@@ -18,108 +18,74 @@ describe('Intake Integration', () => {
         vi.clearAllMocks();
     });
 
-    it('returns a valid IntakeResult for fast mode', async () => {
+    it('returns PM/TL-only IntakeResult for fast mode', async () => {
         mockSelect
             .mockResolvedValueOnce('en')
             .mockResolvedValueOnce('fast')
-            .mockResolvedValueOnce('BizLed')
-            .mockResolvedValueOnce('sme')
-            .mockResolvedValueOnce('none')
-            .mockResolvedValueOnce('pii')
-            .mockResolvedValueOnce('MVP');
+            .mockResolvedValueOnce('none');
 
         mockInput
-            .mockResolvedValueOnce('Retail ops copilot')
+            .mockResolvedValueOnce('Retail ops copilot BRD draft')
             .mockResolvedValueOnce('Retail operations');
 
         const result: IntakeResult = await runIntake();
 
         expect(result.mode).toBe('fast');
-        expect(result.persona).toBe('BizLed');
-        expect(result.projectType).toBe('MVP');
         expect(result.brdStatus).toBe('none');
-        expect(result.roles).toEqual(['TL', 'PM', 'BA', 'FS', 'QA', 'DOCS']);
-        expect(result.autoAddedRoles).toContain('SEC-lite');
-        expect(result.idea).toBe('Retail ops copilot');
+        expect(result.roles).toEqual(['PM', 'TL']);
+        expect(result.autoAddedRoles).toEqual([]);
+        expect(result.idea).toBe('Retail ops copilot BRD draft');
         expect(result.domain).toBe('Retail operations');
-        expect(result.firstFeature.name).toBe('Finalize BRD with Product Manager, then calibrate team');
+        expect(result.firstFeature.name).toBe('Lock BRD with Product Manager before implementation');
         expect(result.firstFeature.appetite).toBe('M');
     });
 
-    it('returns a valid IntakeResult for interview mode with locked BRD', async () => {
+    it('returns interview result with locked BRD and fixed bootstrap roles', async () => {
         mockSelect
             .mockResolvedValueOnce('en')
             .mockResolvedValueOnce('interview')
-            .mockResolvedValueOnce('DevLed')
-            .mockResolvedValueOnce('enterprise')
             .mockResolvedValueOnce('locked')
-            .mockResolvedValueOnce('existing_repo')
+            .mockResolvedValueOnce('enterprise')
             .mockResolvedValueOnce('finance')
-            .mockResolvedValueOnce('cloud')
-            .mockResolvedValueOnce('small_team')
-            .mockResolvedValueOnce('partial')
-            .mockResolvedValueOnce('Production');
+            .mockResolvedValueOnce('existing_repo');
 
         mockInput
             .mockResolvedValueOnce('AI workflow automation')
             .mockResolvedValueOnce('Developer tooling')
-            .mockResolvedValueOnce('Reduce release coordination overhead');
+            .mockResolvedValueOnce('Reduce release coordination overhead')
+            .mockResolvedValueOnce('No mobile app in v1')
+            .mockResolvedValueOnce('6-week timeline, fixed team size');
 
         const result: IntakeResult = await runIntake();
 
         expect(result.mode).toBe('interview');
-        expect(result.persona).toBe('DevLed');
-        expect(result.projectType).toBe('Production');
         expect(result.brdStatus).toBe('locked');
-        expect(result.roles).toEqual(['TL', 'FE', 'BE', 'QA(strong)', 'DEVOPS', 'DOCS']);
-        expect(result.autoAddedRoles).toContain('SEC-lite');
-        expect(result.firstFeature.name).toBe('Calibrate team from locked BRD');
-        expect(result.firstFeature.appetite).toBe('M');
+        expect(result.roles).toEqual(['PM', 'TL']);
+        expect(result.autoAddedRoles).toEqual([]);
+        expect(result.firstFeature.name).toBe('Calibrate PM/TL team from locked BRD');
+        expect(result.answers['Q2']).toBe('enterprise');
+        expect(result.answers['Q10']).toBe('Reduce release coordination overhead');
     });
 
-    it('does not duplicate auto-added roles already covered by the selected matrix', async () => {
+    it('keeps PM/TL roles even when interview answers include sensitive data', async () => {
         mockSelect
             .mockResolvedValueOnce('en')
             .mockResolvedValueOnce('interview')
-            .mockResolvedValueOnce('BizLed')
-            .mockResolvedValueOnce('enterprise')
-            .mockResolvedValueOnce('locked')
-            .mockResolvedValueOnce('existing_repo')
-            .mockResolvedValueOnce('finance')
-            .mockResolvedValueOnce('cloud')
-            .mockResolvedValueOnce('small_team')
-            .mockResolvedValueOnce('partial')
-            .mockResolvedValueOnce('Production');
-
-        mockInput
-            .mockResolvedValueOnce('Revenue copilot')
-            .mockResolvedValueOnce('Finance')
-            .mockResolvedValueOnce('Reduce manual ops');
-
-        const result = await runIntake();
-
-        expect(result.roles).toEqual(['TL', 'BA', 'FE', 'BE', 'QA(strong)', 'OPS(light)', 'DOCS', 'SEC-lite']);
-        expect(result.autoAddedRoles).toHaveLength(0);
-    });
-
-    it('adds PM and BA when BRD is not locked even for non-BizLed personas', async () => {
-        mockSelect
-            .mockResolvedValueOnce('en')
-            .mockResolvedValueOnce('fast')
-            .mockResolvedValueOnce('Solo')
-            .mockResolvedValueOnce('individual')
             .mockResolvedValueOnce('draft')
-            .mockResolvedValueOnce('none')
-            .mockResolvedValueOnce('InternalTool');
+            .mockResolvedValueOnce('sme')
+            .mockResolvedValueOnce('compliance')
+            .mockResolvedValueOnce('greenfield');
 
         mockInput
-            .mockResolvedValueOnce('Internal helper')
-            .mockResolvedValueOnce('Operations');
+            .mockResolvedValueOnce('Compliance dashboard')
+            .mockResolvedValueOnce('RegTech')
+            .mockResolvedValueOnce('Pass pilot with 2 clients')
+            .mockResolvedValueOnce('No self-serve onboarding')
+            .mockResolvedValueOnce('Strict legal timeline');
 
         const result = await runIntake();
 
-        expect(result.roles).toContain('PM');
-        expect(result.roles).toContain('BA');
-        expect(result.firstFeature.name).toBe('Finalize BRD with Product Manager, then calibrate team');
+        expect(result.roles).toEqual(['PM', 'TL']);
+        expect(result.autoAddedRoles).toEqual([]);
     });
 });

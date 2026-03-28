@@ -52,6 +52,8 @@ export interface I18nStrings {
     q11Known: string;
     q11Partial: string;
     q11Unknown: string;
+    qNonGoalsText: string;
+    qConstraintsText: string;
     ptText: string;
     ptMvp: string;
     ptProduction: string;
@@ -75,13 +77,13 @@ export interface I18nStrings {
 
 const EN: I18nStrings = {
     modeQuestion: 'Setup speed?',
-    modeFastLabel: '[F] Fast    ~3 min, bootstrap only',
-    modeInterviewLabel: '[I] Interview   ~10 min, better pre-BRD discovery',
-    fastModeHeader: 'Fast Mode - 7 questions, bootstrap only',
-    interviewModeHeader: 'Interview Mode - deeper discovery before team shaping',
-    blockBiz: 'Block 1 - Product framing',
-    blockTech: 'Block 2 - Repo and delivery context',
-    blockTeam: 'Block 3 - Team readiness',
+    modeFastLabel: '[F] Fast    3 questions, BRD-focused',
+    modeInterviewLabel: '[I] Interview   9 questions, deeper BRD lock context',
+    fastModeHeader: 'Fast Mode - 3 questions, BRD-only intake',
+    interviewModeHeader: 'Interview Mode - 9 questions, BRD + execution constraints',
+    blockBiz: 'Block 1 - BRD core',
+    blockTech: 'Block 2 - Product context',
+    blockTeam: 'Block 3 - Delivery constraints',
     q1Text: 'Your role in this project?',
     q1BizLed: 'Biz lead',
     q1DevLed: 'Dev lead',
@@ -125,6 +127,8 @@ const EN: I18nStrings = {
     q11Known: 'Known',
     q11Partial: 'Partially known',
     q11Unknown: 'Still unknown',
+    qNonGoalsText: 'What is out of scope for v1 (non-goals)?',
+    qConstraintsText: 'Main constraints (timeline/compliance/budget/dependency)?',
     ptText: 'Project type?',
     ptMvp: 'MVP - ship fast, test ideas',
     ptProduction: 'Production - stable, stronger QA',
@@ -142,19 +146,19 @@ const EN: I18nStrings = {
     reportFeature: 'Bootstrap F1',
     reportSkipped: 'Skipped',
     reportBrd: 'BRD',
-    qRolesText: 'Which roles do you want on your team? (Space = toggle, Enter = confirm, or pick "Not sure" to let Tech Lead decide)',
+    qRolesText: 'Role selection was removed. Bootstrap always starts with PM + TL.',
     cancelled: '\nCancelled.\n',
 };
 
 const VI: I18nStrings = {
     modeQuestion: 'Ban muon setup nhanh hay chi tiet?',
-    modeFastLabel: '[F] Fast    ~3 phut, bootstrap only',
-    modeInterviewLabel: '[I] Interview   ~10 phut, phu hop khi chua lock BRD',
-    fastModeHeader: 'Fast Mode - 7 cau hoi, bootstrap only',
-    interviewModeHeader: 'Interview Mode - discovery sau hon truoc khi shape team',
-    blockBiz: 'Block 1 - Product framing',
-    blockTech: 'Block 2 - Repo va delivery context',
-    blockTeam: 'Block 3 - Team readiness',
+    modeFastLabel: '[F] Fast    3 cau, tap trung BRD',
+    modeInterviewLabel: '[I] Interview   9 cau, day du context lock BRD',
+    fastModeHeader: 'Fast Mode - 3 cau hoi, chi intake BRD',
+    interviewModeHeader: 'Interview Mode - 9 cau hoi, BRD + rang buoc trien khai',
+    blockBiz: 'Block 1 - Cot loi BRD',
+    blockTech: 'Block 2 - Product context',
+    blockTeam: 'Block 3 - Rang buoc delivery',
     q1Text: 'Ban la ai trong du an nay?',
     q1BizLed: 'Biz lead',
     q1DevLed: 'Dev lead',
@@ -198,6 +202,8 @@ const VI: I18nStrings = {
     q11Known: 'Da ro',
     q11Partial: 'Moi ro mot phan',
     q11Unknown: 'Chua ro',
+    qNonGoalsText: 'Non-goals/out-of-scope cho v1 la gi?',
+    qConstraintsText: 'Rang buoc chinh (timeline/compliance/budget/dependency) la gi?',
     ptText: 'Du an nay thuoc loai nao?',
     ptMvp: 'MVP - ship nhanh, test y tuong',
     ptProduction: 'Production - on dinh, QA manh hon',
@@ -215,7 +221,7 @@ const VI: I18nStrings = {
     reportFeature: 'Bootstrap F1',
     reportSkipped: 'Skipped',
     reportBrd: 'BRD',
-    qRolesText: 'Ban muon nhung role nao trong team? (Space = chon/bo, Enter = xac nhan, hoac chon "Khong ro" de Tech Lead quyet dinh)',
+    qRolesText: 'Da bo chon role trong intake. Bootstrap mac dinh PM + TL.',
     cancelled: '\nDa huy.\n',
 };
 

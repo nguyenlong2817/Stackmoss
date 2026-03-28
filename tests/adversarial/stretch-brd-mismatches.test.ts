@@ -157,8 +157,8 @@ describe('STRETCH BRD mismatch proofs (expected failing tests)', () => {
         expect(team).toContain('- [TL-ARCH] Architecture decisions & ADR\n  budget: 220');
     });
 
-    it('B-007: compile target should support Roo role-level output per BRD target map', () => {
-        expect(() => compileTarget('Roo' as never, ['DEV'], [], 'demo')).not.toThrow();
+    it('B-007: compile target should reject removed runtimes like Roo', () => {
+        expect(() => compileTarget('Roo' as never, ['DEV'], [], 'demo')).toThrow();
     });
 
     it('B-008: parser should count unresolved items only inside OPEN QUESTIONS section', () => {
@@ -217,9 +217,9 @@ describe('STRETCH BRD mismatch proofs (expected failing tests)', () => {
         expect(bootstrap!.content).not.toContain('_Section from team.md. Synced by StackMoss._');
     });
 
-    it('B-013: generated config target should bootstrap the full runtime set, not legacy Claude-only', () => {
+    it('B-013: generated config target should match the 3-runtime contract', () => {
         const cfg = JSON.parse(generateConfig(createSampleInput()).content) as { targets: string[] };
-        expect(cfg.targets).toEqual(['ClaudeCodeV2', 'Cursor', 'Antigravity', 'Codex', 'VSCode']);
+        expect(cfg.targets).toEqual(['ClaudeCode', 'Antigravity', 'Codex']);
     });
 });
 

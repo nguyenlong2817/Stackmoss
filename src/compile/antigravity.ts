@@ -38,6 +38,106 @@ Description: Scan the repository, ask follow-up questions, and recalibrate the S
 `;
 }
 
+function renderThreeNineSupportFiles(
+    roleRoot: string,
+    owner: string,
+): GeneratedFile[] {
+    return [
+        {
+            path: `${roleRoot}/references/layer-map.md`,
+            content: `# 3-Layer to 9-Layer Map
+
+- Layer 1: metadata in SKILL.md
+- Layer 2: core instruction in SKILL.md
+- Layer 3: references/
+- Layer 4: examples/
+- Layer 5: scripts/
+- Layer 6: assets/templates/
+- Layer 7: contracts/
+- Layer 8: governance/
+- Layer 9: data/
+`,
+        },
+        {
+            path: `${roleRoot}/examples/session-example.md`,
+            content: `# Example Session
+
+1. Read BRD and current constraints.
+2. Execute validation command.
+3. Record pass/fail in data/validation-log.ndjson.
+4. Ask owner questions when validation cannot run.
+`,
+        },
+        {
+            path: `${roleRoot}/scripts/validate-and-log.mjs`,
+            content: `#!/usr/bin/env node
+import { appendFileSync, mkdirSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { spawnSync } from 'node:child_process';
+
+const command = process.argv[2];
+const logPath = resolve(process.cwd(), process.argv[3] ?? 'data/validation-log.ndjson');
+if (!command) {
+  console.error('Usage: node scripts/validate-and-log.mjs \"<command>\" [log-path]');
+  process.exit(1);
+}
+const result = spawnSync(command, { shell: true, encoding: 'utf-8' });
+mkdirSync(dirname(logPath), { recursive: true });
+appendFileSync(logPath, JSON.stringify({
+  ts: new Date().toISOString(),
+  runtime: 'Antigravity',
+  owner: '${owner}',
+  command,
+  status: result.status === 0 ? 'pass' : 'fail',
+  stdout: (result.stdout ?? '').slice(0, 2000),
+  stderr: (result.stderr ?? '').slice(0, 2000),
+}) + '\\n', 'utf-8');
+process.exit(result.status ?? 1);
+`,
+        },
+        {
+            path: `${roleRoot}/assets/templates/owner-questions.md`,
+            content: `# Owner Questions
+
+1. Which validation command should be used for this role skill?
+2. Which prerequisites are missing in the current environment?
+3. Should this role skill remain blocked until validation is available?
+`,
+        },
+        {
+            path: `${roleRoot}/contracts/output-contract.md`,
+            content: `# Output Contract
+
+- Return concise status and decision summary.
+- Include command and pass/fail evidence.
+- If failed, provide remediation plan.
+`,
+        },
+        {
+            path: `${roleRoot}/governance/evolution.md`,
+            content: `# Governance
+
+- Role skill updates are replace-only.
+- Validation evidence must be logged to local data layer.
+- Runtime boundary: Antigravity paths only.
+`,
+        },
+        {
+            path: `${roleRoot}/data/research-cutoff.json`,
+            content: `${JSON.stringify({
+                baseline_cutoff: '2026-03-28',
+                runtime: 'Antigravity',
+                owner,
+            }, null, 2)}
+`,
+        },
+        {
+            path: `${roleRoot}/data/validation-log.ndjson`,
+            content: '',
+        },
+    ];
+}
+
 export function compileAntigravity(
     roles: string[],
     autoAddedRoles: string[],
@@ -61,10 +161,11 @@ export function compileAntigravity(
         const baseId = extractRoleId(role);
         const def = ROLE_CAPABILITIES[baseId];
         const slug = ROLE_RUNTIME_NAMES[baseId] ?? baseId.toLowerCase();
+        const roleRoot = `.agent/skills/${slug}`;
 
         if (!def) {
             files.push({
-                path: `.agent/skills/${slug}/SKILL.md`,
+                path: `${roleRoot}/SKILL.md`,
                 content: `---
 name: ${slug}
 description: ${role} role for ${projectName}.
@@ -76,6 +177,7 @@ description: ${role} role for ${projectName}.
 - Read team.md before acting.
 `,
             });
+            files.push(...renderThreeNineSupportFiles(roleRoot, slug));
             continue;
         }
 
@@ -94,7 +196,7 @@ description: ${role} role for ${projectName}.
         const deepContent = renderDeepSkillContent(baseId);
 
         files.push({
-            path: `.agent/skills/${slug}/SKILL.md`,
+            path: `${roleRoot}/SKILL.md`,
             content: `---
 name: ${slug}
 description: ${def.name} role for ${projectName}.
@@ -114,6 +216,44 @@ ${capLines}
 - Never persist secrets or credentials into generated files or patch artifacts.
 `,
         });
+
+        if (baseId === 'TL') {
+            files.push({
+                path: `${roleRoot}/skill-creator.md`,
+                content: `# TL Skill Creator
+
+- Create Antigravity-only role skills under .agent/skills/*
+- Follow 3-layer + 9-layer structure for generated skill bundles
+- Validate each generated technical skill and log failures in data/validation-log.ndjson
+`,
+            });
+            files.push({
+                path: `${roleRoot}/calibrate.md`,
+                content: `# TL Calibrate
+
+1. Ensure BRD lock is complete with Product Manager.
+2. Re-check repo constraints and execution lanes.
+3. Update role bundles with replace-only edits.
+4. Ask owner before applying shared config changes.
+`,
+            });
+        }
+
+        if (baseId === 'PM') {
+            files.push({
+                path: `${roleRoot}/brd-lock.md`,
+                content: `# PM BRD Lock Protocol
+
+1. Capture BRD summary, domain, audience, and success signal.
+2. Define non-goals and hard constraints.
+3. Mark BRD status as locked before implementation handoff.
+`,
+            });
+        }
+
+        if (baseId === 'PM' || baseId === 'TL') {
+            files.push(...renderThreeNineSupportFiles(roleRoot, slug));
+        }
     }
 
     return files;

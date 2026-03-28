@@ -16,9 +16,10 @@ describe('Claude Code V2 Compile Target', () => {
     it('generates .claude/skills/<role>/SKILL.md files', () => {
         const files = compileClaudeCodeV2(TEST_ROLES, [], 'test-project');
 
-        const skillFiles = files.filter((file) => file.path.startsWith('.claude/skills/'));
-        expect(skillFiles).toHaveLength(4);
+        const skillFiles = files.filter((file) => file.path.startsWith('.claude/skills/') && file.path.endsWith('/SKILL.md'));
+        expect(skillFiles).toHaveLength(5);
         expect(skillFiles.every((file) => file.path.endsWith('/SKILL.md'))).toBe(true);
+        expect(skillFiles.some((file) => file.path === '.claude/skills/skill-creator/SKILL.md')).toBe(true);
     });
 
     it('CLAUDE.md references role skill files', () => {

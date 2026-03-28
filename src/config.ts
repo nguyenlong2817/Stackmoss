@@ -6,11 +6,9 @@
 export const CONFIG_FILENAME = 'stackmoss.config.json';
 
 export const DEFAULT_CONFIG_TARGETS = [
-    'ClaudeCodeV2',
-    'Cursor',
+    'ClaudeCode',
     'Antigravity',
     'Codex',
-    'VSCode',
 ] as const;
 
 export const DEFAULT_CONFIG_BUDGETS = {

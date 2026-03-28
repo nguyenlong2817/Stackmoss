@@ -50,10 +50,10 @@ describe('Template: OPEN_QUESTIONS.md', () => {
         expect(result.content).toContain('BRD dang o trang thai nao?');
     });
 
-    it('uses mode-specific labels for overlapping question ids', () => {
+    it('uses mode-specific labels for each mode question set', () => {
         const fastInput = createSampleInput({
             intake: createSampleIntake({
-                skippedQuestions: ['Q6'],
+                skippedQuestions: ['Q4'],
             }),
         });
         const interviewInput = createSampleInput({
@@ -63,7 +63,7 @@ describe('Template: OPEN_QUESTIONS.md', () => {
             }),
         });
 
-        expect(generateOpenQuestions(fastInput)!.content).toContain('Data nhay cam?');
+        expect(generateOpenQuestions(fastInput)!.content).toContain('Idea cua san pham la gi?');
         expect(generateOpenQuestions(interviewInput)!.content).toContain('Repo hien tai dang o trang thai nao?');
     });
 

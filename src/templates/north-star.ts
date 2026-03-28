@@ -31,12 +31,13 @@ export function generateNorthStar(input: TemplateInput): GeneratedFile {
     const { projectName, intake } = input;
     const { answers, mode } = intake;
 
-    const persona = PERSONA_LABELS[intake.persona] ?? intake.persona;
+    const persona = PERSONA_LABELS[intake.persona] ?? 'Bootstrap PM/TL';
     const audience = AUDIENCE_LABELS[answers['Q2'] as string] ?? (answers['Q2'] as string) ?? 'TBD';
     const brdStatus = BRD_LABELS[intake.brdStatus] ?? intake.brdStatus;
-    const dataSensitivityId = mode === 'fast' ? 'Q6' : 'Q7';
-    const dataSensitivity = (answers[dataSensitivityId] as string) ?? 'none';
-    const deployTargetRaw = mode === 'interview' ? ((answers['Q8'] as string) ?? 'unknown') : 'unknown';
+    const dataSensitivity = mode === 'interview'
+        ? ((answers['Q7'] as string) ?? 'none')
+        : 'not_collected_in_fast_mode';
+    const deployTargetRaw = 'unknown';
     const deployTarget = DEPLOY_LABELS[deployTargetRaw] ?? deployTargetRaw;
 
     const content = `# North Star - ${projectName}
@@ -47,6 +48,8 @@ _Generated from intake. Cap nhat bang tay khi direction thay doi._
 **Idea:** ${intake.idea}
 **Domain:** ${intake.domain}
 **Success signal:** ${(answers['Q10'] as string) ?? '[can owner confirm]'}
+**Non-goals:** ${(answers['Q_NON_GOALS'] as string) ?? '[can owner confirm]'}
+**Main constraints:** ${(answers['Q_CONSTRAINTS'] as string) ?? '[can owner confirm]'}
 **Constraints:**
 - Data sensitivity: ${dataSensitivity.toUpperCase()}
 - Deploy target: ${deployTarget}

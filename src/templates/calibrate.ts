@@ -45,10 +45,8 @@ ${roles.map((role) => `| ${role} | intake template |`).join('\n')}
 | \`ROLE_SKILL_OVERRIDES.md\` | Persistent project-specific role enrichments |
 | \`CLAUDE.md\` | Claude Code repo-level guidance |
 | Runtime \`SKILL.md\` files | Generated base skills that read from \`ROLE_SKILL_OVERRIDES.md\` |
-| \`.cursor/skills/*/SKILL.md\` | Cursor role skills |
 | \`AGENTS.md\` + \`.agents/skills/*/SKILL.md\` | Codex repo-level guidance and role skills |
 | \`.agent/*\` | Antigravity skills, rules, workflows |
-| \`.github/copilot-instructions.md\` | VS Code / Copilot repo guidance |
 
 > Governance rules stay intact. Calibration updates shared facts in \`team.md\` and role-specific deltas in \`ROLE_SKILL_OVERRIDES.md\`.
 `;
@@ -110,9 +108,7 @@ Read and analyze:
 - Do not invent alternative folder layouts for the runtime currently in use.
 - Stay only inside the generated structure for the runtime the user is actually using:
   - \`CLAUDE.md\` + \`.claude/skills/*\`
-  - or \`.cursor/skills/*\`
   - or \`AGENTS.md\` + \`.agents/skills/*\`
-  - or \`.github/copilot-instructions.md\`
   - or \`.agent/*\`
 
 ## Step 7: Enrich role skills from BRD

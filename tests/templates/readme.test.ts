@@ -49,7 +49,6 @@ describe('Template: README_AGENT_TEAM.md', () => {
 
         expect(result.content).toContain('CLAUDE.md');
         expect(result.content).toContain('.claude/skills/<skill-name>/SKILL.md');
-        expect(result.content).toContain('.cursor/skills/<skill-name>/SKILL.md');
         expect(result.content).toContain('AGENTS.md');
         expect(result.content).toContain('.agents/skills/<skill-name>/SKILL.md');
         expect(result.content).toContain('.agent/rules/*.md');

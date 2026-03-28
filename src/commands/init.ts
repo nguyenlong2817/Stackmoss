@@ -62,8 +62,6 @@ const RESERVED_STACKMOSS_PATHS = [
     '.github/copilot-instructions.md',
     '.github/instructions/team-bootstrap.instructions.md',
     '.claude',
-    '.cursor',
-    '.roo',
     '.agents',
     '.agent',
     '.stackmoss',
@@ -143,8 +141,6 @@ export function report(result: InitCommandResult): void {
 
     console.log('\nBootstrap runtime outputs generated:');
     console.log('   - Claude Code: CLAUDE.md + .claude/skills/');
-    console.log('   - Cursor: .cursor/skills/');
-    console.log('   - VS Code / Copilot: .github/copilot-instructions.md');
     console.log('   - Codex: AGENTS.md + .agents/skills/');
     console.log('   - Antigravity: .agent/{skills,rules,workflows}');
 

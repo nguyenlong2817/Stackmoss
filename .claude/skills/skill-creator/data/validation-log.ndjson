@@ -1,0 +1,2 @@
+{"id":"smoke-pass-001","owner":"owner-demo","layer":"layer-7","command":"node --version","startedAt":"2026-03-28T04:34:02.100Z","endedAt":"2026-03-28T04:34:02.102Z","statusCode":127,"success":false,"notes":"","spawnError":"spawnSync node EPERM","stdoutTail":"","stderrTail":""}
+{"id":"smoke-fail-001","owner":"owner-demo","layer":"layer-7","command":"node --invalid-flag","startedAt":"2026-03-28T04:34:02.214Z","endedAt":"2026-03-28T04:34:02.217Z","statusCode":127,"success":false,"notes":"","spawnError":"spawnSync node EPERM","stdoutTail":"","stderrTail":""}

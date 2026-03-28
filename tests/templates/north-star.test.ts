@@ -31,12 +31,13 @@ describe('Template: NORTH_STAR.md', () => {
         expect(result.content).toContain('Lock BRD with Tech Lead and BA');
     });
 
-    it('includes interview-only deploy and success info', () => {
+    it('includes interview success info with BRD-first constraints', () => {
         const input = createSampleInput({ intake: createInterviewIntake() });
         const result = generateNorthStar(input);
 
-        expect(result.content).toContain('Cloud');
+        expect(result.content).toContain('Unknown');
         expect(result.content).toContain('Shorten release cycles by 50%');
+        expect(result.content).toContain('[can owner confirm]');
         expect(result.content).toContain('Calibrate team from locked BRD');
     });
 });

@@ -304,6 +304,7 @@ function renderClaudeMd(roles: string[], projectName: string): string {
     ];
 
     lines.push('- Shared methodology: .claude/skills/stackmoss-methodology/SKILL.md');
+    lines.push('- Skill creator: .claude/skills/skill-creator/SKILL.md');
 
     for (const role of roles) {
         const baseId = extractRoleId(role);
@@ -316,26 +317,119 @@ function renderClaudeMd(roles: string[], projectName: string): string {
     return `${lines.join('\n')}\n`;
 }
 
-/**
- * Legacy Claude Code target preserved for compatibility.
- */
-export function compileClaudeCode(
+function renderThreeNineSupportFiles(
+    skillRoot: string,
+    runtimeName: string,
+    owner: string,
+): GeneratedFile[] {
+    return [
+        {
+            path: `${skillRoot}/references/layer-map.md`,
+            content: `# 3-Layer to 9-Layer Map
+
+- Layer 1: metadata frontmatter in SKILL.md
+- Layer 2: core instructions in SKILL.md
+- Layer 3: references/ and examples/
+- Layer 4: executable scripts/
+- Layer 5: assets/templates/
+- Layer 6: contracts/
+- Layer 7: governance/
+- Layer 8: data/research-cutoff.json
+- Layer 9: data/validation-log.ndjson
+`,
+        },
+        {
+            path: `${skillRoot}/examples/session-example.md`,
+            content: `# Example Session
+
+1. Read BRD and lock status.
+2. Run validation command.
+3. Write pass/fail evidence to data/validation-log.ndjson.
+4. Ask owner questions if validation cannot run.
+`,
+        },
+        {
+            path: `${skillRoot}/scripts/validate-and-log.mjs`,
+            content: `#!/usr/bin/env node
+import { appendFileSync, mkdirSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { spawnSync } from 'node:child_process';
+
+const command = process.argv[2];
+const logPath = resolve(process.cwd(), process.argv[3] ?? 'data/validation-log.ndjson');
+
+if (!command) {
+  console.error('Usage: node scripts/validate-and-log.mjs \"<command>\" [log-path]');
+  process.exit(1);
+}
+
+const result = spawnSync(command, { shell: true, encoding: 'utf-8' });
+mkdirSync(dirname(logPath), { recursive: true });
+appendFileSync(logPath, JSON.stringify({
+  ts: new Date().toISOString(),
+  runtime: '${runtimeName}',
+  owner: '${owner}',
+  command,
+  status: result.status === 0 ? 'pass' : 'fail',
+  stdout: (result.stdout ?? '').slice(0, 2000),
+  stderr: (result.stderr ?? '').slice(0, 2000),
+}) + '\\n', 'utf-8');
+
+process.exit(result.status ?? 1);
+`,
+        },
+        {
+            path: `${skillRoot}/assets/templates/owner-questions.md`,
+            content: `# Owner Questions
+
+1. Validation command cannot run in this environment. Which command should be used?
+2. Missing credentials or secrets block execution. Which secure source should be used?
+3. If runtime constraints remain unresolved, should this skill stay in blocked status?
+`,
+        },
+        {
+            path: `${skillRoot}/contracts/output-contract.md`,
+            content: `# Output Contract
+
+- Always return a concise status summary.
+- Include executed command and pass/fail outcome.
+- If failed, include remediation proposal and blocking reason.
+`,
+        },
+        {
+            path: `${skillRoot}/governance/evolution.md`,
+            content: `# Governance
+
+- Runtime boundary: this skill can modify only ${runtimeName} skill paths.
+- Replace-only policy for generated instructions.
+- Track validation evidence in the local data layer.
+`,
+        },
+        {
+            path: `${skillRoot}/data/research-cutoff.json`,
+            content: `${JSON.stringify({
+                baseline_cutoff: '2026-03-28',
+                runtime: runtimeName,
+                owner,
+            }, null, 2)}
+`,
+        },
+        {
+            path: `${skillRoot}/data/validation-log.ndjson`,
+            content: '',
+        },
+    ];
+}
+
+export function compileClaudeCodeV2(
     roles: string[],
     autoAddedRoles: string[],
     projectName: string,
 ): GeneratedFile[] {
-    return uniqueRoles(roles, autoAddedRoles).map((role) => ({
-        path: `.claude/skills/${roleToSlug(role)}.skill.md`,
-        content: renderSkillBody(role, projectName),
-    }));
+    return compileClaudeCode(roles, autoAddedRoles, projectName);
 }
 
-/**
- * Official Claude Code bootstrap:
- * - CLAUDE.md at repo root
- * - .claude/skills/<skill-name>/SKILL.md
- */
-export function compileClaudeCodeV2(
+export function compileClaudeCode(
     roles: string[],
     autoAddedRoles: string[],
     projectName: string,
@@ -351,14 +445,59 @@ export function compileClaudeCodeV2(
             path: '.claude/skills/stackmoss-methodology/SKILL.md',
             content: renderSharedMethodologySkill(projectName, roleIds, 'Claude Code'),
         },
+        {
+            path: '.claude/skills/skill-creator/SKILL.md',
+            content: `---
+name: skill-creator
+description: Runtime-specific skill factory for Claude. Generates only .claude/skills/* bundles using the 3-layer + 9-layer structure.
+---
+
+# Skill Creator - ${projectName}
+
+## Scope
+- Create or update Claude runtime skills only under .claude/skills/*
+- Follow the 3-layer + 9-layer structure for each generated skill
+
+## Workflow
+1. Validate BRD context and owner intent.
+2. Generate runtime-specific files for one role skill.
+3. Run validation command and write result to data/validation-log.ndjson.
+
+## Validation
+- Command(s): node scripts/validate-and-log.mjs "<command>" data/validation-log.ndjson
+- Required evidence: command result + pass/fail record.
+
+## Fallback
+- If validation cannot run, ask owner questions and keep status blocked.
+`,
+        },
     ];
 
     for (const role of allRoles) {
+        const slug = roleToSlug(role);
         files.push({
-            path: `.claude/skills/${roleToSlug(role)}/SKILL.md`,
+            path: `.claude/skills/${slug}/SKILL.md`,
             content: renderSkillFile(role, projectName),
         });
+        const baseId = extractRoleId(role);
+        if (baseId === 'PM' || baseId === 'TL') {
+            files.push(
+                ...renderThreeNineSupportFiles(
+                    `.claude/skills/${slug}`,
+                    'ClaudeCode',
+                    baseId === 'PM' ? 'product-manager' : 'tech-lead',
+                ),
+            );
+        }
     }
+
+    files.push(
+        ...renderThreeNineSupportFiles(
+            '.claude/skills/skill-creator',
+            'ClaudeCode',
+            'skill-creator',
+        ),
+    );
 
     return files;
 }

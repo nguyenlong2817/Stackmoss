@@ -18,37 +18,23 @@ describe('Fast Mode', () => {
         vi.clearAllMocks();
     });
 
-    it('collects 7 bootstrap answers', async () => {
+    it('collects 3 BRD-first answers', async () => {
         mockSelect
-            .mockResolvedValueOnce('BizLed')
-            .mockResolvedValueOnce('sme')
-            .mockResolvedValueOnce('none')
-            .mockResolvedValueOnce('pii')
-            .mockResolvedValueOnce('MVP');
+            .mockResolvedValueOnce('none');
 
         mockInput
-            .mockResolvedValueOnce('Retail ops copilot')
+            .mockResolvedValueOnce('Retail ops copilot BRD draft')
             .mockResolvedValueOnce('Retail operations');
 
         const result = await runFastMode();
 
-        expect(result.answers['Q1']).toBe('BizLed');
-        expect(result.answers['Q2']).toBe('sme');
         expect(result.answers['Q3']).toBe('none');
-        expect(result.answers['Q4']).toBe('Retail ops copilot');
+        expect(result.answers['Q4']).toBe('Retail ops copilot BRD draft');
         expect(result.answers['Q5']).toBe('Retail operations');
-        expect(result.answers['Q6']).toBe('pii');
-        expect(result.answers['Q_PT']).toBe('MVP');
     });
 
     it('tracks skipped text questions', async () => {
-        mockSelect
-            .mockResolvedValueOnce('Solo')
-            .mockResolvedValueOnce('individual')
-            .mockResolvedValueOnce('locked')
-            .mockResolvedValueOnce('none')
-            .mockResolvedValueOnce('InternalTool');
-
+        mockSelect.mockResolvedValueOnce('locked');
         mockInput
             .mockResolvedValueOnce('')
             .mockResolvedValueOnce('Internal workflow');
@@ -60,25 +46,14 @@ describe('Fast Mode', () => {
         expect(result.answers['Q5']).toBe('Internal workflow');
     });
 
-    it('preselects pack-default roles in Q_ROLES', async () => {
-        mockSelect
-            .mockResolvedValueOnce('Solo')
-            .mockResolvedValueOnce('individual')
-            .mockResolvedValueOnce('locked')
-            .mockResolvedValueOnce('none')
-            .mockResolvedValueOnce('MVP');
-
+    it('does not call checkbox role picker', async () => {
+        mockSelect.mockResolvedValueOnce('draft');
         mockInput
-            .mockResolvedValueOnce('Internal helper')
-            .mockResolvedValueOnce('Operations');
+            .mockResolvedValueOnce('Idea')
+            .mockResolvedValueOnce('Domain');
 
         await runFastMode();
 
-        const qRolesCall = mockCheckbox.mock.calls.at(-1)?.[0];
-        const checkedValues = (qRolesCall?.choices ?? [])
-            .filter((choice: { checked?: boolean }) => choice.checked)
-            .map((choice: { value: string }) => choice.value);
-
-        expect(checkedValues).toEqual(['TL(guide)', 'DEV(small)', 'QA(light)']);
+        expect(mockCheckbox).not.toHaveBeenCalled();
     });
 });
