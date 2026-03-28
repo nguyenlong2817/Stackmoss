@@ -4,7 +4,7 @@ import { compileAntigravity } from '../../src/compile/antigravity.js';
 describe('Antigravity Compile Target', () => {
     it('creates shared rules/workflows and expanded TL role bundle', () => {
         const files = compileAntigravity(['TL(guide)'], [], 'test-project');
-        expect(files.length).toBe(20);
+        expect(files.length).toBe(28);
     });
 
     it('outputs only .agent workspace paths', () => {
@@ -32,8 +32,8 @@ describe('Antigravity Compile Target', () => {
         const paths = files.map((file) => file.path);
 
         expect(paths).toContain('.agent/skills/tech-lead/SKILL.md');
-        expect(paths).toContain('.agent/skills/tech-lead/skill-creator.md');
         expect(paths).toContain('.agent/skills/tech-lead/calibrate.md');
+        expect(paths).toContain('.agent/skills/skill-creator/SKILL.md');
     });
 
     it('includes yaml frontmatter with name and description', () => {
@@ -78,6 +78,6 @@ describe('Antigravity Compile Target', () => {
         const files = compileAntigravity(
             ['TL', 'FE', 'BE', 'QA(strong)', 'DEVOPS', 'DOCS'], [], 'prod-project',
         );
-        expect(files.length).toBe(25);
+        expect(files.length).toBe(33);
     });
 });

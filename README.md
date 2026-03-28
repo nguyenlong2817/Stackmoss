@@ -25,7 +25,7 @@ After bootstrap, your repo is no longer just "prompted". It gets a team that can
 
 - 🏗️ Turn rough product intent into a **Tech Lead-first delivery flow**
 - 👥 Break work into **18 specialized role lanes** — from TL, PM, BA through FE, BE, FS, MOBILE, DEVOPS, DATA, MLE, PE, and BRAND
-- 📏 Enforce working discipline via **8 methodology modules**: planning, TDD, debugging, evidence, review, Git workflow, execution loop, and repo map maintenance
+- 📏 Enforce working discipline via **8 methodology modules**: planning, TDD, debugging, evidence, review, Git workflow, execution loop, and code map maintenance
 - 🎯 **Smart trigger descriptions** that activate the right role even when users don't use exact keywords
 - 🔄 Recalibrate to the real repo instead of blindly following a template
 - ✅ Run **trigger quality evals** and portable checks before you trust the team on real feature work
@@ -184,7 +184,7 @@ my-project/
 ├── .agent/                  # Antigravity rules + workflows
 ├── .agents/skills/          # Codex skills
 ├── .github/                 # Copilot instructions
-├── REPO_MAP.md              # Repository structure map (agent-maintained)
+├── CODE_MAP.md              # Code structure + impact map (agent-maintained)
 └── evals/                   # Rubric + test cases + trigger eval
 ```
 
@@ -202,7 +202,7 @@ my-project/
 | `stackmoss eval [profile] [--grade]` | Prepare or grade a live team evaluation |
 | `stackmoss patch list/apply/reject` | Manage patch proposals |
 | `stackmoss upgrade` | Merge `CONSTITUTION` only |
-| `stackmoss map [--depth N]` | Generate or refresh `REPO_MAP.md` |
+| `stackmoss map [--depth N]` | Generate or refresh `CODE_MAP.md` |
 
 ## 🧑‍💻 Development
 

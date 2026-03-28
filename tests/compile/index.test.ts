@@ -15,10 +15,9 @@ describe('Compile Target Dispatcher', () => {
 
         expect(paths).toContain('CLAUDE.md');
         expect(paths).toContain('AGENTS.md');
-        expect(paths).toContain('.agents/skills/stackmoss-bootstrap/SKILL.md');
-        expect(paths).toContain('.claude/skills/stackmoss-methodology/SKILL.md');
         expect(paths).toContain('.claude/skills/skill-creator/SKILL.md');
         expect(paths).toContain('.agents/skills/skill-creator/SKILL.md');
+        expect(paths).toContain('.agent/skills/skill-creator/SKILL.md');
         expect(paths).toContain('.agent/rules/methodology.md');
         expect(paths).toContain('.agent/skills/tech-lead/SKILL.md');
         expect(paths).toContain('.agent/skills/product-manager/SKILL.md');

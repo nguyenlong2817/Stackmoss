@@ -1,73 +1,108 @@
 ---
 name: skill-creator
-description: Design and generate high-quality agent skills using a 3-layer progressive-disclosure model mapped to a 9-layer system architecture. Use when creating or upgrading skills, especially technical skills that must include executable self-validation, failure logging, owner-question fallback, and up-to-date research references.
+description: Build or upgrade role skills with a 3-layer plus 9-layer structure, evaluation loop, and runtime-safe generation. Use for new role packs, weak skill refactors, and technical skills that must self-validate and log failures.
 ---
 
-# Skill Creator
+# Skill Creator (Runtime-Safe, Role-First)
 
-Build standalone skills that are reusable, testable, and maintainable.
+Create production-grade skills that are reusable, testable, and maintainable.
+This skill is role-focused (for example `tech-lead`, `product-manager`, and domain specialists), not StackMoss-specific business logic.
+
+## Runtime Boundary
+
+- This runtime may generate skills only under `.claude/skills/*`.
+- Never generate files into `.agents/*` or `.agent/*`.
+- Keep workflow and contracts runtime-agnostic; only path/config adapters are runtime-specific.
 
 ## Non-Negotiable Rules
 
-- Keep deterministic behavior for structure and validation workflow.
+- Keep deterministic structure and validation workflow.
 - Use progressive disclosure:
   - Layer A: metadata (`name`, `description`) for trigger quality.
-  - Layer B: concise `SKILL.md` core instructions.
-  - Layer C: load `references/`, `examples/`, `scripts/`, `assets/`, `data/` only when needed.
-- For technical skills, always include executable validation and failure logging.
-- If execution validation cannot be run safely or lacks environment prerequisites, ask the owner focused follow-up questions using `assets/templates/owner-questions.md`.
-- Keep the research cutoff current in `data/research-cutoff.json`. For this version, baseline cutoff is 2026.
+  - Layer B: concise `SKILL.md` with execution guidance.
+  - Layer C: load references/examples/scripts/assets/data only when needed.
+- For technical skills, include executable validation and failure logging.
+- If validation cannot run safely, ask focused owner questions and mark status `blocked`.
+- Keep research cutoff current in `data/research-cutoff.json` with baseline date `2026-03-28`.
 
-## 3-Layer to 9-Layer Map
+## 3-Layer + 9-Layer Standard
 
-Use `references/layer-map.md` as the canonical mapping.
+Use `references/layer-map.md` as canonical mapping.
+Use `references/role-structure-guide.md` when generating role skills.
 
-- Layer 1 metadata lives in this file frontmatter.
-- Layer 2 core instructions live in this file body.
-- Layer 3 references/resources are externalized to subfolders.
+## Operating Workflow
 
-## Build Workflow
+### 1) Capture Intent
 
-1. Define scope and trigger map.
-2. Materialize the 9-layer design in files.
-3. Generate or update skill artifacts.
-4. Validate output contract and run executable checks.
-5. Record validation outcomes (including failures) in `data/validation-log.ndjson`.
-6. If checks cannot run, ask owner questions and block "done" until answered.
-7. Update research cutoff and source references.
+- Extract from conversation first, then ask only missing questions.
+- Confirm:
+  - skill objective and trigger context
+  - target runtime and output root
+  - role depth expectation (quick draft vs production-grade)
+  - validation rigor (smoke only vs eval loop)
 
-Detailed contracts are in:
+Use: `assets/templates/owner-questions.md`
 
+### 2) Research and Gap Scan
+
+- Review:
+  - `references/opensource-research-2026.md`
+  - local source: `E:/skill-engineer/` as benchmark pattern
+  - existing skill packs in current repo for consistency
+- Reuse proven patterns, avoid copy-paste lock-in to any one platform.
+
+### 3) Design the Skill Bundle
+
+- Generate all required layers for the requested quality bar.
+- Ensure role quality for `tech-lead` and `product-manager` is not hollow:
+  - mission and operating model
+  - playbooks and decision rules
+  - artifacts/templates for real execution
+  - delivery gates and risk handling
+  - measurable validation paths
+
+Use:
+- `assets/templates/SKILL.template.md`
+- `assets/templates/role-skill-blueprint.md`
 - `references/output-contract-qc.md`
-- `references/governance-evolution.md`
-- `references/opensource-research-2026.md`
 
-## Execution Validation Protocol (Technical Skills)
+### 4) Evaluate
 
-For each generated technical skill:
+- Define 2 to 5 realistic eval prompts.
+- For objective outputs, define assertions and evidence format.
+- For subjective outputs, define rubric-based qualitative review.
+- Compare against baseline where useful (previous version or no-skill run).
 
-1. Define at least one runnable verification command.
-2. Run it via:
+### 5) Execute Validation and Log Evidence
 
-   `node scripts/validate-and-log.mjs --command "<cmd>" --id "<case-id>" --owner "<owner>"`
+- Run executable checks through:
+  - `node scripts/validate-and-log.mjs --command "<cmd>" --id "<case-id>" --owner "<owner>"`
+- Append pass/fail evidence to `data/validation-log.ndjson`.
+- Failed validation is first-class evidence, not something to hide.
+- Never mark skill as ready without either:
+  - passing evidence, or
+  - explicit blocked state + owner follow-up questions.
 
-3. If command fails:
-   - Keep failure evidence in the log.
-   - Propose remediation steps.
-   - Do not mark the skill as production-ready.
+### 6) Review and Iterate
 
-## Owner Question Fallback
+- Summarize:
+  - what improved
+  - what remains risky
+  - next concrete revision
+- Tighten trigger description to reduce under-trigger and false-trigger.
+- Remove instructions that do not produce measurable value.
 
-When blocked (missing credentials, missing environment, unsafe destructive commands, unclear acceptance criteria):
+## Definition of Done
 
-1. Ask 1-3 high-signal questions from `assets/templates/owner-questions.md`.
-2. Wait for owner response.
-3. Re-run validation and append new evidence to the log.
+A generated skill is done only when:
+- structure follows 3-layer + 9-layer
+- output contract is satisfied (`references/output-contract-qc.md`)
+- validation evidence exists in logs (or blocked status documented)
+- runtime boundary is clean
+- research cutoff metadata is current
 
-## Deliverables Checklist
+## Safety
 
-- `SKILL.md` with strict trigger-quality metadata.
-- 9-layer supporting files and templates.
-- Validation script(s) and at least one recorded run in `data/validation-log.ndjson`.
-- Research reference and 2026 cutoff file.
-
+- Do not produce malware, exploit workflows, or unauthorized access playbooks.
+- Do not log secrets, credentials, or sensitive payloads.
+- Prefer minimal-owner-question sets (1 to 3) to unblock safely and quickly.

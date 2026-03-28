@@ -154,6 +154,36 @@ export function compileAntigravity(
         { path: '.agent/workflows/planning-protocol.md', content: renderAntigravityWorkflow(projectName, 'planning-protocol') },
         { path: '.agent/workflows/git-workflow.md', content: renderAntigravityWorkflow(projectName, 'git-workflow') },
         { path: '.agent/workflows/execution-loop.md', content: renderAntigravityWorkflow(projectName, 'execution-loop') },
+        {
+            path: '.agent/skills/skill-creator/SKILL.md',
+            content: `---
+name: skill-creator
+description: Runtime-specific skill factory for Antigravity. Generates only .agent/skills/* bundles using the 3-layer + 9-layer structure.
+---
+
+# Skill Creator - ${projectName}
+
+## Scope
+- Create or update Antigravity runtime skills only under .agent/skills/*
+- Follow the 3-layer + 9-layer structure for each generated skill
+- Use template-first flow via .stackmoss/skill-kit before researching external sources
+
+## Workflow
+1. Resolve target role and runtime boundary.
+2. Load closest role template from .stackmoss/skill-kit/roles/*.template.md.
+3. Adapt with .stackmoss/skill-kit/shared/* and runtime adapter.
+4. Generate runtime-specific files for one role skill.
+5. Research external sources only if template coverage is insufficient.
+6. Run validation command and write result to data/validation-log.ndjson.
+
+## Validation
+- Command(s): node scripts/validate-and-log.mjs "<command>" data/validation-log.ndjson
+- Required evidence: command result + pass/fail record.
+
+## Fallback
+- If validation cannot run, ask owner questions and keep status blocked.
+`,
+        },
     ];
 
     // Role-level skills (not per-capability) for equalized output
@@ -219,15 +249,6 @@ ${capLines}
 
         if (baseId === 'TL') {
             files.push({
-                path: `${roleRoot}/skill-creator.md`,
-                content: `# TL Skill Creator
-
-- Create Antigravity-only role skills under .agent/skills/*
-- Follow 3-layer + 9-layer structure for generated skill bundles
-- Validate each generated technical skill and log failures in data/validation-log.ndjson
-`,
-            });
-            files.push({
                 path: `${roleRoot}/calibrate.md`,
                 content: `# TL Calibrate
 
@@ -255,6 +276,8 @@ ${capLines}
             files.push(...renderThreeNineSupportFiles(roleRoot, slug));
         }
     }
+
+    files.push(...renderThreeNineSupportFiles('.agent/skills/skill-creator', 'skill-creator'));
 
     return files;
 }

@@ -11,7 +11,6 @@ describe('Compile: Claude Code', () => {
         const paths = result.map((file) => file.path);
 
         expect(paths).toContain('CLAUDE.md');
-        expect(paths).toContain('.claude/skills/stackmoss-methodology/SKILL.md');
         expect(paths).toContain('.claude/skills/skill-creator/SKILL.md');
         expect(paths).toContain('.claude/skills/product-manager/SKILL.md');
         expect(paths).toContain('.claude/skills/tech-lead/SKILL.md');

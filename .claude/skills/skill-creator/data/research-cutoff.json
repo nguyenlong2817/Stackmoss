@@ -1,9 +1,9 @@
 {
   "baselineYear": 2026,
   "cutoffDate": "2026-03-28",
-  "updatedAt": "2026-03-28T04:34:48.530Z",
+  "updatedAt": "2026-03-28T07:20:00.000Z",
   "sources": [
-    "https://docs.anthropic.com/en/docs/claude-code/sdk",
+    "local:E:/skill-engineer/SKILL.md",
     "https://github.com/obra/superpowers",
     "https://github.com/VRSEN/agency-swarm",
     "https://platform.openai.com/docs/guides/agents",

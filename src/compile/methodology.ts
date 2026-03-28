@@ -104,12 +104,12 @@ const MODULES: Record<MethodologyModuleId, MethodologyModule> = {
     },
     'repo-map-maintenance': {
         id: 'repo-map-maintenance',
-        title: 'Repo Map Maintenance',
+        title: 'Code Map Maintenance',
         source: 'original',
         upstreamSources: [],
         roles: ['ALL'],
-        summary: 'After structural changes, update REPO_MAP.md — no scanning needed.',
-        body: 'After completing work that structurally changes the repository (new directory, new module, new entry point, new major dependency, moved or deleted module), update the relevant section in REPO_MAP.md. You already know what you changed — do NOT scan the codebase to figure it out. Just add, modify, or remove the lines that reflect your structural change. Regular code changes (new function in existing file, bug fix, internal refactor) do NOT require a REPO_MAP update. When in doubt, ask: did I change WHERE code lives or HOW modules connect? If yes, update the map.',
+        summary: 'After structural changes, update CODE_MAP.md — no full re-scan needed.',
+        body: 'After completing work that changes module boundaries, dependencies, entry points, or critical flows, update the impacted rows in CODE_MAP.md. You already know what changed — do not re-scan the entire codebase to rewrite the map. Patch only affected module rows and flow lines. Regular code edits inside existing boundaries do not require a map update. When in doubt ask: did this change module relationships or impact surface? If yes, update CODE_MAP.md.',
     },
 };
 

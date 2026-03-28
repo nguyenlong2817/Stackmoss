@@ -2,20 +2,27 @@
 
 Ask only what is required to unblock validation or high-risk generation decisions.
 
-## Validation Blockers
+## Quick Intake (3 questions)
 
-1. Which command is the source-of-truth validation for this skill output?
-2. Can I run this command in the current environment, or should I use a sandbox/staging target?
-3. If command execution fails, what is the acceptable fallback criterion for this iteration?
+1. What role or capability should this skill own?
+2. Which runtime is target (`.claude/skills/*` only here)?
+3. What one command or artifact proves this iteration is acceptable?
 
-## Scope and Safety
+## Interview Intake (8-10 questions)
+
+1. What business/engineering outcome must this role drive?
+2. What are top 3 trigger scenarios for this skill?
+3. What must be explicitly out of scope?
+4. Which decisions can the role make autonomously?
+5. Which decisions require owner approval?
+6. What artifacts should this role always produce (roadmap, brief, risk register, etc.)?
+7. What is the validation command or acceptance test?
+8. If validation fails, what is acceptable fallback for this phase?
+9. What sensitive data must never be logged?
+10. What quality bar defines "ready" vs "blocked"?
+
+## Safety and Scope Clarifiers
 
 1. What files/directories are in scope for generated changes?
-2. Are there destructive operations that must remain blocked?
-3. What data types are sensitive and must never be logged?
-
-## Acceptance
-
-1. What are the minimum acceptance criteria for shipping this skill?
-2. Do you want strict fail-fast behavior or warning-only for this phase?
-
+2. Are destructive operations forbidden by default?
+3. Do you require strict fail-fast or warning-only behavior for this iteration?

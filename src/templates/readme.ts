@@ -116,6 +116,8 @@ stackmoss eval smoke --grade
 | \`NORTH_STAR.md\` | Direction va scope cap cao |
 | \`ROLE_SKILL_OVERRIDES.md\` | Noi TL luu role-specific calibration ben vung |
 | \`README_AGENT_TEAM.md\` | Playbook dung team |
+| \`CODE_MAP.md\` | Map cau truc code va impact khi sua module |
+| \`.stackmoss/skill-kit/*\` | Template role de skill-creator adapt truoc khi research |
 | \`CALIBRATE.md\` | Huong dan recalibrate |
 | \`evals/current/*\` | Case eval hien tai |
 `;
@@ -232,6 +234,8 @@ stackmoss eval smoke --grade
 | \`NORTH_STAR.md\` | High-level direction and scope |
 | \`ROLE_SKILL_OVERRIDES.md\` | Persistent Tech Lead-owned role calibration source |
 | \`README_AGENT_TEAM.md\` | Team playbook |
+| \`CODE_MAP.md\` | Code structure and impact map for change planning |
+| \`.stackmoss/skill-kit/*\` | Template-first role kit for skill-creator adaptation |
 | \`CALIBRATE.md\` | Recalibration instructions |
 | \`evals/current/*\` | Current eval case artifacts |
 `;

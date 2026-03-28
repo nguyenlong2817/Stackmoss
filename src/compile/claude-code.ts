@@ -10,9 +10,8 @@ import { extractRoleId } from '../templates/team.js';
 import { getCapabilitiesForRole, getDefaultBudget } from '../budgets.js';
 import {
     renderMethodologyReference,
-    renderSharedMethodologySkill,
 } from './methodology.js';
-import { uniqueRoleIds, uniqueRoles } from './utils.js';
+import { uniqueRoles } from './utils.js';
 import { renderDeepSkillContent, renderRoleOverrideGuidance } from './role-skills.js';
 
 interface SkillCapability {
@@ -303,7 +302,6 @@ function renderClaudeMd(roles: string[], projectName: string): string {
         '## Team Skills',
     ];
 
-    lines.push('- Shared methodology: .claude/skills/stackmoss-methodology/SKILL.md');
     lines.push('- Skill creator: .claude/skills/skill-creator/SKILL.md');
 
     for (const role of roles) {
@@ -312,6 +310,10 @@ function renderClaudeMd(roles: string[], projectName: string): string {
         lines.push(`- ${roleName}: .claude/skills/${roleToSlug(role)}/SKILL.md`);
     }
 
+    lines.push('');
+    lines.push('## Skill Kit');
+    lines.push('- Template-first role generation assets are under .stackmoss/skill-kit/');
+    lines.push('- skill-creator must adapt local templates before external research.');
     lines.push('');
 
     return `${lines.join('\n')}\n`;
@@ -435,15 +437,10 @@ export function compileClaudeCode(
     projectName: string,
 ): GeneratedFile[] {
     const allRoles = uniqueRoles(roles, autoAddedRoles);
-    const roleIds = uniqueRoleIds(roles, autoAddedRoles);
     const files: GeneratedFile[] = [
         {
             path: 'CLAUDE.md',
             content: renderClaudeMd(allRoles, projectName),
-        },
-        {
-            path: '.claude/skills/stackmoss-methodology/SKILL.md',
-            content: renderSharedMethodologySkill(projectName, roleIds, 'Claude Code'),
         },
         {
             path: '.claude/skills/skill-creator/SKILL.md',
@@ -457,11 +454,15 @@ description: Runtime-specific skill factory for Claude. Generates only .claude/s
 ## Scope
 - Create or update Claude runtime skills only under .claude/skills/*
 - Follow the 3-layer + 9-layer structure for each generated skill
+- Use template-first flow via .stackmoss/skill-kit before researching external sources
 
 ## Workflow
-1. Validate BRD context and owner intent.
-2. Generate runtime-specific files for one role skill.
-3. Run validation command and write result to data/validation-log.ndjson.
+1. Resolve target role and runtime boundary.
+2. Load closest role template from .stackmoss/skill-kit/roles/*.template.md.
+3. Adapt with .stackmoss/skill-kit/shared/* and runtime adapter.
+4. Generate runtime-specific files for one role skill.
+5. Research external sources only if template coverage is insufficient.
+6. Run validation command and write result to data/validation-log.ndjson.
 
 ## Validation
 - Command(s): node scripts/validate-and-log.mjs "<command>" data/validation-log.ndjson

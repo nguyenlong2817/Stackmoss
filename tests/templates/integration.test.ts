@@ -36,7 +36,7 @@ describe('Template Engine: generateAllFiles', () => {
 
         const paths = files.map((file) => file.path);
         expect(paths).toContain('OPEN_QUESTIONS.md');
-        expect(files.length).toBe(22);
+        expect(files.length).toBe(44);
     });
 
     it('all files have non-empty content', () => {
@@ -47,10 +47,12 @@ describe('Template Engine: generateAllFiles', () => {
         }
     });
 
-    it('generates correct total files (7 core + 12 evals + 2 calibration = 21 without skips)', () => {
+    it('generates correct total files including code map and skill kit', () => {
         const files = generateAllFiles(createSampleInput());
 
-        expect(files).toHaveLength(21);
+        expect(files).toHaveLength(43);
+        expect(files.some((file) => file.path === 'CODE_MAP.md')).toBe(true);
+        expect(files.some((file) => file.path === '.stackmoss/skill-kit/ROLE_INDEX.md')).toBe(true);
     });
 
     it('config file contains valid JSON', () => {

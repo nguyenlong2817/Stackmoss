@@ -149,7 +149,7 @@ program
 program
     .command('map')
     .option('--depth <number>', 'Scan depth (1-6, default 3)', '3')
-    .description('Generate or refresh REPO_MAP.md — structural overview of the repository')
+    .description('Generate or refresh CODE_MAP.md — structural and impact overview of the repository')
     .action((options: { depth?: string }) => {
         try {
             mapHandler({ depth: options.depth ? parseInt(options.depth, 10) : undefined });

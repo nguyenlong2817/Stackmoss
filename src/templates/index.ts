@@ -17,6 +17,8 @@ import { generateOpenQuestions } from './open-questions.js';
 import { generateEvals } from './evals.js';
 import { generateCalibration } from './calibrate.js';
 import { generateRoleSkillOverrides } from './role-skill-overrides.js';
+import { generateSkillKit } from './skill-kit.js';
+import { generateCodeMapSkeleton } from './code-map.js';
 
 // Re-export types for convenience
 export type { GeneratedFile, TemplateInput } from './types.js';
@@ -38,6 +40,7 @@ export function generateAllFiles(input: TemplateInput): GeneratedFile[] {
         generateNonGoals(input),
         generateReadme(input),
         generateRoleSkillOverrides(input),
+        generateCodeMapSkeleton(input),
     ];
 
     // Conditionally add OPEN_QUESTIONS.md
@@ -51,6 +54,7 @@ export function generateAllFiles(input: TemplateInput): GeneratedFile[] {
 
     // Calibration skill (CALIBRATE.md + calibrate-rule.md)
     files.push(...generateCalibration(input));
+    files.push(...generateSkillKit(input));
 
     return files;
 }

@@ -1,38 +1,54 @@
 # Output Contract and QC
 
-## Required Outputs
+## Required Output Bundle
 
 Every generated skill must include:
 
-1. `SKILL.md` with frontmatter (`name`, `description`) and concise operational body.
-2. At least one reference file containing non-obvious domain/process knowledge.
-3. At least one example file with realistic input/output.
-4. At least one executable validation path for technical behavior.
-5. Validation evidence in `data/validation-log.ndjson`.
-6. Current research cutoff in `data/research-cutoff.json` (baseline year >= 2026 for this pack).
+1. `SKILL.md` with `name` and `description` frontmatter and execution workflow.
+2. `references/` content for non-obvious methods, heuristics, or policies.
+3. `assets/templates/` for reusable execution artifacts.
+4. `examples/` for realistic scenario calibration (if relevant).
+5. `scripts/` for deterministic validation when the task is technical or executable.
+6. `data/research-cutoff.json` with current date and traceable sources.
+7. validation evidence in `data/validation-log.ndjson` (pass or fail).
 
-## Pass/Fail Rubric
+## Role Skill Minimum (PM or TL)
 
-### Pass
+If the target is a role skill, it must also include:
+
+1. mission and operating model
+2. decision playbooks and anti-patterns
+3. concrete deliverables and templates
+4. risk/quality gate guidance
+5. explicit runtime boundary
+
+## Validation Rules
+
+### Mandatory
+
+- For technical skills, run at least one executable check.
+- Log every run with command, status code, and output tails.
+- If validation is blocked, emit owner questions and mark blocked status.
+
+### Optional but Recommended
+
+- baseline comparison against prior version
+- assertion-based grading for objective outputs
+- benchmark summary when iterating on quality
+
+## Pass Criteria
 
 - Trigger description is specific and activation-oriented.
-- Core instructions avoid generic filler.
-- Validation command was executed and logged.
-- Failures are recorded with command, exit code, and stderr tail.
-- Blocking unknowns are converted into owner questions.
+- Instructions are actionable and avoid generic filler.
+- Role depth is visible in artifacts, not only in narrative.
+- Validation evidence exists and is consistent with claims.
+- Research cutoff metadata is current (`2026-03-28` baseline or newer).
+- Runtime boundary is respected.
 
-### Fail
+## Fail Criteria
 
-- No executable validation for technical skill outputs.
-- Validation is claimed but no run evidence exists.
-- Failure occurs but no remediation or owner question is produced.
-- Research cutoff is missing or stale.
-
-## Suggested QC Sequence
-
-1. Structural lint: required files present.
-2. Command checks: run core validation(s).
-3. Failure handling check: confirm failed execution is logged.
-4. Trigger check: verify metadata triggers intended use cases.
-5. Cutoff check: verify research baseline is current.
-
+- Skill claims validation but no evidence exists.
+- Technical skill has no executable validation path.
+- Failure occurred but no remediation or owner question is provided.
+- Artifacts are placeholders that cannot be executed in practice.
+- Output path crosses runtime boundaries.
